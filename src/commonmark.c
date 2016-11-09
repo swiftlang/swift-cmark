@@ -24,6 +24,8 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
                         int32_t c, unsigned char nextc) {
   bool needs_escaping = false;
   char encoded[20];
+  bool follows_digit = renderer->buffer->size > 0 &&
+	  cmark_isdigit(renderer->buffer->ptr[renderer->buffer->size - 1]);
 
   needs_escaping =
       escape != LITERAL &&
@@ -31,9 +33,12 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
         (c == '*' || c == '_' || c == '[' || c == ']' || c == '#' || c == '<' ||
          c == '>' || c == '\\' || c == '`' || c == '!' ||
          (c == '&' && isalpha(nextc)) || (c == '!' && nextc == '[') ||
-         (renderer->begin_content && (c == '-' || c == '+' || c == '=')) ||
-         ((c == '.' || c == ')') &&
-          isdigit(renderer->buffer->ptr[renderer->buffer->size - 1])))) ||
+         (renderer->begin_content && (c == '-' || c == '+' || c == '=') &&
+	  // begin_content doesn't get set to false til we've passed digits
+	  // at the beginning of line, so...
+	  !follows_digit) ||
+         (renderer->begin_content && (c == '.' || c == ')') && follows_digit &&
+	  (nextc == 0 || cmark_isspace(nextc))))) ||
        (escape == URL && (c == '`' || c == '<' || c == '>' || isspace(c) ||
                           c == '\\' || c == ')' || c == '(')) ||
        (escape == TITLE &&
@@ -121,6 +126,9 @@ static bool is_autolink(cmark_node *node) {
   }
 
   link_text = node->first_child;
+  if (link_text == NULL) {
+    return false;
+  }
   cmark_consolidate_text_nodes(link_text);
   realurl = (char *)url->data;
   realurllen = url->len;
@@ -193,15 +201,17 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   case CMARK_NODE_LIST:
     if (!entering && node->next && (node->next->type == CMARK_NODE_CODE_BLOCK ||
                                     node->next->type == CMARK_NODE_LIST)) {
-      // this ensures 2 blank lines after list,
-      // if before code block or list:
-      LIT("\n");
+      // this ensures that a following code block or list will be
+      // inteprereted correctly.
+      CR();
+      LIT("<!-- end list -->");
+      BLANKLINE();
     }
     break;
 
   case CMARK_NODE_ITEM:
     if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
-      marker_width = 2;
+      marker_width = 4;
     } else {
       list_number = cmark_node_get_list_start(node->parent);
       list_delim = cmark_node_get_list_delim(node->parent);
@@ -220,15 +230,14 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     }
     if (entering) {
       if (cmark_node_get_list_type(node->parent) == CMARK_BULLET_LIST) {
-        LIT("* ");
+        LIT("  - ");
         renderer->begin_content = true;
-        cmark_strbuf_puts(renderer->prefix, "  ");
       } else {
         LIT(listmarker);
         renderer->begin_content = true;
-        for (i = marker_width; i--;) {
-          cmark_strbuf_putc(renderer->prefix, ' ');
-        }
+      }
+      for (i = marker_width; i--;) {
+        cmark_strbuf_putc(renderer->prefix, ' ');
       }
     } else {
       cmark_strbuf_truncate(renderer->prefix,
@@ -320,7 +329,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
 
   case CMARK_NODE_LINEBREAK:
     if (!(CMARK_OPT_HARDBREAKS & options)) {
-      LIT("\\");
+      LIT("  ");
     }
     CR();
     break;
