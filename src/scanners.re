@@ -6,10 +6,9 @@ bufsize_t _scan_at(bufsize_t (*scanner)(const unsigned char *), cmark_chunk *c, 
 {
 	bufsize_t res;
 	unsigned char *ptr = (unsigned char *)c->data;
-        unsigned char zero = '\0';
 
-        if (ptr == NULL) {
-          res = scanner(&zero);
+        if (ptr == NULL || offset > c->len) {
+          return 0;
         } else {
 	  unsigned char lim = ptr[c->len];
 
@@ -216,7 +215,7 @@ bufsize_t _scan_link_url(const unsigned char *p)
   const unsigned char *start = p;
 /*!re2c
   [ \r\n]* [<] ([^<>\r\n\\\x00] | escaped_char | [\\])* [>] { return (bufsize_t)(p - start); }
-  [ \r\n]* (reg_char+ | escaped_char | in_parens_nosp | [\\][^()])* { return (bufsize_t)(p - start); }
+  [ \r\n]* (reg_char+ | escaped_char | [\\] | in_parens_nosp)* { return (bufsize_t)(p - start); }
   .? { return 0; }
 */
 }
@@ -247,8 +246,8 @@ bufsize_t _scan_spacechars(const unsigned char *p)
 */
 }
 
-// Match ATX header start.
-bufsize_t _scan_atx_header_start(const unsigned char *p)
+// Match ATX heading start.
+bufsize_t _scan_atx_heading_start(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
@@ -258,9 +257,9 @@ bufsize_t _scan_atx_header_start(const unsigned char *p)
 */
 }
 
-// Match setext header line.  Return 1 for level-1 header,
+// Match setext heading line.  Return 1 for level-1 heading,
 // 2 for level-2, 0 for no match.
-bufsize_t _scan_setext_header_line(const unsigned char *p)
+bufsize_t _scan_setext_heading_line(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
 /*!re2c
@@ -270,10 +269,10 @@ bufsize_t _scan_setext_header_line(const unsigned char *p)
 */
 }
 
-// Scan a horizontal rule line: "...three or more hyphens, asterisks,
+// Scan a thematic break line: "...three or more hyphens, asterisks,
 // or underscores on a line by themselves. If you wish, you may use
 // spaces between the hyphens or asterisks."
-bufsize_t _scan_hrule(const unsigned char *p)
+bufsize_t _scan_thematic_break(const unsigned char *p)
 {
   const unsigned char *marker = NULL;
   const unsigned char *start = p;
