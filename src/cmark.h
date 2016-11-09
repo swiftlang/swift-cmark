@@ -86,13 +86,6 @@ typedef struct cmark_node cmark_node;
 typedef struct cmark_parser cmark_parser;
 typedef struct cmark_iter cmark_iter;
 
-typedef enum {
-  CMARK_EVENT_NONE,
-  CMARK_EVENT_DONE,
-  CMARK_EVENT_ENTER,
-  CMARK_EVENT_EXIT
-} cmark_event_type;
-
 /**
  * ## Creating and Destroying Nodes
  */
@@ -177,6 +170,13 @@ CMARK_EXPORT cmark_node *cmark_node_last_child(cmark_node *node);
  * Nodes must only be modified after an `EXIT` event, or an `ENTER` event for
  * leaf nodes.
  */
+
+typedef enum {
+  CMARK_EVENT_NONE,
+  CMARK_EVENT_DONE,
+  CMARK_EVENT_ENTER,
+  CMARK_EVENT_EXIT
+} cmark_event_type;
 
 /** Creates a new iterator starting at 'root'.  The current node and event
  * type are undefined until `cmark_iter_next` is called for the first time.
@@ -386,6 +386,12 @@ CMARK_EXPORT int cmark_node_insert_before(cmark_node *node,
 /** Inserts 'sibling' after 'node'. Returns 1 on success, 0 on failure.
  */
 CMARK_EXPORT int cmark_node_insert_after(cmark_node *node, cmark_node *sibling);
+
+/** Replaces 'oldnode' with 'newnode' and unlinks 'oldnode' (but does
+ * not free its memory).
+ * Returns 1 on success, 0 on failure.
+ */
+CMARK_EXPORT int cmark_node_replace(cmark_node *oldnode, cmark_node *newnode);
 
 /** Adds 'child' to the beginning of the children of 'node'.
  * Returns 1 on success, 0 on failure.

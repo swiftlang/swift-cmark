@@ -1,4 +1,4 @@
-.TH cmark 3 "December 28, 2015" "LOCAL" "Library Functions Manual"
+.TH cmark 3 "January 11, 2016" "LOCAL" "Library Functions Manual"
 .SH
 NAME
 .PP
@@ -20,6 +20,80 @@ null\-terminated, UTF\-8\-encoded string.
 .SS
 Node Structure
 
+.PP
+.nf
+\fC
+.RS 0n
+typedef enum {
+  /* Error status */
+  CMARK_NODE_NONE,
+
+  /* Block */
+  CMARK_NODE_DOCUMENT,
+  CMARK_NODE_BLOCK_QUOTE,
+  CMARK_NODE_LIST,
+  CMARK_NODE_ITEM,
+  CMARK_NODE_CODE_BLOCK,
+  CMARK_NODE_HTML_BLOCK,
+  CMARK_NODE_CUSTOM_BLOCK,
+  CMARK_NODE_PARAGRAPH,
+  CMARK_NODE_HEADING,
+  CMARK_NODE_THEMATIC_BREAK,
+
+  CMARK_NODE_FIRST_BLOCK = CMARK_NODE_DOCUMENT,
+  CMARK_NODE_LAST_BLOCK = CMARK_NODE_THEMATIC_BREAK,
+
+  /* Inline */
+  CMARK_NODE_TEXT,
+  CMARK_NODE_SOFTBREAK,
+  CMARK_NODE_LINEBREAK,
+  CMARK_NODE_CODE,
+  CMARK_NODE_HTML_INLINE,
+  CMARK_NODE_CUSTOM_INLINE,
+  CMARK_NODE_EMPH,
+  CMARK_NODE_STRONG,
+  CMARK_NODE_LINK,
+  CMARK_NODE_IMAGE,
+
+  CMARK_NODE_FIRST_INLINE = CMARK_NODE_TEXT,
+  CMARK_NODE_LAST_INLINE = CMARK_NODE_IMAGE,
+} cmark_node_type;
+.RE
+\f[]
+.fi
+
+
+
+.PP
+.nf
+\fC
+.RS 0n
+typedef enum {
+  CMARK_NO_LIST,
+  CMARK_BULLET_LIST,
+  CMARK_ORDERED_LIST
+} cmark_list_type;
+.RE
+\f[]
+.fi
+
+
+
+.PP
+.nf
+\fC
+.RS 0n
+typedef enum {
+  CMARK_NO_DELIM,
+  CMARK_PERIOD_DELIM,
+  CMARK_PAREN_DELIM
+} cmark_delim_type;
+.RE
+\f[]
+.fi
+
+
+
 .SS
 Creating and Destroying Nodes
 
@@ -28,8 +102,8 @@ Creating and Destroying Nodes
 
 .PP
 Creates a new node of type \f[I]type\f[]. Note that the node may have
-other required properties, which it is the caller's responsibility to
-assign.
+other required properties, which it is the caller\[cq]s responsibility
+to assign.
 
 .PP
 \fIvoid\f[] \fBcmark_node_free\f[](\fIcmark_node *node\f[])
@@ -128,6 +202,22 @@ CMARK_NODE_HTML_INLINE
 .PP
 Nodes must only be modified after an \f[C]EXIT\f[] event, or an
 \f[C]ENTER\f[] event for leaf nodes.
+
+.PP
+.nf
+\fC
+.RS 0n
+typedef enum {
+  CMARK_EVENT_NONE,
+  CMARK_EVENT_DONE,
+  CMARK_EVENT_ENTER,
+  CMARK_EVENT_EXIT
+} cmark_event_type;
+.RE
+\f[]
+.fi
+
+
 
 .PP
 \fIcmark_iter *\f[] \fBcmark_iter_new\f[](\fIcmark_node *root\f[])
@@ -286,7 +376,8 @@ Returns 1 if \f[I]node\f[] is a tight list, 0 otherwise.
 \fIint\f[] \fBcmark_node_set_list_tight\f[](\fIcmark_node *node\f[], \fIint tight\f[])
 
 .PP
-Sets the "tightness" of a list. Returns 1 on success, 0 on failure.
+Sets the \[lq]tightness\[rq] of a list. Returns 1 on success, 0 on
+failure.
 
 .PP
 \fIconst char *\f[] \fBcmark_node_get_fence_info\f[](\fIcmark_node *node\f[])
@@ -333,31 +424,31 @@ on failure.
 \fIconst char *\f[] \fBcmark_node_get_on_enter\f[](\fIcmark_node *node\f[])
 
 .PP
-Returns the literal "on enter" text for a custom \f[I]node\f[], or an
-empty string if no on_enter is set.
+Returns the literal \[lq]on enter\[rq] text for a custom \f[I]node\f[],
+or an empty string if no on_enter is set.
 
 .PP
 \fIint\f[] \fBcmark_node_set_on_enter\f[](\fIcmark_node *node\f[], \fIconst char *on_enter\f[])
 
 .PP
-Sets the literal text to render "on enter" for a custom \f[I]node\f[].
-Any children of the node will be rendered after this text. Returns 1 on
-success 0 on failure.
+Sets the literal text to render \[lq]on enter\[rq] for a custom
+\f[I]node\f[]. Any children of the node will be rendered after this
+text. Returns 1 on success 0 on failure.
 
 .PP
 \fIconst char *\f[] \fBcmark_node_get_on_exit\f[](\fIcmark_node *node\f[])
 
 .PP
-Returns the literal "on exit" text for a custom \f[I]node\f[], or an
-empty string if no on_exit is set.
+Returns the literal \[lq]on exit\[rq] text for a custom \f[I]node\f[],
+or an empty string if no on_exit is set.
 
 .PP
 \fIint\f[] \fBcmark_node_set_on_exit\f[](\fIcmark_node *node\f[], \fIconst char *on_exit\f[])
 
 .PP
-Sets the literal text to render "on exit" for a custom \f[I]node\f[].
-Any children of the node will be rendered before this text. Returns 1 on
-success 0 on failure.
+Sets the literal text to render \[lq]on exit\[rq] for a custom
+\f[I]node\f[]. Any children of the node will be rendered before this
+text. Returns 1 on success 0 on failure.
 
 .PP
 \fIint\f[] \fBcmark_node_get_start_line\f[](\fIcmark_node *node\f[])
@@ -406,6 +497,14 @@ on failure.
 .PP
 Inserts \f[I]sibling\f[] after \f[I]node\f[]. Returns 1 on success, 0 on
 failure.
+
+.PP
+\fIint\f[] \fBcmark_node_replace\f[](\fIcmark_node *oldnode\f[], \fIcmark_node *newnode\f[])
+
+.PP
+Replaces \f[I]oldnode\f[] with \f[I]newnode\f[] and unlinks
+\f[I]oldnode\f[] (but does not free its memory). Returns 1 on success, 0
+on failure.
 
 .PP
 \fIint\f[] \fBcmark_node_prepend_child\f[](\fIcmark_node *node\f[], \fIcmark_node *child\f[])
@@ -624,7 +723,7 @@ with the replacement character U+FFFD.
 .fi
 
 .PP
-Convert straight quotes to curly, \-\-\- to em dashes, \-\- to en
+Convert straight quotes to curly, \[em] to em dashes, \[en] to en
 dashes.
 
 .SS
