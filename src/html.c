@@ -10,6 +10,8 @@
 #include "houdini.h"
 #include "scanners.h"
 
+#define BUFFER_SIZE 100
+
 // Functions to convert cmark_nodes to HTML strings.
 
 static void escape_html(cmark_strbuf *dest, const unsigned char *source,
@@ -17,7 +19,7 @@ static void escape_html(cmark_strbuf *dest, const unsigned char *source,
   houdini_escape_html0(dest, source, length, 0);
 }
 
-static inline void cr(cmark_strbuf *html) {
+static CMARK_INLINE void cr(cmark_strbuf *html) {
   if (html->size && html->ptr[html->size - 1] != '\n')
     cmark_strbuf_putc(html, '\n');
 }
@@ -29,11 +31,11 @@ struct render_state {
 
 static void S_render_sourcepos(cmark_node *node, cmark_strbuf *html,
                                int options) {
-  char buffer[100];
+  char buffer[BUFFER_SIZE];
   if (CMARK_OPT_SOURCEPOS & options) {
-    sprintf(buffer, " data-sourcepos=\"%d:%d-%d:%d\"",
-            cmark_node_get_start_line(node), cmark_node_get_start_column(node),
-            cmark_node_get_end_line(node), cmark_node_get_end_column(node));
+    snprintf(buffer, BUFFER_SIZE, " data-sourcepos=\"%d:%d-%d:%d\"",
+             cmark_node_get_start_line(node), cmark_node_get_start_column(node),
+             cmark_node_get_end_line(node), cmark_node_get_end_column(node));
     cmark_strbuf_puts(html, buffer);
   }
 }
@@ -46,7 +48,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
   char start_heading[] = "<h0";
   char end_heading[] = "</h0";
   bool tight;
-  char buffer[100];
+  char buffer[BUFFER_SIZE];
 
   bool entering = (ev_type == CMARK_EVENT_ENTER);
 
@@ -104,7 +106,7 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
         S_render_sourcepos(node, html, options);
         cmark_strbuf_puts(html, ">\n");
       } else {
-        sprintf(buffer, "<ol start=\"%d\"", start);
+        snprintf(buffer, BUFFER_SIZE, "<ol start=\"%d\"", start);
         cmark_strbuf_puts(html, buffer);
         S_render_sourcepos(node, html, options);
         cmark_strbuf_puts(html, ">\n");

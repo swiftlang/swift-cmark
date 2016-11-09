@@ -14,6 +14,7 @@
 #define LIT(s) renderer->out(renderer, s, false, LITERAL)
 #define CR() renderer->cr(renderer)
 #define BLANKLINE() renderer->blankline(renderer)
+#define LIST_NUMBER_SIZE 20
 
 // Functions to convert cmark_nodes to groff man strings.
 static void S_outc(cmark_renderer *renderer, cmark_escaping escape, int32_t c,
@@ -110,8 +111,8 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
           tmp = tmp->prev;
           list_number += 1;
         }
-        char list_number_s[20];
-        sprintf(list_number_s, "\"%d.\" 4", list_number);
+        char list_number_s[LIST_NUMBER_SIZE];
+        snprintf(list_number_s, LIST_NUMBER_SIZE, "\"%d.\" 4", list_number);
         LIT(list_number_s);
       }
       CR();

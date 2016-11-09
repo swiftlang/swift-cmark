@@ -17,15 +17,18 @@
 #define LIT(s) renderer->out(renderer, s, false, LITERAL)
 #define CR() renderer->cr(renderer)
 #define BLANKLINE() renderer->blankline(renderer)
+#define ENCODED_SIZE 20
+#define LISTMARKER_SIZE 20
 
 // Functions to convert cmark_nodes to commonmark strings.
 
-static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
+static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_escaping escape,
                         int32_t c, unsigned char nextc) {
   bool needs_escaping = false;
-  char encoded[20];
-  bool follows_digit = renderer->buffer->size > 0 &&
-	  cmark_isdigit(renderer->buffer->ptr[renderer->buffer->size - 1]);
+  bool follows_digit =
+      renderer->buffer->size > 0 &&
+      cmark_isdigit(renderer->buffer->ptr[renderer->buffer->size - 1]);
+  char encoded[ENCODED_SIZE];
 
   needs_escaping =
       escape != LITERAL &&
@@ -34,11 +37,11 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
          c == '>' || c == '\\' || c == '`' || c == '!' ||
          (c == '&' && isalpha(nextc)) || (c == '!' && nextc == '[') ||
          (renderer->begin_content && (c == '-' || c == '+' || c == '=') &&
-	  // begin_content doesn't get set to false til we've passed digits
-	  // at the beginning of line, so...
-	  !follows_digit) ||
+          // begin_content doesn't get set to false til we've passed digits
+          // at the beginning of line, so...
+          !follows_digit) ||
          (renderer->begin_content && (c == '.' || c == ')') && follows_digit &&
-	  (nextc == 0 || cmark_isspace(nextc))))) ||
+          (nextc == 0 || cmark_isspace(nextc))))) ||
        (escape == URL && (c == '`' || c == '<' || c == '>' || isspace(c) ||
                           c == '\\' || c == ')' || c == '(')) ||
        (escape == TITLE &&
@@ -47,7 +50,7 @@ static inline void outc(cmark_renderer *renderer, cmark_escaping escape,
   if (needs_escaping) {
     if (isspace(c)) {
       // use percent encoding for spaces
-      sprintf(encoded, "%%%2x", c);
+      snprintf(encoded, ENCODED_SIZE, "%%%2x", c);
       cmark_strbuf_puts(renderer->buffer, encoded);
       renderer->column += 3;
     } else {
@@ -166,7 +169,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   bool entering = (ev_type == CMARK_EVENT_ENTER);
   const char *info, *code, *title;
   size_t info_len, code_len;
-  char listmarker[20];
+  char listmarker[LISTMARKER_SIZE];
   char *emph_delim;
   bufsize_t marker_width;
 
@@ -176,7 +179,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   if (!(node->type == CMARK_NODE_ITEM && node->prev == NULL && entering)) {
     tmp = get_containing_block(node);
     renderer->in_tight_list_item =
-	tmp &&  // tmp might be NULL if there is no containing block
+        tmp && // tmp might be NULL if there is no containing block
         ((tmp->type == CMARK_NODE_ITEM &&
           cmark_node_get_list_tight(tmp->parent)) ||
          (tmp && tmp->parent && tmp->parent->type == CMARK_NODE_ITEM &&
@@ -223,9 +226,9 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       // we ensure a width of at least 4 so
       // we get nice transition from single digits
       // to double
-      sprintf(listmarker, "%d%s%s", list_number,
-              list_delim == CMARK_PAREN_DELIM ? ")" : ".",
-              list_number < 10 ? "  " : " ");
+      snprintf(listmarker, LISTMARKER_SIZE, "%d%s%s", list_number,
+               list_delim == CMARK_PAREN_DELIM ? ")" : ".",
+               list_number < 10 ? "  " : " ");
       marker_width = safe_strlen(listmarker);
     }
     if (entering) {
@@ -270,8 +273,8 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     // begin or end with a blank line, and code isn't
     // first thing in a list item
     if (info_len == 0 &&
-        (code_len > 2 && !isspace(code[0]) &&
-         !(isspace(code[code_len - 1]) && isspace(code[code_len - 2]))) &&
+        (code_len > 2 && !isspace((unsigned char)code[0]) &&
+         !(isspace((unsigned char)code[code_len - 1]) && isspace((unsigned char)code[code_len - 2]))) &&
         !(node->prev == NULL && node->parent &&
           node->parent->type == CMARK_NODE_ITEM)) {
       LIT("    ");

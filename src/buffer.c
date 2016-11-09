@@ -33,7 +33,7 @@ void cmark_strbuf_overflow_err() {
   abort();
 }
 
-static inline void S_strbuf_grow_by(cmark_strbuf *buf, size_t add) {
+static CMARK_INLINE void S_strbuf_grow_by(cmark_strbuf *buf, size_t add) {
   size_t target_size = (size_t)buf->size + add;
 
   if (target_size < add            /* Integer overflow. */
@@ -217,7 +217,8 @@ bufsize_t cmark_strbuf_strrchr(const cmark_strbuf *buf, int c, bufsize_t pos) {
   if (pos >= buf->size)
     pos = buf->size - 1;
 
-  for (bufsize_t i = pos; i >= 0; i--) {
+  bufsize_t i;
+  for (i = pos; i >= 0; i--) {
     if (buf->ptr[i] == (unsigned char)c)
       return i;
   }
