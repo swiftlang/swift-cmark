@@ -83,12 +83,10 @@ static void accessors(test_batch_runner *runner) {
                                  "\n"
                                  "3. Item 2\n"
                                  "\n"
-                                 "\n"
-                                 "    code\n"
-                                 "\n"
                                  "``` lang\n"
                                  "fenced\n"
                                  "```\n"
+                                 "    code\n"
                                  "\n"
                                  "<div>html</div>\n"
                                  "\n"
@@ -117,23 +115,23 @@ static void accessors(test_batch_runner *runner) {
   INT_EQ(runner, cmark_node_get_list_tight(ordered_list), 0,
          "get_list_tight loose");
 
-  cmark_node *code = cmark_node_next(ordered_list);
-  STR_EQ(runner, cmark_node_get_literal(code), "code\n",
-         "get_literal indented code");
-
-  cmark_node *fenced = cmark_node_next(code);
+  cmark_node *fenced = cmark_node_next(ordered_list);
   STR_EQ(runner, cmark_node_get_literal(fenced), "fenced\n",
          "get_literal fenced code");
   STR_EQ(runner, cmark_node_get_fence_info(fenced), "lang", "get_fence_info");
 
-  cmark_node *html = cmark_node_next(fenced);
+  cmark_node *code = cmark_node_next(fenced);
+  STR_EQ(runner, cmark_node_get_literal(code), "code\n",
+         "get_literal indented code");
+
+  cmark_node *html = cmark_node_next(code);
   STR_EQ(runner, cmark_node_get_literal(html), "<div>html</div>\n",
          "get_literal html");
 
   cmark_node *paragraph = cmark_node_next(html);
-  INT_EQ(runner, cmark_node_get_start_line(paragraph), 19, "get_start_line");
+  INT_EQ(runner, cmark_node_get_start_line(paragraph), 17, "get_start_line");
   INT_EQ(runner, cmark_node_get_start_column(paragraph), 1, "get_start_column");
-  INT_EQ(runner, cmark_node_get_end_line(paragraph), 19, "get_end_line");
+  INT_EQ(runner, cmark_node_get_end_line(paragraph), 17, "get_end_line");
 
   cmark_node *link = cmark_node_first_child(paragraph);
   STR_EQ(runner, cmark_node_get_url(link), "url", "get_url");
@@ -171,7 +169,13 @@ static void accessors(test_batch_runner *runner) {
   OK(runner, cmark_node_set_url(link, "URL"), "set_url");
   OK(runner, cmark_node_set_title(link, "TITLE"), "set_title");
 
-  OK(runner, cmark_node_set_literal(string, "LINK"), "set_literal string");
+  OK(runner, cmark_node_set_literal(string, "prefix-LINK"),
+     "set_literal string");
+
+  // Set literal to suffix of itself (issue #139).
+  const char *literal = cmark_node_get_literal(string);
+  OK(runner, cmark_node_set_literal(string, literal + sizeof("prefix")),
+     "set_literal suffix");
 
   char *rendered_html = cmark_render_html(doc, CMARK_OPT_DEFAULT);
   static const char expected_html[] =
@@ -188,9 +192,9 @@ static void accessors(test_batch_runner *runner) {
       "<li>Item 1</li>\n"
       "<li>Item 2</li>\n"
       "</ul>\n"
-      "<pre><code>CODE\n"
-      "</code></pre>\n"
       "<pre><code class=\"language-LANG\">FENCED\n"
+      "</code></pre>\n"
+      "<pre><code>CODE\n"
       "</code></pre>\n"
       "<div>HTML</div>\n"
       "<p><a href=\"URL\" title=\"TITLE\">LINK</a></p>\n";
@@ -362,6 +366,9 @@ static void create_tree(test_batch_runner *runner) {
   cmark_node *str4 = cmark_node_new(CMARK_NODE_TEXT);
   cmark_node_set_literal(str4, "brzz");
   OK(runner, cmark_node_replace(str1, str4), "replace");
+  // The replaced node is not freed
+  cmark_node_free(str1);
+
   INT_EQ(runner, cmark_node_check(doc, NULL), 0, "replace consistent");
   OK(runner, cmark_node_previous(emph) == str4, "replace works");
   INT_EQ(runner, cmark_node_replace(p, str4), 0, "replace str for p fails");
@@ -787,6 +794,11 @@ static void line_endings(test_batch_runner *runner) {
                                 CMARK_OPT_DEFAULT | CMARK_OPT_HARDBREAKS);
   STR_EQ(runner, html, "<p>line<br />\nline</p>\n",
          "crlf endings with CMARK_OPT_HARDBREAKS");
+  free(html);
+  html = cmark_markdown_to_html(crlf_lines, sizeof(crlf_lines) - 1,
+                                CMARK_OPT_DEFAULT | CMARK_OPT_NOBREAKS);
+  STR_EQ(runner, html, "<p>line line</p>\n",
+         "crlf endings with CMARK_OPT_NOBREAKS");
   free(html);
 
   static const char no_line_ending[] = "```\nline\n```";

@@ -1,5 +1,13 @@
 cmake_minimum_required(VERSION 2.8.9)
+
+# prevent ugly developer warnings because version is set directly, not through project()
+# it should be redone properly by using VERSION in project() if on CMake 3.x
+if(CMAKE_MAJOR_VERSION GREATER 2)
+    cmake_policy(SET CMP0048 OLD)
+endif()
+
 project(cmark)
+
 include("FindAsan.cmake")
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
@@ -9,8 +17,8 @@ endif()
 set(PROJECT_NAME "cmark")
 
 set(PROJECT_VERSION_MAJOR 0)
-set(PROJECT_VERSION_MINOR 25)
-set(PROJECT_VERSION_PATCH 2)
+set(PROJECT_VERSION_MINOR 26)
+set(PROJECT_VERSION_PATCH 0)
 set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH} )
 
 option(CMARK_TESTS "Build cmark tests and enable testing" ON)

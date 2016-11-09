@@ -21,7 +21,8 @@ extern "C" {
 
 /** Convert 'text' (assumed to be a UTF-8 encoded string with length
  * 'len') from CommonMark Markdown to HTML, returning a null-terminated,
- * UTF-8-encoded string.
+ * UTF-8-encoded string. It is the caller's responsibility
+ * to free the returned buffer.
  */
 CMARK_EXPORT
 char *cmark_markdown_to_html(const char *text, size_t len, int options);
@@ -87,6 +88,19 @@ typedef struct cmark_parser cmark_parser;
 typedef struct cmark_iter cmark_iter;
 
 /**
+ * ## Custom memory allocator support
+ */
+
+/** Defines the memory allocation functions to be used by CMark
+ * when parsing and allocating a document tree
+ */
+typedef struct cmark_mem {
+  void *(*calloc)(size_t, size_t);
+  void *(*realloc)(void *, size_t);
+  void (*free)(void *);
+} cmark_mem;
+
+/**
  * ## Creating and Destroying Nodes
  */
 
@@ -95,6 +109,13 @@ typedef struct cmark_iter cmark_iter;
  * to assign.
  */
 CMARK_EXPORT cmark_node *cmark_node_new(cmark_node_type type);
+
+/** Same as `cmark_node_new`, but explicitly listing the memory
+ * allocator used to allocate the node.  Note:  be sure to use the same
+ * allocator for every node in a tree, or bad things can happen.
+ */
+CMARK_EXPORT cmark_node *cmark_node_new_with_mem(cmark_node_type type,
+                                                 cmark_mem *mem);
 
 /** Frees the memory allocated for a node and any children.
  */
@@ -179,7 +200,9 @@ typedef enum {
 } cmark_event_type;
 
 /** Creates a new iterator starting at 'root'.  The current node and event
- * type are undefined until `cmark_iter_next` is called for the first time.
+ * type are undefined until 'cmark_iter_next' is called for the first time.
+ * The memory allocated for the iterator should be released using
+ * 'cmark_iter_free' when it is no longer needed.
  */
 CMARK_EXPORT
 cmark_iter *cmark_iter_new(cmark_node *root);
@@ -434,6 +457,11 @@ CMARK_EXPORT void cmark_consolidate_text_nodes(cmark_node *root);
 CMARK_EXPORT
 cmark_parser *cmark_parser_new(int options);
 
+/** Creates a new parser object with the given memory allocator
+ */
+CMARK_EXPORT
+cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem);
+
 /** Frees memory allocated for a parser object.
  */
 CMARK_EXPORT
@@ -450,13 +478,16 @@ CMARK_EXPORT
 cmark_node *cmark_parser_finish(cmark_parser *parser);
 
 /** Parse a CommonMark document in 'buffer' of length 'len'.
- * Returns a pointer to a tree of nodes.
+ * Returns a pointer to a tree of nodes.  The memory allocated for
+ * the node tree should be released using 'cmark_node_free'
+ * when it is no longer needed.
  */
 CMARK_EXPORT
 cmark_node *cmark_parse_document(const char *buffer, size_t len, int options);
 
 /** Parse a CommonMark document in file 'f', returning a pointer to
- * a tree of nodes.
+ * a tree of nodes.  The memory allocated for the node tree should be
+ * released using 'cmark_node_free' when it is no longer needed.
  */
 CMARK_EXPORT
 cmark_node *cmark_parse_file(FILE *f, int options);
@@ -465,28 +496,33 @@ cmark_node *cmark_parse_file(FILE *f, int options);
  * ## Rendering
  */
 
-/** Render a 'node' tree as XML.
+/** Render a 'node' tree as XML.  It is the caller's responsibility
+ * to free the returned buffer.
  */
 CMARK_EXPORT
 char *cmark_render_xml(cmark_node *root, int options);
 
 /** Render a 'node' tree as an HTML fragment.  It is up to the user
- * to add an appropriate header and footer.
+ * to add an appropriate header and footer. It is the caller's
+ * responsibility to free the returned buffer.
  */
 CMARK_EXPORT
 char *cmark_render_html(cmark_node *root, int options);
 
 /** Render a 'node' tree as a groff man page, without the header.
+ * It is the caller's responsibility to free the returned buffer.
  */
 CMARK_EXPORT
 char *cmark_render_man(cmark_node *root, int options, int width);
 
 /** Render a 'node' tree as a commonmark document.
+ * It is the caller's responsibility to free the returned buffer.
  */
 CMARK_EXPORT
 char *cmark_render_commonmark(cmark_node *root, int options, int width);
 
 /** Render a 'node' tree as a LaTeX document.
+ * It is the caller's responsibility to free the returned buffer.
  */
 CMARK_EXPORT
 char *cmark_render_latex(cmark_node *root, int options, int width);
@@ -518,6 +554,10 @@ char *cmark_render_latex(cmark_node *root, int options, int width);
  * empty strings.
  */
 #define CMARK_OPT_SAFE (1 << 3)
+
+/** Render `softbreak` elements as spaces.
+ */
+#define CMARK_OPT_NOBREAKS (1 << 4)
 
 /**
  * ### Options affecting parsing

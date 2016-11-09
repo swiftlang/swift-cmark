@@ -13,6 +13,7 @@ addons:
     # we need a more recent cmake than travis/linux provides (at least 2.8.9):
     sources:
     - kubuntu-backports
+    - kalakris-cmake
     packages:
     - cmake
     - python3
@@ -23,6 +24,7 @@ before_install:
      then
          echo "Building without python3, to make sure that works."
      fi
+
 script:
  - make
  - make test
