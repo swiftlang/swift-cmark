@@ -87,7 +87,7 @@ on FreeBSD:
     make test
     make install
 
-Or, to create Xcode project files on OSX:
+Or, to create Xcode project files on macOS:
 
     mkdir build
     cd build
