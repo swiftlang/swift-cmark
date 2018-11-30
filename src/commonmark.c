@@ -154,7 +154,7 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
   const char *info, *code, *title;
   size_t info_len, code_len;
   char listmarker[20];
-  char *emph_delim;
+  const char *emph_delim;
   bufsize_t marker_width;
 
   // Don't adjust tight list status til we've started the list.
