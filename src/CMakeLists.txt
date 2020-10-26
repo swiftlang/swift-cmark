@@ -124,7 +124,22 @@ install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION ${libdir}
   ARCHIVE DESTINATION ${libdir}
+  COMPONENT ${PROGRAM}
   )
+
+add_custom_target(install-cmark
+  DEPENDS cmark
+  COMMAND "${CMAKE_COMMAND}"
+  -DCMAKE_INSTALL_COMPONENT=cmark
+  -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+  USES_TERMINAL)
+add_custom_target(install-cmark-stripped
+  DEPENDS cmark
+  COMMAND "${CMAKE_COMMAND}"
+  -DCMAKE_INSTALL_COMPONENT=cmark
+  -DCMAKE_INSTALL_DO_STRIP=1
+  -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+  USES_TERMINAL)
 
 if(CMARK_SHARED OR CMARK_STATIC)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark.pc.in
