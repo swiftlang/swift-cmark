@@ -158,6 +158,9 @@ if(CMARK_SHARED OR CMARK_STATIC)
     )
 
   install(EXPORT cmark-gfm DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
+
+  set(CMARK_TARGETS_FILE ${CMAKE_CURRENT_BINARY_DIR}/cmarkTargets.cmake)
+  export(TARGETS ${CMARK_INSTALL} FILE ${CMARK_TARGETS_FILE})
 endif()
 
 # Feature tests
