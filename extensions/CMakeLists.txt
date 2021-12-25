@@ -11,6 +11,7 @@ set(LIBRARY_SOURCES
     ext_scanners.re
     ext_scanners.h
     tasklist.c
+    spoiler.c
    )
 
 include_directories(
