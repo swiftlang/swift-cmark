@@ -1417,6 +1417,46 @@ static void parser_interrupt(test_batch_runner *runner) {
   cmark_syntax_extension_free(cmark_get_default_mem_allocator(), my_ext);
 }
 
+static void render_spoiler(test_batch_runner *runner) {
+  cmark_gfm_core_extensions_ensure_registered();
+
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
+  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("spoiler"));
+
+  {
+    static const char markdown[] = "we have some ||spicy text|| here";
+    cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+
+    cmark_node *doc = cmark_parser_finish(parser);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <paragraph>\n"
+           "    <text xml:space=\"preserve\">we have some </text>\n"
+           "    <spoiler>\n"
+           "      <text xml:space=\"preserve\">spicy text</text>\n"
+           "    </spoiler>\n"
+           "    <text xml:space=\"preserve\"> here</text>\n"
+           "  </paragraph>\n"
+           "</document>\n", "rendering spoilers should appear correctly");
+  }
+  {
+    static const char markdown[] = "we have some |non-spicy text| here";
+    cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+
+    cmark_node *doc = cmark_parser_finish(parser);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <paragraph>\n"
+           "    <text xml:space=\"preserve\">we have some |non-spicy text| here</text>\n"
+           "  </paragraph>\n"
+           "</document>\n", "rendering spoilers without proper delimiters should appear correctly");
+  }
+}
+
 int main() {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -1452,6 +1492,7 @@ int main() {
   verify_custom_attributes_node(runner);
   verify_custom_attributes_node_with_footnote(runner);
   parser_interrupt(runner);
+  render_spoiler(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;
