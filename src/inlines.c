@@ -1516,6 +1516,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
   cmark_chunk contents;
   unsigned char c;
   bufsize_t startpos, endpos;
+  bufsize_t initpos = subj->pos;
   c = peek_char(subj);
   if (c == 0) {
     return 0;
@@ -1563,43 +1564,49 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
     new_inl = handle_close_bracket(parser, subj);
     break;
   case '!':
-    advance(subj);
-    if (peek_char(subj) == '[' && peek_char_n(subj, 1) != '^') {
+    if (peek_char_n(subj, 1) == '[' && peek_char_n(subj, 2) != '^') {
+      advance(subj);
       advance(subj);
       new_inl = make_str(subj, subj->pos - 2, subj->pos - 1, cmark_chunk_literal("!["));
       push_bracket(subj, IMAGE, new_inl);
-    } else {
-      new_inl = make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("!"));
     }
     break;
   case '^':
-    advance(subj);
     // TODO: Support a name between ^ and [
-    if (peek_char(subj) == '[') {
+    if (peek_char_n(subj, 1) == '[') {
+      advance(subj);
       advance(subj);
       new_inl = make_str(subj, subj->pos - 2, subj->pos - 1, cmark_chunk_literal("^["));
       push_bracket(subj, ATTRIBUTE, new_inl);
-    } else {
-      new_inl = make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("^"));
     }
     break;
-  default:
-    new_inl = try_extensions(parser, parent, c, subj);
-    if (new_inl != NULL)
-      break;
-
-    endpos = subject_find_special_char(parser, subj, options);
-    contents = cmark_chunk_dup(&subj->input, subj->pos, endpos - subj->pos);
-    startpos = subj->pos;
-    subj->pos = endpos;
-
-    // if we're at a newline, strip trailing spaces.
-    if ((options & CMARK_OPT_PRESERVE_WHITESPACE) == 0 && S_is_line_end_char(peek_char(subj))) {
-      cmark_chunk_rtrim(&contents);
-    }
-
-    new_inl = make_str(subj, startpos, endpos - 1, contents);
   }
+
+  if (subj->pos == initpos) {
+    if (!new_inl)
+      new_inl = try_extensions(parser, parent, c, subj);
+
+    if (!new_inl) {
+      if (c == '^' || c == '!') {
+        advance(subj);
+        new_inl = make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_dup(&subj->input, subj->pos - 1, 1));
+      } else {
+        endpos = subject_find_special_char(parser, subj, options);
+        contents = cmark_chunk_dup(&subj->input, subj->pos, endpos - subj->pos);
+        startpos = subj->pos;
+        subj->pos = endpos;
+
+        // if we're at a newline, strip trailing spaces.
+        if ((options & CMARK_OPT_PRESERVE_WHITESPACE) == 0 && S_is_line_end_char(peek_char(subj))) {
+          cmark_chunk_rtrim(&contents);
+        }
+
+        if (endpos > startpos)
+          new_inl = make_str(subj, startpos, endpos - 1, contents);
+      }
+    }
+  }
+
   if (new_inl != NULL) {
     cmark_node_append_child(parent, new_inl);
   }
