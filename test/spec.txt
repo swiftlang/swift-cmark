@@ -7752,6 +7752,15 @@ Spoiler alert: ||Hello, world!||
 <p>Spoiler alert: <span class="spoiler">Hello, world!</span></p>
 ````````````````````````````````
 
+The `spoiler` extension also optionally allows alternate "Reddit-style" delimiters,
+which use angle brackets and exclamation marks to mark spoiler text:
+
+```````````````````````````````` example disabled
+Spoiler alert: >!Hello, world!!<
+.
+<p>Spoiler alert: <span class="spoiler">Hello, world!</span></p>
+````````````````````````````````
+
 </div>
 
 ## Links

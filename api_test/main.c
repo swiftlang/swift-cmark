@@ -1455,6 +1455,74 @@ static void render_spoiler(test_batch_runner *runner) {
            "  </paragraph>\n"
            "</document>\n", "rendering spoilers without proper delimiters should appear correctly");
   }
+  {
+    static const char markdown[] = "we have some >!incorrectly spicy text!< here";
+    cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+
+    cmark_node *doc = cmark_parser_finish(parser);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <paragraph>\n"
+           "    <text xml:space=\"preserve\">we have some &gt;!incorrectly spicy text!&lt; here</text>\n"
+           "  </paragraph>\n"
+           "</document>\n", "rendering spoilers without proper delimiters should appear correctly");
+  }
+}
+
+static void render_spoiler_reddit(test_batch_runner *runner) {
+  cmark_gfm_core_extensions_ensure_registered();
+
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_SPOILER_REDDIT_STYLE);
+  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("spoiler"));
+
+  {
+    static const char markdown[] = "we have some >!spicy text!< here";
+    cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+
+    cmark_node *doc = cmark_parser_finish(parser);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <paragraph>\n"
+           "    <text xml:space=\"preserve\">we have some </text>\n"
+           "    <spoiler>\n"
+           "      <text xml:space=\"preserve\">spicy text</text>\n"
+           "    </spoiler>\n"
+           "    <text xml:space=\"preserve\"> here</text>\n"
+           "  </paragraph>\n"
+           "</document>\n", "rendering spoilers should appear correctly");
+  }
+  {
+    static const char markdown[] = "we have some !non-spicy text! here";
+    cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+
+    cmark_node *doc = cmark_parser_finish(parser);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <paragraph>\n"
+           "    <text xml:space=\"preserve\">we have some !non-spicy text! here</text>\n"
+           "  </paragraph>\n"
+           "</document>\n", "rendering spoilers without proper delimiters should appear correctly");
+  }
+  {
+    static const char markdown[] = "we have some ||incorrectly spicy text|| here";
+    cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+
+    cmark_node *doc = cmark_parser_finish(parser);
+    char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
+    STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+           "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+           "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
+           "  <paragraph>\n"
+           "    <text xml:space=\"preserve\">we have some ||incorrectly spicy text|| here</text>\n"
+           "  </paragraph>\n"
+           "</document>\n", "rendering spoilers without proper delimiters should appear correctly");
+  }
 }
 
 int main() {

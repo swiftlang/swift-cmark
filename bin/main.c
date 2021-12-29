@@ -64,6 +64,9 @@ void print_usage() {
          "                                  instead of align attributes.\n");
   printf("  --full-info-string              Include remainder of code block info\n"
          "                                  string in a separate attribute.\n");
+  printf("  --spoiler-reddit-style          Use Reddit-style spoiler delimiters,\n"
+         "                                  i.e. >!spoilertext!< instead of\n"
+         "                                  ||spoilertext||\n");
   printf("  --help, -h       Print usage information\n");
   printf("  --version        Print version\n");
 }
@@ -185,6 +188,8 @@ int main(int argc, char *argv[]) {
       options |= CMARK_OPT_VALIDATE_UTF8;
     } else if (strcmp(argv[i], "--liberal-html-tag") == 0) {
       options |= CMARK_OPT_LIBERAL_HTML_TAG;
+    } else if (strcmp(argv[i], "--spoiler-reddit-style") == 0) {
+      options |= CMARK_OPT_SPOILER_REDDIT_STYLE;
     } else if ((strcmp(argv[i], "--help") == 0) ||
                (strcmp(argv[i], "-h") == 0)) {
       print_usage();

@@ -11,25 +11,74 @@ static cmark_node *match(cmark_syntax_extension *self, cmark_parser *parser,
   int left_flanking, right_flanking, punct_before, punct_after, delims;
   char buffer[101];
 
-  if (character != '|')
-    return NULL;
+  if ((parser->options & CMARK_OPT_SPOILER_REDDIT_STYLE)) {
+    // Reddit-style spoilers - flanked by angle brackets and exclamation marks,
+    // e.g. >!this is a spoiler!<
+    int pos = cmark_inline_parser_get_offset(inline_parser);
+    char *txt = NULL;
+    bool opener = false;
+    bool closer = false;
+    if (cmark_inline_parser_peek_at(inline_parser, pos) == '>' &&
+        cmark_inline_parser_peek_at(inline_parser, pos + 1) == '!') {
+      txt = ">!";
+      opener = true;
+    } else if (cmark_inline_parser_peek_at(inline_parser, pos) == '!' &&
+               cmark_inline_parser_peek_at(inline_parser, pos + 1) == '<') {
+      txt = "!<";
+      closer = true;
+    }
 
-  delims = cmark_inline_parser_scan_delimiters(
-      inline_parser, sizeof(buffer) - 1, '|',
-      &left_flanking,
-      &right_flanking, &punct_before, &punct_after);
+    if (opener && pos > 0 && !cmark_isspace(cmark_inline_parser_peek_at(inline_parser, pos - 1))) {
+      opener = false;
+    }
 
-  memset(buffer, '|', delims);
-  buffer[delims] = 0;
+    if (closer) {
+      cmark_chunk *chunk = cmark_inline_parser_get_chunk(inline_parser);
+      bufsize_t len = chunk->len;
+      if (pos + 2 < len && !cmark_isspace(cmark_inline_parser_peek_at(inline_parser, pos + 2))) {
+        closer = false;
+      }
+    }
 
-  res = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
-  cmark_node_set_literal(res, buffer);
-  res->start_line = res->end_line = cmark_inline_parser_get_line(inline_parser);
-  res->start_column = cmark_inline_parser_get_column(inline_parser) - delims;
+    if ((!opener && !closer) || !txt)
+      return NULL;
 
-  if ((left_flanking || right_flanking) && (delims == 2)) {
-    cmark_inline_parser_push_delimiter(inline_parser, character, left_flanking,
-                                       right_flanking, res);
+    res = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
+    cmark_node_set_literal(res, txt);
+    res->start_line = cmark_inline_parser_get_line(inline_parser);
+    res->start_column = cmark_inline_parser_get_column(inline_parser);
+
+    cmark_inline_parser_set_offset(inline_parser, pos + 2);
+
+    res->end_line = cmark_inline_parser_get_line(inline_parser);
+    res->end_column = cmark_inline_parser_get_column(inline_parser);
+
+    // Set the character for this delimiter to `!`, since it's a heterogenous
+    // delimiter and the delimiter API assumes single repeated characters.
+    cmark_inline_parser_push_delimiter(inline_parser, '!', opener, closer, res);
+  } else {
+    // Discord-style spoilers - flanked on both sides by two pipes,
+    // e.g. ||this is a spoiler||
+    if (character != '|')
+      return NULL;
+
+    delims = cmark_inline_parser_scan_delimiters(
+        inline_parser, sizeof(buffer) - 1, '|',
+        &left_flanking,
+        &right_flanking, &punct_before, &punct_after);
+
+    memset(buffer, '|', delims);
+    buffer[delims] = 0;
+
+    res = cmark_node_new_with_mem(CMARK_NODE_TEXT, parser->mem);
+    cmark_node_set_literal(res, buffer);
+    res->start_line = res->end_line = cmark_inline_parser_get_line(inline_parser);
+    res->start_column = cmark_inline_parser_get_column(inline_parser) - delims;
+
+    if ((left_flanking || right_flanking) && (delims == 2)) {
+      cmark_inline_parser_push_delimiter(inline_parser, character, left_flanking,
+                                         right_flanking, res);
+    }
   }
 
   return res;
@@ -95,7 +144,16 @@ static int can_contain(cmark_syntax_extension *extension, cmark_node *node,
 static void commonmark_render(cmark_syntax_extension *extension,
                               cmark_renderer *renderer, cmark_node *node,
                               cmark_event_type ev_type, int options) {
-  renderer->out(renderer, node, "||", false, LITERAL);
+  if (options & CMARK_OPT_SPOILER_REDDIT_STYLE) {
+    bool entering = (ev_type == CMARK_EVENT_ENTER);
+    if (entering) {
+      renderer->out(renderer, node, ">!", false, LITERAL);
+    } else {
+      renderer->out(renderer, node, "!<", false, LITERAL);
+    }
+  } else {
+    renderer->out(renderer, node, "||", false, LITERAL);
+  }
 }
 
 static void html_render(cmark_syntax_extension *extension,
@@ -109,12 +167,6 @@ static void html_render(cmark_syntax_extension *extension,
   }
 }
 
-static void plaintext_render(cmark_syntax_extension *extension,
-                             cmark_renderer *renderer, cmark_node *node,
-                             cmark_event_type ev_type, int options) {
-  renderer->out(renderer, node, "~", false, LITERAL);
-}
-
 cmark_syntax_extension *create_spoiler_extension(void) {
   cmark_syntax_extension *ext = cmark_syntax_extension_new("spoiler");
   cmark_llist *special_chars = NULL;
@@ -123,7 +175,7 @@ cmark_syntax_extension *create_spoiler_extension(void) {
   cmark_syntax_extension_set_can_contain_func(ext, can_contain);
   cmark_syntax_extension_set_commonmark_render_func(ext, commonmark_render);
   cmark_syntax_extension_set_html_render_func(ext, html_render);
-  cmark_syntax_extension_set_plaintext_render_func(ext, plaintext_render);
+  cmark_syntax_extension_set_plaintext_render_func(ext, commonmark_render);
   CMARK_NODE_SPOILER = cmark_syntax_extension_add_node(1);
 
   cmark_syntax_extension_set_match_inline_func(ext, match);
@@ -131,6 +183,9 @@ cmark_syntax_extension *create_spoiler_extension(void) {
 
   cmark_mem *mem = cmark_get_default_mem_allocator();
   special_chars = cmark_llist_append(mem, special_chars, (void *)'|');
+  special_chars = cmark_llist_append(mem, special_chars, (void *)'>');
+  special_chars = cmark_llist_append(mem, special_chars, (void *)'<');
+  special_chars = cmark_llist_append(mem, special_chars, (void *)'!');
   cmark_syntax_extension_set_special_inline_chars(ext, special_chars);
 
   cmark_syntax_extension_set_emphasis(ext, 1);

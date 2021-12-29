@@ -780,6 +780,11 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  */
 #define CMARK_OPT_PRESERVE_WHITESPACE ((1 << 19) | CMARK_OPT_INLINE_ONLY)
 
+/** Parse spoiler text with Reddit-style delimiters (`>!this is a spoiler!<`). Without
+ * this option, spoilers are parsed with Discord-style delimiters (`||this is a spoiler||`).
+ */
+#define CMARK_OPT_SPOILER_REDDIT_STYLE (1 << 20)
+
 /**
  * ## Version information
  */
