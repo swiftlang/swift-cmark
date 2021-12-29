@@ -82,6 +82,13 @@ struct cmark_node {
   cmark_syntax_extension *extension;
 
   union {
+    int ref_ix;
+    int def_count;
+  } footnote;
+
+  cmark_node *parent_footnote_def;
+
+  union {
     cmark_chunk literal;
     cmark_list list;
     cmark_code code;
