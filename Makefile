@@ -101,7 +101,7 @@ mingw:
 	cmake .. -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw32.cmake -DCMAKE_INSTALL_PREFIX=$(MINGW_INSTALLDIR) ;\
 	$(MAKE) && $(MAKE) install
 
-man/man3/cmark-gfm.3: src/cmark-gfm.h | $(CMARK)
+man/man3/cmark-gfm.3: src/include/cmark-gfm.h | $(CMARK)
 	python man/make_man_page.py $< > $@ \
 
 archive:
