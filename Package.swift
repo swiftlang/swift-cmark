@@ -3,6 +3,22 @@
 
 import PackageDescription
 
+#if os(Windows)
+#if arch(i386) || arch(x86_64)
+    let cSettings: [CSetting] = [
+        .define("_X86_", .when(platforms: [.windows])),
+    ]
+#elseif arch(arm) || arch(arm64)
+    let cSettings: [CSetting] = [
+        .define("_ARM_", .when(platforms: [.windows])),
+    ]
+#else
+#error("unsupported architecture")
+#endif
+#else
+    let cSettings: [CSetting] = []
+#endif
+
 let package = Package(
     name: "cmark-gfm",
     products: [
@@ -30,7 +46,8 @@ let package = Package(
             "cmark-gfm_version.h.in",
             "case_fold_switch.inc",
             "entities.inc",
-          ]
+          ],
+          cSettings: cSettings
         ),
         .target(name: "cmark-gfm-extensions",
           dependencies: [
@@ -40,7 +57,8 @@ let package = Package(
           exclude: [
             "CMakeLists.txt",
             "ext_scanners.re",
-          ]
+          ],
+          cSettings: cSettings
         ),
         .target(name: "cmark-gfm-bin",
           dependencies: [
