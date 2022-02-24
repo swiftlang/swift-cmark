@@ -5,7 +5,11 @@
 
 #ifdef CMARK_THREADING
 
-#ifndef _WIN32
+#if __has_include(<unistd.h>)
+#include <unistd.h>
+#endif
+
+#if defined (_POSIX_THREADS)
 
 #include <pthread.h>
 
@@ -24,18 +28,20 @@ pthread_mutex_lock(&NAME##_lock);
 
 #define CMARK_UNLOCK(NAME) pthread_mutex_unlock(&NAME##_lock);
 
-#else // building for windows
+#elif defined(_WIN32) // building for windows
 
 #define _WIN32_WINNT 0x0600
 #include <synchapi.h>
 
 #define CMARK_DEFINE_ONCE(NAME) static INIT_ONCE NAME##_once = INIT_ONCE_STATIC_INIT;
 
-#define CMARK_RUN_ONCE(NAME, FUNC) \
-BOOL pending; BOOL status; \
-status = InitOnceBeginInitialize(&NAME##_once, 0, &pending, NULL); \
-if (status && pending) { FUNC(); } \
-InitOnceComplete(&NAME##_once, 0, NULL);
+#define CMARK_RUN_ONCE(NAME, FUNC) do { \
+  BOOL fStatus; BOOL fPending; \
+  fStatus = InitOnceBeginInitialize(&NAME##_once, 0, &fPending, NULL); \
+  if (!fStatus || !fPending) break; \
+  FUNC(); \
+  InitOnceComplete(&NAME##_once, 0, NULL); \
+} while (0);
 
 #define CMARK_DEFINE_LOCK(NAME) static SRWLOCK NAME##_lock = SRWLOCK_INIT;
 
