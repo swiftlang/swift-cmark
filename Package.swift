@@ -47,7 +47,10 @@ let package = Package(
             "case_fold_switch.inc",
             "entities.inc",
           ],
-          cSettings: cSettings
+          cSettings: cSettings,
+          linkerSettings: [
+              .linkedLibrary("pthread", .when(platforms: [.linux])),
+          ]
         ),
         .target(name: "cmark-gfm-extensions",
           dependencies: [
