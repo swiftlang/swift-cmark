@@ -6,18 +6,24 @@
 #  define CMARK_GFM_EXPORT
 #  define CMARK_GFM_NO_EXPORT
 #else
-#  ifndef CMARK_GFM_EXPORT
-#    ifdef libcmark_gfm_EXPORTS
-        /* We are building this library */
-#      define CMARK_GFM_EXPORT __attribute__((visibility("default")))
+#  if defined(_WIN32)
+#    if defined(libcmark_gfm_EXPORTS)
+#      define CMARK_GFM_EXPORT __declspec(dllexport)
 #    else
-        /* We are using this library */
-#      define CMARK_GFM_EXPORT __attribute__((visibility("default")))
+#      define CMARK_GFM_EXPORT __declspec(dllimport)
 #    endif
-#  endif
-
-#  ifndef CMARK_GFM_NO_EXPORT
-#    define CMARK_GFM_NO_EXPORT __attribute__((visibility("hidden")))
+#    define CMARK_GFM_NO_EXPORT
+#  else
+#    if defined(libcmark_gfm_EXPORTS)
+#      if defined(__linux__)
+#        define CMARK_GFM_EXPORT __attribute__((__visibility__("protected")))
+#      else
+#        define CMARK_GFM_EXPORT __attribute__((__visibility__("default")))
+#      endif
+#    else
+#      define CMARK_GFM_EXPORT __attribute__((__visibility__("default")))
+#    endif
+#    define CMARK_GFM_NO_EXPORT __attribute__((__visibility__("hidden")))
 #  endif
 #endif
 
