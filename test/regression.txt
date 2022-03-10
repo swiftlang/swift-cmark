@@ -4,7 +4,8 @@ Issue #113: EOL character weirdness on Windows
 (Important: first line ends with CR + CR + LF)
 
 ```````````````````````````````` example
-line1
+line1
+
 line2
 .
 <p>line1</p>
@@ -175,7 +176,7 @@ A footnote in a paragraph[^1]
 
 [^1]: a footnote
 .
-<p>A footnote in a paragraph<sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></p>
+<p>A footnote in a paragraph<sup class="footnote-ref"><a href="#fn-1" id="fnref-1" data-footnote-ref>1</a></sup></p>
 <table>
 <thead>
 <tr>
@@ -185,15 +186,15 @@ A footnote in a paragraph[^1]
 </thead>
 <tbody>
 <tr>
-<td>foot <sup class="footnote-ref"><a href="#fn1" id="fnref1">1</a></sup></td>
+<td>foot <sup class="footnote-ref"><a href="#fn-1" id="fnref-1-2" data-footnote-ref>1</a></sup></td>
 <td>note</td>
 </tr>
 </tbody>
 </table>
-<section class="footnotes">
+<section class="footnotes" data-footnotes>
 <ol>
-<li id="fn1">
-<p>a footnote <a href="#fnref1" class="footnote-backref">↩</a></p>
+<li id="fn-1">
+<p>a footnote <a href="#fnref-1" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a> <a href="#fnref-1-2" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩<sup class="footnote-ref">2</sup></a></p>
 </li>
 </ol>
 </section>
@@ -268,4 +269,100 @@ Pull request #128 - Buffer overread in tables extension
 .
 <p>|
 -|</p>
+````````````````````````````````
+
+Footnotes may be nested inside other footnotes.
+
+```````````````````````````````` example footnotes
+This is some text. It has a citation.[^citation]
+
+[^another-citation]: My second citation.
+
+[^citation]: This is a long winded parapgraph that also has another citation.[^another-citation]
+.
+<p>This is some text. It has a citation.<sup class="footnote-ref"><a href="#fn-citation" id="fnref-citation" data-footnote-ref>1</a></sup></p>
+<section class="footnotes" data-footnotes>
+<ol>
+<li id="fn-citation">
+<p>This is a long winded parapgraph that also has another citation.<sup class="footnote-ref"><a href="#fn-another-citation" id="fnref-another-citation" data-footnote-ref>2</a></sup> <a href="#fnref-citation" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+</li>
+<li id="fn-another-citation">
+<p>My second citation. <a href="#fnref-another-citation" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+</li>
+</ol>
+</section>
+````````````````````````````````
+
+Footnotes are similar to, but should not be confused with, link references
+
+```````````````````````````````` example footnotes
+This is some text. It has two footnotes references, side-by-side without any spaces,[^footnote1][^footnote2] which are definitely not link references.
+
+[^footnote1]: Hello.
+
+[^footnote2]: Goodbye.
+.
+<p>This is some text. It has two footnotes references, side-by-side without any spaces,<sup class="footnote-ref"><a href="#fn-footnote1" id="fnref-footnote1" data-footnote-ref>1</a></sup><sup class="footnote-ref"><a href="#fn-footnote2" id="fnref-footnote2" data-footnote-ref>2</a></sup> which are definitely not link references.</p>
+<section class="footnotes" data-footnotes>
+<ol>
+<li id="fn-footnote1">
+<p>Hello. <a href="#fnref-footnote1" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+</li>
+<li id="fn-footnote2">
+<p>Goodbye. <a href="#fnref-footnote2" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+</li>
+</ol>
+</section>
+````````````````````````````````
+
+Footnotes may begin with or have a 'w' or a '_' in their reference label.
+
+```````````````````````````````` example footnotes autolink
+This is some text. Sometimes the autolinker splits up text into multiple nodes, hoping it will find a hyperlink, so this text has a footnote whose reference label begins with a `w`.[^widely-cited]
+
+It has another footnote that contains many different characters (the autolinker was also breaking on `_`).[^sphinx-of-black-quartz_judge-my-vow-0123456789]
+
+[^sphinx-of-black-quartz_judge-my-vow-0123456789]: so does this.
+
+[^widely-cited]: this renders properly.
+.
+<p>This is some text. Sometimes the autolinker splits up text into multiple nodes, hoping it will find a hyperlink, so this text has a footnote whose reference label begins with a <code>w</code>.<sup class="footnote-ref"><a href="#fn-widely-cited" id="fnref-widely-cited" data-footnote-ref>1</a></sup></p>
+<p>It has another footnote that contains many different characters (the autolinker was also breaking on <code>_</code>).<sup class="footnote-ref"><a href="#fn-sphinx-of-black-quartz_judge-my-vow-0123456789" id="fnref-sphinx-of-black-quartz_judge-my-vow-0123456789" data-footnote-ref>2</a></sup></p>
+<section class="footnotes" data-footnotes>
+<ol>
+<li id="fn-widely-cited">
+<p>this renders properly. <a href="#fnref-widely-cited" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+</li>
+<li id="fn-sphinx-of-black-quartz_judge-my-vow-0123456789">
+<p>so does this. <a href="#fnref-sphinx-of-black-quartz_judge-my-vow-0123456789" class="footnote-backref" data-footnote-backref aria-label="Back to content">↩</a></p>
+</li>
+</ol>
+</section>
+````````````````````````````````
+
+Footnotes interacting with strikethrough should not lead to a use-after-free
+
+```````````````````````````````` example footnotes autolink strikethrough table
+|Tot.....[^_a_]|
+.
+<p>|Tot.....[^_a_]|</p>
+````````````````````````````````
+
+Footnotes interacting with strikethrough should not lead to a use-after-free pt2
+
+```````````````````````````````` example footnotes autolink strikethrough table
+[^~~is~~1]
+.
+<p>[^~~is~~1]</p>
+````````````````````````````````
+
+Adjacent unused footnotes definitions should not lead to a use after free
+
+```````````````````````````````` example footnotes autolink strikethrough table
+Hello world
+
+
+[^a]:[^b]:
+.
+<p>Hello world</p>
 ````````````````````````````````
