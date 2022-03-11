@@ -15,7 +15,7 @@ set(LIBRARY_SOURCES
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/src/include
-  ${PROJECT_BINARY_DIR}/src/include
+  ${PROJECT_BINARY_DIR}/src
 )
 
 include (GenerateExportHeader)

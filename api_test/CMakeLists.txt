@@ -6,9 +6,9 @@ add_executable(api_test
 )
 include_directories(
   ${PROJECT_SOURCE_DIR}/src/include
-  ${PROJECT_BINARY_DIR}/src/include
+  ${PROJECT_BINARY_DIR}/src
   ${PROJECT_SOURCE_DIR}/extensions/include
-  ${PROJECT_BINARY_DIR}/extensions/include
+  ${PROJECT_BINARY_DIR}/extensions
 )
 if(CMARK_SHARED)
   target_link_libraries(api_test libcmark-gfm-extensions libcmark-gfm)
