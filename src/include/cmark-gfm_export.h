@@ -15,11 +15,7 @@
 #    define CMARK_GFM_NO_EXPORT
 #  else
 #    if defined(libcmark_gfm_EXPORTS)
-#      if defined(__linux__)
-#        define CMARK_GFM_EXPORT __attribute__((__visibility__("protected")))
-#      else
-#        define CMARK_GFM_EXPORT __attribute__((__visibility__("default")))
-#      endif
+#      define CMARK_GFM_EXPORT __attribute__((__visibility__("default")))
 #    else
 #      define CMARK_GFM_EXPORT __attribute__((__visibility__("default")))
 #    endif
@@ -28,7 +24,11 @@
 #endif
 
 #ifndef CMARK_GFM_DEPRECATED
-#  define CMARK_GFM_DEPRECATED __attribute__ ((__deprecated__))
+#  if !defined(_WIN32)
+#    define CMARK_GFM_DEPRECATED __attribute__ ((__deprecated__))
+#  else
+#    define CMARK_GFM_DEPRECATED
+#  endif
 #endif
 
 #ifndef CMARK_GFM_DEPRECATED_EXPORT

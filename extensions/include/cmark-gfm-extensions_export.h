@@ -6,23 +6,39 @@
 #  define CMARK_GFM_EXTENSIONS_EXPORT
 #  define CMARK_GFM_EXTENSIONS_NO_EXPORT
 #else
-#  ifndef CMARK_GFM_EXTENSIONS_EXPORT
-#    ifdef libcmark_gfm_extensions_EXPORTS
-        /* We are building this library */
-#      define CMARK_GFM_EXTENSIONS_EXPORT __attribute__((visibility("default")))
-#    else
-        /* We are using this library */
-#      define CMARK_GFM_EXTENSIONS_EXPORT __attribute__((visibility("default")))
+#  if defined(_WIN32)
+#    ifndef CMARK_GFM_EXTENSIONS_EXPORT
+#      ifdef libcmark_gfm_extensions_EXPORTS
+#        define CMARK_GFM_EXTENSIONS_EXPORT __declspec(dllexport)
+#      else
+#        define CMARK_GFM_EXTENSIONS_EXPORT __declspec(dllimport)
+#      endif
 #    endif
-#  endif
 
-#  ifndef CMARK_GFM_EXTENSIONS_NO_EXPORT
-#    define CMARK_GFM_EXTENSIONS_NO_EXPORT __attribute__((visibility("hidden")))
+#    ifndef CMARK_GFM_EXTENSIONS_NO_EXPORT
+#      define CMARK_GFM_EXTENSIONS_NO_EXPORT
+#    endif
+#  else
+#    ifndef CMARK_GFM_EXTENSIONS_EXPORT
+#      ifdef libcmark_gfm_extensions_EXPORTS
+#        define CMARK_GFM_EXTENSIONS_EXPORT __attribute__((visibility("default")))
+#      else
+#        define CMARK_GFM_EXTENSIONS_EXPORT __attribute__((visibility("default")))
+#      endif
+#    endif
+
+#    ifndef CMARK_GFM_EXTENSIONS_NO_EXPORT
+#      define CMARK_GFM_EXTENSIONS_NO_EXPORT __attribute__((visibility("hidden")))
+#    endif
 #  endif
 #endif
 
 #ifndef CMARK_GFM_EXTENSIONS_DEPRECATED
-#  define CMARK_GFM_EXTENSIONS_DEPRECATED __attribute__ ((__deprecated__))
+#  if !defined(_WIN32)
+#    define CMARK_GFM_EXTENSIONS_DEPRECATED __attribute__ ((__deprecated__))
+#  else
+#    define CMARK_GFM_EXTENSIONS_DEPRECATED
+#  endif
 #endif
 
 #ifndef CMARK_GFM_EXTENSIONS_DEPRECATED_EXPORT
