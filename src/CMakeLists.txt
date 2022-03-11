@@ -45,7 +45,7 @@ set(PROGRAM_SOURCES "${PROJECT_SOURCE_DIR}/bin/main.c")
 include_directories(include ${CMAKE_CURRENT_BINARY_DIR})
 include_directories(
   ${PROJECT_SOURCE_DIR}/extensions/include
-  ${PROJECT_BINARY_DIR}/extensions/include
+  ${PROJECT_BINARY_DIR}/extensions
 )
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark-gfm_version.h.in
