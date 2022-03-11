@@ -411,7 +411,7 @@ static int scan_delims(cmark_parser *parser, subject *subj, unsigned char c,
     before_char = 10;
   } else {
     before_char_pos = subj->pos - 1;
-    
+
     // walk back to the beginning of the UTF_8 sequence:
     while ((peek_at(subj, before_char_pos) >> 6 == 2 || parser->skip_chars[peek_at(subj, before_char_pos)]) && before_char_pos > 0) {
       before_char_pos -= 1;
@@ -437,7 +437,7 @@ static int scan_delims(cmark_parser *parser, subject *subj, unsigned char c,
     after_char = 10;
   } else {
     after_char_pos = subj->pos;
-    
+
     while (parser->skip_chars[peek_at(subj, after_char_pos)] && after_char_pos < subj->input.len) {
       after_char_pos += 1;
     }
@@ -944,7 +944,7 @@ static int link_label(subject *subj, cmark_chunk *raw_label, bool parse_attribut
   bufsize_t startpos = subj->pos;
   int length = 0;
   unsigned char c;
-  
+
   // If we are parsing attribute label, advance past ^
   if (parse_attribute_label) {
     if (peek_char(subj) == '^') {
@@ -1130,14 +1130,14 @@ static cmark_node *handle_close_bracket_attribute(cmark_parser *parser, subject 
       }
     }
   }
-  
+
   // If we can't match direct link, look for [link label] that matches in refmap
   raw_label = cmark_chunk_literal("");
   found_label = link_label(subj, &raw_label, false);
   if (found_label) {
     ref = (cmark_reference *)cmark_map_lookup(subj->refmap, &raw_label);
     cmark_chunk_free(subj->mem, &raw_label);
-    
+
     if (ref && ref->is_attributes_reference) {
       isAttributesNode = true;
       attributes = chunk_clone(subj->mem, &ref->attributes);
@@ -1149,7 +1149,7 @@ static cmark_node *handle_close_bracket_attribute(cmark_parser *parser, subject 
     pop_bracket(subj);
     return make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("]"));
   }
-  
+
   inl = make_simple(subj->mem, CMARK_NODE_ATTRIBUTE);
   inl->as.attribute.attributes = attributes;
   inl->start_line = inl->end_line = subj->line;
@@ -1564,6 +1564,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
     new_inl = handle_close_bracket(parser, subj);
     break;
   case '!':
+    // specifically check for '![' not followed by '^'
     if (peek_char_n(subj, 1) == '[' && peek_char_n(subj, 2) != '^') {
       advance(subj);
       advance(subj);
@@ -1573,6 +1574,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
     break;
   case '^':
     // TODO: Support a name between ^ and [
+    // specifically check for '^['
     if (peek_char_n(subj, 1) == '[') {
       advance(subj);
       advance(subj);
@@ -1587,11 +1589,11 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
       new_inl = try_extensions(parser, parent, c, subj);
 
     if (!new_inl) {
-      if (c == '^' || c == '!') {
+      endpos = subject_find_special_char(parser, subj, options);
+      if (endpos == subj->pos) {
         advance(subj);
         new_inl = make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_dup(&subj->input, subj->pos - 1, 1));
       } else {
-        endpos = subject_find_special_char(parser, subj, options);
         contents = cmark_chunk_dup(&subj->input, subj->pos, endpos - subj->pos);
         startpos = subj->pos;
         subj->pos = endpos;
@@ -1601,8 +1603,7 @@ static int parse_inline(cmark_parser *parser, subject *subj, cmark_node *parent,
           cmark_chunk_rtrim(&contents);
         }
 
-        if (endpos > startpos)
-          new_inl = make_str(subj, startpos, endpos - 1, contents);
+        new_inl = make_str(subj, startpos, endpos - 1, contents);
       }
     }
   }
@@ -1715,27 +1716,27 @@ bufsize_t cmark_parse_reference_inline(cmark_mem *mem, cmark_chunk *input,
 bufsize_t cmark_parse_reference_attributes_inline(cmark_mem *mem, cmark_chunk *input,
                                                   cmark_map *refmap) {
   subject subj;
-  
+
   cmark_chunk lab;
   cmark_chunk attributes;
-  
+
   bufsize_t matchlen = 0;
   unsigned char c;
-  
+
   subject_from_buf(mem, -1, 0, &subj, input, NULL);
-  
+
   // parse attribute label:
   if (!link_label(&subj, &lab, true) || lab.len == 0) {
     return 0;
   }
-  
+
   // Colon:
   if (peek_char(&subj) == ':') {
     advance(&subj);
   } else {
     return 0;
   }
-  
+
   // parse attributes
   spnl(&subj);
   // read until next newline
@@ -1744,19 +1745,19 @@ bufsize_t cmark_parse_reference_attributes_inline(cmark_mem *mem, cmark_chunk *i
     advance(&subj);
     matchlen++;
   }
-  
+
   if (matchlen == 0) {
     return 0;
   }
-  
+
   attributes = cmark_chunk_dup(&subj.input, startpos, matchlen);
-  
+
   // parse final spaces and newline:
   skip_spaces(&subj);
   if (!skip_line_end(&subj)) {
     return 0;
   }
-  
+
   // insert reference into refmap
   cmark_reference_create_attributes(refmap, &lab, &attributes);
   return subj.pos;
