@@ -1,3 +1,7 @@
+#if __has_include("config.h")
+#include "config.h"
+#else
+
 #ifndef CMARK_CONFIG_H
 #define CMARK_CONFIG_H
 
@@ -75,4 +79,6 @@ CMARK_INLINE int c99_snprintf(char *outBuf, size_t size, const char *format, ...
 }
 #endif
 
-#endif
+#endif /* CMARK_CONFIG_H */
+
+#endif /* config.h */
