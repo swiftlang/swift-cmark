@@ -807,7 +807,7 @@ const char *cmark_version_string(void);
  * John MacFarlane, Vicent Marti,  Kārlis Gaņģis, Nick Wellnhofer.
  */
 
-#ifndef CMARK_NO_SHORT_NAMES
+#if !defined(CMARK_NO_SHORT_NAMES) && !defined(_WIN32)
 #define NODE_DOCUMENT CMARK_NODE_DOCUMENT
 #define NODE_BLOCK_QUOTE CMARK_NODE_BLOCK_QUOTE
 #define NODE_LIST CMARK_NODE_LIST
