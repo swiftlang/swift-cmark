@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include "cmark-gfm-extension_api.h"
-#include "cmark-gfm-extensions_export.h"
+#include "extensions-export.h"
 #include "cmark-gfm_config.h" // for bool
 #include <stdint.h>
 

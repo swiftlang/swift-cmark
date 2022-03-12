@@ -152,7 +152,7 @@ if(CMARK_SHARED OR CMARK_STATIC)
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_config.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-extension_api.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_export.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/export.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_version.h
     DESTINATION include
     )
