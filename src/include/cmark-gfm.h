@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include "cmark-gfm_export.h"
+#include "export.h"
 #include "cmark-gfm_version.h"
 
 #ifdef __cplusplus

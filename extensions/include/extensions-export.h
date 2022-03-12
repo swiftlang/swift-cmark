@@ -1,3 +1,6 @@
+#if __has_include("cmark-gfm-extensions_export.h")
+#include "cmark-gfm-extensions_export.h"
+#else
 
 #ifndef CMARK_GFM_EXTENSIONS_EXPORT_H
 #define CMARK_GFM_EXTENSIONS_EXPORT_H
@@ -50,3 +53,5 @@
 #endif
 
 #endif /* CMARK_GFM_EXTENSIONS_EXPORT_H */
+
+#endif /* "cmark-gfm-extensions_export.h" */
