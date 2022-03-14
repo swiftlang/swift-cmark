@@ -187,6 +187,9 @@ CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
+# Use CMake's generated headers instead of the Swift package prebuilt ones
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DCMARK_USE_CMAKE_HEADERS")
+
 # Always compile with warnings
 if(MSVC)
   # Force to always compile with W4
