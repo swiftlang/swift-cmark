@@ -103,6 +103,9 @@ CHECK_C_SOURCE_COMPILES(
   "int main() { __builtin_expect(0,0); return 0; }"
   HAVE___BUILTIN_EXPECT)
 
+# Use CMake's generated headers instead of the Swift package prebuilt ones
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DCMARK_USE_CMAKE_HEADERS")
+
 # Always compile with warnings
 if(MSVC)
   # Force to always compile with W4
