@@ -98,14 +98,10 @@ include(CheckIncludeFile)
 include(CheckCSourceCompiles)
 include(CheckCSourceRuns)
 include(CheckSymbolExists)
-CHECK_INCLUDE_FILE(stdbool.h HAVE_STDBOOL_H)
+CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
 CHECK_C_SOURCE_COMPILES(
   "int main() { __builtin_expect(0,0); return 0; }"
   HAVE___BUILTIN_EXPECT)
-CHECK_C_SOURCE_COMPILES("
-  int f(void) __attribute__ (());
-  int main() { return 0; }
-" HAVE___ATTRIBUTE__)
 
 # Always compile with warnings
 if(MSVC)

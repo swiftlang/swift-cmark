@@ -5,7 +5,7 @@
 
 #ifdef CMARK_THREADING
 
-#if __has_include(<unistd.h>)
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
