@@ -24,14 +24,14 @@
 #  else
 #    ifndef CMARK_GFM_EXTENSIONS_EXPORT
 #      ifdef libcmark_gfm_extensions_EXPORTS
-#        define CMARK_GFM_EXTENSIONS_EXPORT __attribute__((visibility("default")))
+#        define CMARK_GFM_EXTENSIONS_EXPORT __attribute__((__visibility__("default")))
 #      else
-#        define CMARK_GFM_EXTENSIONS_EXPORT __attribute__((visibility("default")))
+#        define CMARK_GFM_EXTENSIONS_EXPORT __attribute__((__visibility__("default")))
 #      endif
 #    endif
 
 #    ifndef CMARK_GFM_EXTENSIONS_NO_EXPORT
-#      define CMARK_GFM_EXTENSIONS_NO_EXPORT __attribute__((visibility("hidden")))
+#      define CMARK_GFM_EXTENSIONS_NO_EXPORT __attribute__((__visibility__("hidden")))
 #    endif
 #  endif
 #endif
