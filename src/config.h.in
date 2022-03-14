@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#if __has_include(<stdbool.h>)
+#if __STDC_VERSION__ >= 199901l
   #include <stdbool.h>
 #elif !defined(__cplusplus)
   typedef char bool;
