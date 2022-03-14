@@ -29,3 +29,8 @@ if(MSVC)
 elseif(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -std=c99 -pedantic")
 endif()
+
+# On MSVC 15.0 and newer, compile with C11 standard
+if (MSVC AND MSVC_VERSION GREATER_EQUAL 1910)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /std:c11")
+endif()
