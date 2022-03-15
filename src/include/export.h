@@ -30,10 +30,10 @@
 #endif
 
 #ifndef CMARK_GFM_DEPRECATED
-#  if !defined(_WIN32)
-#    define CMARK_GFM_DEPRECATED __attribute__ ((__deprecated__))
+#  if defined(_WIN32)
+#    define CMARK_GFM_DEPRECATED __declspec(deprecated)
 #  else
-#    define CMARK_GFM_DEPRECATED
+#    define CMARK_GFM_DEPRECATED __attribute__ ((__deprecated__))
 #  endif
 #endif
 
