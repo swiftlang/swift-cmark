@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.12)
 project(cmark-gfm)
 
 set(PROJECT_VERSION_MAJOR 0)
@@ -27,6 +27,9 @@ else()
   set(CMAKE_C_STANDARD 99)
 endif()
 set(CMAKE_C_STANDARD_REQUIRED YES)
+
+# Use CMake's generated headers instead of the Swift package prebuilt ones
+add_compile_definitions(CMARK_USE_CMAKE_HEADERS)
 
 add_subdirectory(src)
 add_subdirectory(extensions)
