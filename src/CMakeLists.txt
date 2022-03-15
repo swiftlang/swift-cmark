@@ -195,11 +195,6 @@ if(MSVC AND MSVC_VERSION LESS 1800)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TP")
 endif()
 
-# On MSVC 15.0 and newer, compile with C11 standard
-if (MSVC AND MSVC_VERSION GREATER_EQUAL 1910)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /std:c11")
-endif()
-
 if(CMAKE_BUILD_TYPE STREQUAL "Ubsan")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
 endif()
