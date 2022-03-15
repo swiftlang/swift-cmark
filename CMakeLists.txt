@@ -20,6 +20,14 @@ option(CMARK_SHARED "Build shared libcmark-gfm library" ON)
 option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
 option(CMARK_THREADING "Add locks around static accesses" OFF)
 
+# set a required C standard so we can load stdbool.h
+if(MSVC)
+  set(CMAKE_C_STANDARD 11)
+else()
+  set(CMAKE_C_STANDARD 99)
+endif()
+set(CMAKE_C_STANDARD_REQUIRED YES)
+
 add_subdirectory(src)
 add_subdirectory(extensions)
 if(CMARK_TESTS AND (CMARK_SHARED OR CMARK_STATIC))
