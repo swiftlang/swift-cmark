@@ -1192,7 +1192,7 @@ static void inline_only_opt(test_batch_runner *runner) {
   cmark_node_free(doc);
 }
 
-static void check_markdown_plaintext(test_batch_runner *runner, char *markdown) {
+static void check_markdown_plaintext(test_batch_runner *runner, const char *markdown) {
   cmark_node *doc = cmark_parse_document(markdown, strlen(markdown), CMARK_OPT_PRESERVE_WHITESPACE);
   cmark_node *pg = cmark_node_first_child(doc);
   INT_EQ(runner, cmark_node_get_type(pg), CMARK_NODE_PARAGRAPH, "markdown '%s' did not produce a paragraph node", markdown);
@@ -1228,7 +1228,7 @@ static void preserve_whitespace_opt(test_batch_runner *runner) {
   check_markdown_plaintext(runner, "\nHello\n");
 }
 
-static void check_markdown_attributes_node(test_batch_runner *runner, char *markdown, cmark_node_type expectedType, char *expectedAttributes) {
+static void check_markdown_attributes_node(test_batch_runner *runner, const char *markdown, cmark_node_type expectedType, const char *expectedAttributes) {
   cmark_node *doc = cmark_parse_document(markdown, strlen(markdown), CMARK_OPT_DEFAULT);
   cmark_node *pg = cmark_node_first_child(doc);
   INT_EQ(runner, cmark_node_get_type(pg), CMARK_NODE_PARAGRAPH, "markdown '%s' did not produce a paragraph node", markdown);
