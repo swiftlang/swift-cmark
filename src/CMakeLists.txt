@@ -45,7 +45,7 @@ set(PROGRAM_SOURCES "${PROJECT_SOURCE_DIR}/bin/main.c")
 include_directories(include ${CMAKE_CURRENT_BINARY_DIR})
 include_directories(
   ${PROJECT_SOURCE_DIR}/extensions/include
-  ${PROJECT_BINARY_DIR}/extensions/include
+  ${PROJECT_BINARY_DIR}/extensions
 )
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark-gfm_version.h.in
@@ -152,7 +152,7 @@ if(CMARK_SHARED OR CMARK_STATIC)
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_config.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-extension_api.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_export.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/export.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_version.h
     DESTINATION include
     )
@@ -178,14 +178,10 @@ include(CheckIncludeFile)
 include(CheckCSourceCompiles)
 include(CheckCSourceRuns)
 include(CheckSymbolExists)
-CHECK_INCLUDE_FILE(stdbool.h HAVE_STDBOOL_H)
+CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
 CHECK_C_SOURCE_COMPILES(
   "int main() { __builtin_expect(0,0); return 0; }"
   HAVE___BUILTIN_EXPECT)
-CHECK_C_SOURCE_COMPILES("
-  int f(void) __attribute__ (());
-  int main() { return 0; }
-" HAVE___ATTRIBUTE__)
 
 CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in

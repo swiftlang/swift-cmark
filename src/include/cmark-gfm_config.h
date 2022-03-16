@@ -1,29 +1,35 @@
 #ifndef CMARK_CONFIG_H
 #define CMARK_CONFIG_H
 
+#ifdef CMARK_USE_CMAKE_HEADERS
+// if the CMake config header exists, use that instead of this Swift package prebuilt one
+// we need to undefine the header guard, since config.h uses the same one
+#undef CMARK_CONFIG_H
+#include "config.h"
+#else
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define HAVE_STDBOOL_H
-
-#ifdef HAVE_STDBOOL_H
+#if __STDC_VERSION__ >= 199901l
   #include <stdbool.h>
 #elif !defined(__cplusplus)
   typedef char bool;
 #endif
 
+#if defined(__has_include)
+#  if __has_include(<unistd.h>)
+#    define HAVE_UNISTD_H
+#  endif
+#elif defined(unix) || defined(__unix__) || defined(__unix) || defined(__APPLE__)
+  // Apple Clang does not define any of the unix symbols, even though it provides unistd.h
+#  define HAVE_UNISTD_H
+#endif
+
 #define HAVE___BUILTIN_EXPECT
 
-#define HAVE___ATTRIBUTE__
-
 #define CMARK_THREADING
-
-#ifdef HAVE___ATTRIBUTE__
-  #define CMARK_ATTRIBUTE(list) __attribute__ (list)
-#else
-  #define CMARK_ATTRIBUTE(list)
-#endif
 
 #ifndef CMARK_INLINE
   #if defined(_MSC_VER) && !defined(__cplusplus)
@@ -75,4 +81,6 @@ CMARK_INLINE int c99_snprintf(char *outBuf, size_t size, const char *format, ...
 }
 #endif
 
-#endif
+#endif /* not CMARK_USE_CMAKE_HEADERS */
+
+#endif /* not CMARK_CONFIG_H */

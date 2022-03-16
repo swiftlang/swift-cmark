@@ -5,7 +5,7 @@
 
 #ifdef CMARK_THREADING
 
-#if __has_include(<unistd.h>)
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
@@ -30,8 +30,9 @@ pthread_mutex_lock(&NAME##_lock);
 
 #elif defined(_WIN32) // building for windows
 
-#define _WIN32_WINNT 0x0600
-#include <synchapi.h>
+#define _WIN32_WINNT 0x0600 // minimum target of Windows Vista
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 #define CMARK_DEFINE_ONCE(NAME) static INIT_ONCE NAME##_once = INIT_ONCE_STATIC_INIT;
 

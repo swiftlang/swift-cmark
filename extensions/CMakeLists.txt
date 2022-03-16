@@ -15,7 +15,7 @@ set(LIBRARY_SOURCES
 
 include_directories(
   ${PROJECT_SOURCE_DIR}/src/include
-  ${PROJECT_BINARY_DIR}/src/include
+  ${PROJECT_BINARY_DIR}/src
 )
 
 include (GenerateExportHeader)
@@ -86,7 +86,7 @@ install(TARGETS ${CMARK_INSTALL}
 if (CMARK_SHARED OR CMARK_STATIC)
   install(FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-core-extensions.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-extensions_export.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/extensions-export.h
   DESTINATION include
   )
 
@@ -98,14 +98,10 @@ include(CheckIncludeFile)
 include(CheckCSourceCompiles)
 include(CheckCSourceRuns)
 include(CheckSymbolExists)
-CHECK_INCLUDE_FILE(stdbool.h HAVE_STDBOOL_H)
+CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
 CHECK_C_SOURCE_COMPILES(
   "int main() { __builtin_expect(0,0); return 0; }"
   HAVE___BUILTIN_EXPECT)
-CHECK_C_SOURCE_COMPILES("
-  int f(void) __attribute__ (());
-  int main() { return 0; }
-" HAVE___ATTRIBUTE__)
 
 # Always compile with warnings
 if(MSVC)

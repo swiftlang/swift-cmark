@@ -1100,7 +1100,7 @@ static bufsize_t manual_scan_attribute_attributes(cmark_chunk *input, bufsize_t 
 
 static cmark_node *handle_close_bracket_attribute(cmark_parser *parser, subject *subj, bracket *opener) {
   bufsize_t startattributes, endattributes;
-  cmark_chunk attributes;
+  cmark_chunk attributes = CMARK_CHUNK_EMPTY;
   bufsize_t n;
   cmark_node *inl;
   cmark_chunk raw_label;

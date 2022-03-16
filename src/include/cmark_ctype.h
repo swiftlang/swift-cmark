@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "cmark-gfm_export.h"
+#include "export.h"
 
 /** Locale-independent versions of functions from ctype.h.
  * We want cmark to behave the same no matter what the system locale.
