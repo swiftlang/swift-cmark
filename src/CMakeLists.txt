@@ -158,6 +158,19 @@ if(CMARK_SHARED OR CMARK_STATIC)
     )
 
   install(EXPORT cmark-gfm DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
+
+  set(CMARK_TARGETS_FILE ${CMAKE_CURRENT_BINARY_DIR}/cmarkTargets.cmake)
+  export(TARGETS ${CMARK_INSTALL} FILE ${CMARK_TARGETS_FILE})
+
+  if(CMARK_THREADING AND NOT APPLE AND NOT MSVC)
+    if(CMARK_SHARED)
+      target_link_libraries(${LIBRARY} pthread)
+    endif(CMARK_SHARED)
+
+    if(CMARK_STATIC)
+      target_link_libraries(${STATICLIBRARY} pthread)
+    endif(CMARK_STATIC)
+  endif()
 endif()
 
 # Feature tests
