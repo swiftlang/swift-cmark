@@ -1,3 +1,21 @@
+[0.29.0.gfm.3]
+  * Fixed heap memory corruption vulnerabiliy via integer overflow per https://github.com/github/cmark-gfm/security/advisories/GHSA-mc3g-88wq-6f4x
+
+[0.29.0.gfm.2]
+  * Fixed issues with footnote rendering when used with the autolinker (#121),
+    and when footnotes are adjacent (#139).
+  * We now allow footnotes to be referenced from inside a footnote definition,
+    we use the footnote label for the fnref href text when rendering html, and
+    we insert multiple backrefs when a footnote has been referenced multiple
+    times (#229, #230)
+  * We added new data- attributes to footnote html rendering to make them
+    easier to style (#234)
+
+[0.29.0.gfm.1]
+
+  * Fixed denial of service bug in GFM's table extension
+    per https://github.com/github/cmark-gfm/security/advisories/GHSA-7gc6-9qr5-hc85
+
 [0.29.0]
 
   * Update spec to 0.29.
