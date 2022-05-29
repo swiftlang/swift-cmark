@@ -21,8 +21,13 @@ void cmark_syntax_extension_free(cmark_mem *mem, cmark_syntax_extension *extensi
 
 cmark_syntax_extension *cmark_syntax_extension_new(const char *name) {
   cmark_syntax_extension *res = (cmark_syntax_extension *) _mem->calloc(1, sizeof(cmark_syntax_extension));
-  res->name = (char *) _mem->calloc(1, sizeof(char) * (strlen(name)) + 1);
+  size_t size = strlen(name) + 1;
+  res->name = (char *) _mem->calloc(size, sizeof(char));
+#if defined(_WIN32)
+  strcpy_s(res->name, size, name);
+#else
   strcpy(res->name, name);
+#endif
   return res;
 }
 
