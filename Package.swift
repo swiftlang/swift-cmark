@@ -5,16 +5,25 @@ import PackageDescription
 
 #if os(Windows)
 #if arch(i386) || arch(x86_64)
-    let cSettings: [CSetting] = [
+    var cSettings: [CSetting] = [
         .define("_X86_", .when(platforms: [.windows])),
     ]
 #elseif arch(arm) || arch(arm64)
-    let cSettings: [CSetting] = [
+    var cSettings: [CSetting] = [
         .define("_ARM_", .when(platforms: [.windows])),
     ]
 #else
 #error("unsupported architecture")
 #endif
+    // When building the library on Windows, we do not have proper control of
+    // whether it is being built statically or dynamically.  However, given the
+    // current default of static, we will assume that we are building
+    // statically.  More importantly, should this not hold, this will fail at
+    // link time.
+    cSettings += [
+        .define("CMARK_GFM_STATIC_DEFINE", .when(platforms: [.windows])),
+        .define("CMARK_GFM_EXTENSIONS_STATIC_DEFINE", .when(platforms: [.windows])),
+    ]
 #else
     let cSettings: [CSetting] = []
 #endif
