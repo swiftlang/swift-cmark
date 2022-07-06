@@ -138,12 +138,12 @@ if __name__ == '__main__':
             p.terminate()
             p.join()
             print('[TIMED OUT]')
-            if allowed_failures[description]:
+            if description in allowed_failures:
                 ignored += 1
             else:
                 errored += 1
         elif p.exitcode != 0:
-            if allowed_failures[description]:
+            if description in allowed_failures:
                 ignored += 1
             else:
                 errored += 1
