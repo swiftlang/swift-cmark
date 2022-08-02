@@ -226,6 +226,10 @@ CMARK_GFM_EXPORT cmark_node *cmark_node_first_child(cmark_node *node);
  */
 CMARK_GFM_EXPORT cmark_node *cmark_node_last_child(cmark_node *node);
 
+/** Returns the N'th child of 'node', or NULL if 'node' does not have at least N children.
+ */
+CMARK_GFM_EXPORT cmark_node *cmark_node_nth_child(cmark_node *node, int n);
+
 /**
  * ## Iterator
  *
@@ -779,6 +783,11 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  * enables the CMARK_OPT_INLINE_ONLY option.
  */
 #define CMARK_OPT_PRESERVE_WHITESPACE ((1 << 19) | CMARK_OPT_INLINE_ONLY)
+
+/** Parse table cells defining row span using a double-quote symbol (`"`, or "ditto mark")
+ * instead of the default caret symbol (`^`).
+ */
+#define CMARK_OPT_TABLE_ROWSPAN_DITTO (1 << 20)
 
 /**
  * ## Version information

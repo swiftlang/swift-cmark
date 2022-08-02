@@ -30,14 +30,21 @@ typedef struct {
 } node_table_row;
 
 typedef struct {
+  unsigned colspan, rowspan;
+} node_cell_data;
+
+typedef struct {
   cmark_strbuf *buf;
   int start_offset, end_offset, internal_offset;
+  node_cell_data *cell_data;
 } node_cell;
 
 static void free_table_cell(cmark_mem *mem, void *data) {
   node_cell *cell = (node_cell *)data;
   cmark_strbuf_free((cmark_strbuf *)cell->buf);
   mem->free(cell->buf);
+  if (cell->cell_data)
+    mem->free(cell->cell_data);
   mem->free(cell);
 }
 
@@ -58,6 +65,10 @@ static void free_node_table(cmark_mem *mem, void *ptr) {
 
 static void free_node_table_row(cmark_mem *mem, void *ptr) {
   mem->free(ptr);
+}
+
+static void free_node_table_cell_data(cmark_mem *mem, void *data) {
+  mem->free(data);
 }
 
 static int get_n_table_columns(cmark_node *node) {
@@ -87,6 +98,59 @@ static int set_table_alignments(cmark_node *node, uint8_t *alignments) {
     return 0;
 
   ((node_table *)node->as.opaque)->alignments = alignments;
+  return 1;
+}
+
+static unsigned get_cell_colspan(cmark_node *node) {
+  if (!node || node->type != CMARK_NODE_TABLE_CELL)
+    return UINT_MAX;
+
+  node_cell_data *data = (node_cell_data *)node->as.opaque;
+  if (!data)
+    return 1; // default to 1 in case the cell was created as filler on an incomplete row
+  return data->colspan;
+}
+
+static unsigned get_cell_rowspan(cmark_node *node) {
+  if (!node || node->type != CMARK_NODE_TABLE_CELL)
+    return UINT_MAX;
+
+  node_cell_data *data = (node_cell_data *)node->as.opaque;
+  if (!data)
+    return 1; // default to 1 in case the cell was created as filler on an incomplete row
+  return data->rowspan;
+}
+
+static int set_cell_colspan(cmark_node *node, unsigned colspan) {
+  if (!node || node->type != CMARK_NODE_TABLE_CELL)
+    return 0;
+
+  node_cell_data *data = (node_cell_data *)node->as.opaque;
+  if (!data)
+    return 0;
+  data->colspan = colspan;
+  return 1;
+}
+
+static int set_cell_rowspan(cmark_node *node, unsigned rowspan) {
+  if (!node || node->type != CMARK_NODE_TABLE_CELL)
+    return 0;
+
+  node_cell_data *data = (node_cell_data *)node->as.opaque;
+  if (!data)
+    return 0;
+  data->rowspan = rowspan;
+  return 1;
+}
+
+static int increment_cell_rowspan(cmark_node *node) {
+  if (!node || node->type != CMARK_NODE_TABLE_CELL)
+    return 0;
+
+  node_cell_data *data = (node_cell_data *)node->as.opaque;
+  if (!data)
+    return 0;
+  ++data->rowspan;
   return 1;
 }
 
@@ -155,11 +219,47 @@ static table_row *row_from_string(cmark_syntax_extension *self,
       node_cell *cell = (node_cell *)parser->mem->calloc(1, sizeof(*cell));
       cell->buf = cell_buf;
       cell->start_offset = offset;
-      cell->end_offset = offset + cell_matched - 1;
+      if (cell_matched > 0)
+        cell->end_offset = offset + cell_matched - 1;
+      else
+        cell->end_offset = offset;
 
       while (cell->start_offset > 0 && string[cell->start_offset - 1] != '|') {
         --cell->start_offset;
         ++cell->internal_offset;
+      }
+
+      cell->cell_data = (node_cell_data *)parser->mem->calloc(1, sizeof(node_cell_data));
+
+      // Check for a column-spanning cell
+      if (row->n_columns > 0 && cmark_strbuf_len(cell->buf) == 0 && cell->start_offset == cell->end_offset) {
+        cell->cell_data->colspan = 0;
+
+        // find the last cell that isn't part of a colspan, and increment that colspan
+        cmark_llist *tmp = row->cells;
+        node_cell *colspan_cell = NULL;
+        while (tmp) {
+          node_cell *this_cell = (node_cell *)tmp->data;
+          if (this_cell->cell_data->colspan > 0)
+            colspan_cell = this_cell;
+          tmp = tmp->next;
+        }
+        if (colspan_cell)
+          ++colspan_cell->cell_data->colspan;
+      } else {
+        cell->cell_data->colspan = 1;
+      }
+
+      // Check for a row-span marker. Actually incrementing the spanning cell's rowspan will happen later
+      cell->cell_data->rowspan = 1;
+      if (parser->options & CMARK_OPT_TABLE_ROWSPAN_DITTO) {
+        if (strcmp(cmark_strbuf_cstr(cell->buf), "\"") == 0) {
+          cell->cell_data->rowspan = 0;
+        }
+      } else {
+        if (strcmp(cmark_strbuf_cstr(cell->buf), "^") == 0) {
+          cell->cell_data->rowspan = 0;
+        }
       }
 
       // make sure we never wrap row->n_columns
@@ -337,6 +437,8 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
       header_cell->start_line = header_cell->end_line = parent_container->start_line;
       header_cell->internal_offset = cell->internal_offset;
       header_cell->end_column = parent_container->start_column + cell->end_offset;
+      header_cell->as.opaque = cell->cell_data;
+      cell->cell_data = NULL;
       cmark_node_set_string_content(header_cell, (char *) cell->buf->ptr);
       cmark_node_set_syntax_extension(header_cell, self);
     }
@@ -377,9 +479,39 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
       return NULL;
   }
 
+  // Check the new row for rowspan markers and increment the rowspan of the cell it's merging with
+  int table_columns = get_n_table_columns(parent_container);
   {
     cmark_llist *tmp;
-    int i, table_columns = get_n_table_columns(parent_container);
+    int i;
+
+    for (tmp = row->cells, i = 0; tmp && i < table_columns; tmp = tmp->next, ++i) {
+      node_cell *this_cell = (node_cell *)tmp->data;
+      if (this_cell->cell_data->rowspan == 0) {
+        // Rowspan marker. Scan up through previous rows and increment the spanning cell's rowspan
+        cmark_node *check_row = table_row_block->prev;
+        cmark_node *spanning_cell = NULL;
+        while (check_row && !spanning_cell) {
+          cmark_node *check_cell = cmark_node_nth_child(check_row, i);
+          unsigned check_rowspan = get_cell_rowspan(check_cell);
+          if (check_rowspan == 0) {
+            check_row = check_row->prev;
+          } else {
+            spanning_cell = check_cell;
+          }
+        }
+        if (spanning_cell) {
+          increment_cell_rowspan(spanning_cell);
+          // The rowspan marker cell still has the ^/" marker, clear it out so it won't display
+          cmark_strbuf_truncate(this_cell->buf, 0);
+        }
+      }
+    }
+  }
+
+  {
+    cmark_llist *tmp;
+    int i;
 
     for (tmp = row->cells, i = 0; tmp && i < table_columns; tmp = tmp->next, ++i) {
       node_cell *cell = (node_cell *) tmp->data;
@@ -387,6 +519,8 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
           CMARK_NODE_TABLE_CELL, parent_container->start_column + cell->start_offset);
       node->internal_offset = cell->internal_offset;
       node->end_column = parent_container->start_column + cell->end_offset;
+      node->as.opaque = cell->cell_data;
+      cell->cell_data = NULL;
       cmark_node_set_string_content(node, (char *) cell->buf->ptr);
       cmark_node_set_syntax_extension(node, self);
     }
@@ -491,10 +625,24 @@ static void commonmark_render(cmark_syntax_extension *extension,
       renderer->out(renderer, node, "|", false, LITERAL);
     }
   } else if (node->type == CMARK_NODE_TABLE_CELL) {
+    unsigned colspan = get_cell_colspan(node);
+    unsigned rowspan = get_cell_rowspan(node);
     if (entering) {
-      renderer->out(renderer, node, " ", false, LITERAL);
+      if (colspan > 0) {
+        renderer->out(renderer, node, " ", false, LITERAL);
+        if (rowspan == 0) {
+          if (options & CMARK_OPT_TABLE_ROWSPAN_DITTO) {
+            renderer->out(renderer, node, "\"", false, LITERAL);
+          } else {
+            renderer->out(renderer, node, "^", false, LITERAL);
+          }
+        }
+      }
     } else {
-      renderer->out(renderer, node, " |", false, LITERAL);
+      if (colspan > 0) {
+        renderer->out(renderer, node, " ", false, LITERAL);
+      }
+      renderer->out(renderer, node, "|", false, LITERAL);
       if (((node_table_row *)node->parent->as.opaque)->is_header &&
           !node->next) {
         int i;
@@ -590,6 +738,22 @@ static const char *xml_attr(cmark_syntax_extension *extension,
       case 'c': return " align=\"center\"";
       case 'r': return " align=\"right\"";
       }
+    } else {
+      unsigned colspan = get_cell_colspan(node);
+      unsigned rowspan = get_cell_rowspan(node);
+      // XXX: The extension API doesn't allow you to return a dynamic string without leaking it, so
+      // specific column- and row-span information isn't printed
+      if (colspan == 0) {
+        return " colspan_filler";
+      } else if (rowspan == 0) {
+        return " rowspan_filler";
+      } else if (colspan > 1 && rowspan > 1) {
+        return " colspan rowspan";
+      } else if (colspan > 1) {
+        return " colspan";
+      } else if (rowspan > 1) {
+        return " rowspan";
+      }
     }
   }
 
@@ -663,6 +827,23 @@ static void html_table_add_align(cmark_strbuf* html, const char* align, int opti
   }
 }
 
+static void html_table_add_spans(cmark_strbuf *html, unsigned colspan, unsigned rowspan) {
+  if (colspan > 1) {
+    char n[32];
+    snprintf(n, sizeof(n), "%d", colspan);
+    cmark_strbuf_puts(html, " colspan=\"");
+    cmark_strbuf_puts(html, n);
+    cmark_strbuf_puts(html, "\"");
+  }
+  if (rowspan > 1) {
+    char n[32];
+    snprintf(n, sizeof(n), "%d", rowspan);
+    cmark_strbuf_puts(html, " rowspan=\"");
+    cmark_strbuf_puts(html, n);
+    cmark_strbuf_puts(html, "\"");
+  }
+}
+
 struct html_table_state {
   unsigned need_closing_table_body : 1;
   unsigned in_table_header : 1;
@@ -722,33 +903,40 @@ static void html_render(cmark_syntax_extension *extension,
       }
     }
   } else if (node->type == CMARK_NODE_TABLE_CELL) {
-    uint8_t *alignments = get_table_alignments(node->parent->parent);
-    if (entering) {
-      cmark_html_render_cr(html);
-      if (table_state->in_table_header) {
-        cmark_strbuf_puts(html, "<th");
+    unsigned colspan = get_cell_colspan(node);
+    unsigned rowspan = get_cell_rowspan(node);
+    // A value of zero in either span means that this cell is a "filler" cell. Don't render those.
+    if (colspan > 0 && rowspan > 0) {
+      uint8_t *alignments = get_table_alignments(node->parent->parent);
+      if (entering) {
+        cmark_html_render_cr(html);
+        if (table_state->in_table_header) {
+          cmark_strbuf_puts(html, "<th");
+        } else {
+          cmark_strbuf_puts(html, "<td");
+        }
+
+        int i = 0;
+        for (n = node->parent->first_child; n; n = n->next, ++i)
+          if (n == node)
+            break;
+
+        switch (alignments[i]) {
+          case 'l': html_table_add_align(html, "left", options); break;
+          case 'c': html_table_add_align(html, "center", options); break;
+          case 'r': html_table_add_align(html, "right", options); break;
+        }
+
+        html_table_add_spans(html, colspan, rowspan);
+
+        cmark_html_render_sourcepos(node, html, options);
+        cmark_strbuf_putc(html, '>');
       } else {
-        cmark_strbuf_puts(html, "<td");
-      }
-
-      int i = 0;
-      for (n = node->parent->first_child; n; n = n->next, ++i)
-        if (n == node)
-          break;
-
-      switch (alignments[i]) {
-      case 'l': html_table_add_align(html, "left", options); break;
-      case 'c': html_table_add_align(html, "center", options); break;
-      case 'r': html_table_add_align(html, "right", options); break;
-      }
-
-      cmark_html_render_sourcepos(node, html, options);
-      cmark_strbuf_putc(html, '>');
-    } else {
-      if (table_state->in_table_header) {
-        cmark_strbuf_puts(html, "</th>");
-      } else {
-        cmark_strbuf_puts(html, "</td>");
+        if (table_state->in_table_header) {
+          cmark_strbuf_puts(html, "</th>");
+        } else {
+          cmark_strbuf_puts(html, "</td>");
+        }
       }
     }
   } else {
@@ -762,7 +950,7 @@ static void opaque_alloc(cmark_syntax_extension *self, cmark_mem *mem, cmark_nod
   } else if (node->type == CMARK_NODE_TABLE_ROW) {
     node->as.opaque = mem->calloc(1, sizeof(node_table_row));
   } else if (node->type == CMARK_NODE_TABLE_CELL) {
-    node->as.opaque = mem->calloc(1, sizeof(node_cell));
+    node->as.opaque = mem->calloc(1, sizeof(node_cell_data));
   }
 }
 
@@ -771,6 +959,8 @@ static void opaque_free(cmark_syntax_extension *self, cmark_mem *mem, cmark_node
     free_node_table(mem, node->as.opaque);
   } else if (node->type == CMARK_NODE_TABLE_ROW) {
     free_node_table_row(mem, node->as.opaque);
+  } else if (node->type == CMARK_NODE_TABLE_CELL) {
+    free_node_table_cell_data(mem, node->as.opaque);
   }
 }
 
@@ -845,4 +1035,24 @@ int cmark_gfm_extensions_set_table_row_is_header(cmark_node *node, int is_header
 
   ((node_table_row *)node->as.opaque)->is_header = (is_header != 0);
   return 1;
+}
+
+unsigned cmark_gfm_extensions_get_table_cell_colspan(cmark_node *node)
+{
+  return get_cell_colspan(node);
+}
+
+unsigned cmark_gfm_extensions_get_table_cell_rowspan(cmark_node *node)
+{
+  return get_cell_rowspan(node);
+}
+
+int cmark_gfm_extensions_set_table_cell_colspan(cmark_node *node, unsigned colspan)
+{
+  return set_cell_colspan(node, colspan);
+}
+
+int cmark_gfm_extensions_set_table_cell_rowspan(cmark_node *node, unsigned rowspan)
+{
+  return set_cell_rowspan(node, rowspan);
 }

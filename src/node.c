@@ -307,6 +307,19 @@ cmark_node *cmark_node_last_child(cmark_node *node) {
   }
 }
 
+cmark_node *cmark_node_nth_child(cmark_node *node, int n) {
+  if (node == NULL) {
+    return NULL;
+  }
+  int i = 0;
+  cmark_node *ret = node->first_child;
+  while (ret && i < n) {
+    ret = ret->next;
+    ++i;
+  }
+  return ret;
+}
+
 void *cmark_node_get_user_data(cmark_node *node) {
   if (node == NULL) {
     return NULL;
