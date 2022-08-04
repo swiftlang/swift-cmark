@@ -250,7 +250,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
         cell->cell_data->colspan = 1;
       }
 
-      // Check for a row-span marker. Actually incrementing the spanning cell's rowspan will happen later
+      // Check this cell for a row-span marker, so that the spanning cell's rowspan can be incremented later.
       cell->cell_data->rowspan = 1;
       if (parser->options & CMARK_OPT_TABLE_ROWSPAN_DITTO) {
         if (strcmp(cmark_strbuf_cstr(cell->buf), "\"") == 0) {
