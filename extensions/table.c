@@ -229,37 +229,41 @@ static table_row *row_from_string(cmark_syntax_extension *self,
         ++cell->internal_offset;
       }
 
-      cell->cell_data = (node_cell_data *)parser->mem->calloc(1, sizeof(node_cell_data));
+      if (parser->options & CMARK_OPT_TABLE_SPANS) {
+        cell->cell_data = (node_cell_data *)parser->mem->calloc(1, sizeof(node_cell_data));
 
-      // Check for a column-spanning cell
-      if (row->n_columns > 0 && cmark_strbuf_len(cell->buf) == 0 && cell->start_offset == cell->end_offset) {
-        cell->cell_data->colspan = 0;
+        // Check for a column-spanning cell
+        if (row->n_columns > 0 && cmark_strbuf_len(cell->buf) == 0 && cell->start_offset == cell->end_offset) {
+          cell->cell_data->colspan = 0;
 
-        // find the last cell that isn't part of a colspan, and increment that colspan
-        cmark_llist *tmp = row->cells;
-        node_cell *colspan_cell = NULL;
-        while (tmp) {
-          node_cell *this_cell = (node_cell *)tmp->data;
-          if (this_cell->cell_data->colspan > 0)
-            colspan_cell = this_cell;
-          tmp = tmp->next;
+          // find the last cell that isn't part of a colspan, and increment that colspan
+          cmark_llist *tmp = row->cells;
+          node_cell *colspan_cell = NULL;
+          while (tmp) {
+            node_cell *this_cell = (node_cell *)tmp->data;
+            if (this_cell->cell_data->colspan > 0)
+              colspan_cell = this_cell;
+            tmp = tmp->next;
+          }
+          if (colspan_cell)
+            ++colspan_cell->cell_data->colspan;
+        } else {
+          cell->cell_data->colspan = 1;
         }
-        if (colspan_cell)
-          ++colspan_cell->cell_data->colspan;
+
+        // Check this cell for a row-span marker, so that the spanning cell's rowspan can be incremented later.
+        cell->cell_data->rowspan = 1;
+        if (parser->options & CMARK_OPT_TABLE_ROWSPAN_DITTO) {
+          if (strcmp(cmark_strbuf_cstr(cell->buf), "\"") == 0) {
+            cell->cell_data->rowspan = 0;
+          }
+        } else {
+          if (strcmp(cmark_strbuf_cstr(cell->buf), "^") == 0) {
+            cell->cell_data->rowspan = 0;
+          }
+        }
       } else {
-        cell->cell_data->colspan = 1;
-      }
-
-      // Check this cell for a row-span marker, so that the spanning cell's rowspan can be incremented later.
-      cell->cell_data->rowspan = 1;
-      if (parser->options & CMARK_OPT_TABLE_ROWSPAN_DITTO) {
-        if (strcmp(cmark_strbuf_cstr(cell->buf), "\"") == 0) {
-          cell->cell_data->rowspan = 0;
-        }
-      } else {
-        if (strcmp(cmark_strbuf_cstr(cell->buf), "^") == 0) {
-          cell->cell_data->rowspan = 0;
-        }
+        cell->cell_data = NULL;
       }
 
       // make sure we never wrap row->n_columns
@@ -479,9 +483,10 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
       return NULL;
   }
 
-  // Check the new row for rowspan markers and increment the rowspan of the cell it's merging with
   int table_columns = get_n_table_columns(parent_container);
-  {
+
+  if (parser->options & CMARK_OPT_TABLE_SPANS) {
+    // Check the new row for rowspan markers and increment the rowspan of the cell it's merging with
     cmark_llist *tmp;
     int i;
 

@@ -47,6 +47,8 @@ int cmark_gfm_extensions_set_table_cell_rowspan(cmark_node *node, unsigned rowsp
 
  A value of 0 indicates that the cell is a "filler" cell, intended to be overlapped with a previous
  cell with a span > 1.
+
+ Column span is only parsed when \c CMARK_OPT_TABLE_SPANS is set.
  */
 CMARK_GFM_EXTENSIONS_EXPORT
 unsigned cmark_gfm_extensions_get_table_cell_colspan(cmark_node *node);
@@ -56,6 +58,8 @@ unsigned cmark_gfm_extensions_get_table_cell_colspan(cmark_node *node);
 
  A value of 0 indicates that the cell is a "filler" cell, intended to be overlapped with a previous
  cell with a span > 1.
+
+ Row span is only parsed when \c CMARK_OPT_TABLE_SPANS is set.
  */
 CMARK_GFM_EXTENSIONS_EXPORT
 unsigned cmark_gfm_extensions_get_table_cell_rowspan(cmark_node *node);

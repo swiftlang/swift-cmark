@@ -429,7 +429,7 @@ Here's a link to [Freedom Planet 2][].
 ```````````````````````````````` example
 | a | b | c |
 | --- | --- | --- |
-| d | | e |
+| d || e |
 .
 <table>
 <thead>

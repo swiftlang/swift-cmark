@@ -784,10 +784,16 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  */
 #define CMARK_OPT_PRESERVE_WHITESPACE ((1 << 19) | CMARK_OPT_INLINE_ONLY)
 
+/** Parse row- and column-span in tables.
+ */
+#define CMARK_OPT_TABLE_SPANS (1 << 20)
+
 /** Parse table cells defining row span using a double-quote symbol (`"`, or "ditto mark")
  * instead of the default caret symbol (`^`).
+ *
+ * Does nothing unless \c CMARK_OPT_TABLE_SPANS is also set.
  */
-#define CMARK_OPT_TABLE_ROWSPAN_DITTO (1 << 20)
+#define CMARK_OPT_TABLE_ROWSPAN_DITTO (1 << 21)
 
 /**
  * ## Version information

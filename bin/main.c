@@ -62,6 +62,8 @@ void print_usage() {
   printf("                                  with two tildes\n");
   printf("  --table-prefer-style-attributes Use style attributes to align table cells\n"
          "                                  instead of align attributes.\n");
+  printf("  --table-spans                   Enable parsing row- and column-span\n"
+         "                                  in tables\n");
   printf("  --table-rowspan-ditto           Use a double-quote 'ditto mark' to indicate\n"
          "                                  row span in tables instead of a caret.\n");
   printf("  --full-info-string              Include remainder of code block info\n"
@@ -169,6 +171,8 @@ int main(int argc, char *argv[]) {
       options |= CMARK_OPT_FULL_INFO_STRING;
     } else if (strcmp(argv[i], "--table-prefer-style-attributes") == 0) {
       options |= CMARK_OPT_TABLE_PREFER_STYLE_ATTRIBUTES;
+    } else if (strcmp(argv[i], "--table-spans") == 0) {
+      options |= CMARK_OPT_TABLE_SPANS;
     } else if (strcmp(argv[i], "--table-rowspan-ditto") == 0) {
       options |= CMARK_OPT_TABLE_ROWSPAN_DITTO;
     } else if (strcmp(argv[i], "--strikethrough-double-tilde") == 0) {

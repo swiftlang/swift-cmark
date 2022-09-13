@@ -1417,6 +1417,160 @@ static void parser_interrupt(test_batch_runner *runner) {
   cmark_syntax_extension_free(cmark_get_default_mem_allocator(), my_ext);
 }
 
+static void compare_table_spans_html(test_batch_runner *runner, const char *markdown, bool use_ditto,
+                                     const char *expected_html, const char *msg) {
+  int options = CMARK_OPT_TABLE_SPANS;
+  if (use_ditto)
+    options |= CMARK_OPT_TABLE_ROWSPAN_DITTO;
+  cmark_parser *parser = cmark_parser_new(options);
+  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("table"));
+
+  cmark_parser_feed(parser, markdown, strlen(markdown));
+
+  cmark_node *doc = cmark_parser_finish(parser);
+  char *html = cmark_render_html(doc, options, NULL);
+  STR_EQ(runner, html, expected_html, msg);
+
+  free(html);
+  cmark_node_free(doc);
+  cmark_parser_free(parser);
+}
+
+static void table_spans(test_batch_runner *runner) {
+  {
+    static const char markdown[] =
+      "| one | two |\n"
+      "| --- | --- |\n"
+      "| hello    ||\n";
+    static const char html[] =
+      "<table>\n"
+      "<thead>\n"
+      "<tr>\n"
+      "<th>one</th>\n"
+      "<th>two</th>\n"
+      "</tr>\n"
+      "</thead>\n"
+      "<tbody>\n"
+      "<tr>\n"
+      "<td colspan=\"2\">hello</td>\n"
+      "</tr>\n"
+      "</tbody>\n"
+      "</table>\n";
+    compare_table_spans_html(runner, markdown, false, html,
+                             "table colspans should work when enabled");
+  }
+  {
+    static const char markdown[] =
+      "| one | two   |\n"
+      "| --- | ----- |\n"
+      "| big | small |\n"
+      "| ^   | small |\n";
+    static const char html[] =
+      "<table>\n"
+      "<thead>\n"
+      "<tr>\n"
+      "<th>one</th>\n"
+      "<th>two</th>\n"
+      "</tr>\n"
+      "</thead>\n"
+      "<tbody>\n"
+      "<tr>\n"
+      "<td rowspan=\"2\">big</td>\n"
+      "<td>small</td>\n"
+      "</tr>\n"
+      "<tr>\n"
+      "<td>small</td>\n"
+      "</tr>\n"
+      "</tbody>\n"
+      "</table>\n";
+    compare_table_spans_html(runner, markdown, false, html,
+                             "table rowspans should work when enabled");
+  }
+  {
+    static const char markdown[] =
+      "| one | two   |\n"
+      "| --- | ----- |\n"
+      "| big | small |\n"
+      "| \"   | small |\n";
+    static const char html[] =
+      "<table>\n"
+      "<thead>\n"
+      "<tr>\n"
+      "<th>one</th>\n"
+      "<th>two</th>\n"
+      "</tr>\n"
+      "</thead>\n"
+      "<tbody>\n"
+      "<tr>\n"
+      "<td rowspan=\"2\">big</td>\n"
+      "<td>small</td>\n"
+      "</tr>\n"
+      "<tr>\n"
+      "<td>small</td>\n"
+      "</tr>\n"
+      "</tbody>\n"
+      "</table>\n";
+    compare_table_spans_html(runner, markdown, true, html,
+                             "rowspan ditto marks should work when enabled");
+  }
+  {
+    static const char markdown[] =
+      "| one | two | three |\n"
+      "| --- | --- | ----- |\n"
+      "| big      || small |\n"
+      "| ^        || small |\n";
+    static const char html[] =
+      "<table>\n"
+      "<thead>\n"
+      "<tr>\n"
+      "<th>one</th>\n"
+      "<th>two</th>\n"
+      "<th>three</th>\n"
+      "</tr>\n"
+      "</thead>\n"
+      "<tbody>\n"
+      "<tr>\n"
+      "<td colspan=\"2\" rowspan=\"2\">big</td>\n"
+      "<td>small</td>\n"
+      "</tr>\n"
+      "<tr>\n"
+      "<td>small</td>\n"
+      "</tr>\n"
+      "</tbody>\n"
+      "</table>\n";
+    compare_table_spans_html(runner, markdown, false, html,
+                             "colspan and rowspan should combine sensibly");
+  }
+  {
+    static const char markdown[] =
+      "| one | two | three |\n"
+      "| --- | --- | ----- |\n"
+      "| big      || small |\n"
+      "| \"        || small |\n";
+    static const char html[] =
+      "<table>\n"
+      "<thead>\n"
+      "<tr>\n"
+      "<th>one</th>\n"
+      "<th>two</th>\n"
+      "<th>three</th>\n"
+      "</tr>\n"
+      "</thead>\n"
+      "<tbody>\n"
+      "<tr>\n"
+      "<td colspan=\"2\" rowspan=\"2\">big</td>\n"
+      "<td>small</td>\n"
+      "</tr>\n"
+      "<tr>\n"
+      "<td>small</td>\n"
+      "</tr>\n"
+      "</tbody>\n"
+      "</table>\n";
+    compare_table_spans_html(runner, markdown, true, html,
+                             "colspan and rowspan should combine when ditto marks are enabled");
+  }
+}
+
 int main() {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -1452,6 +1606,7 @@ int main() {
   verify_custom_attributes_node(runner);
   verify_custom_attributes_node_with_footnote(runner);
   parser_interrupt(runner);
+  table_spans(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;
