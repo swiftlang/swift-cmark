@@ -32,6 +32,38 @@ int cmark_gfm_extensions_set_table_alignments(cmark_node *node, uint16_t ncols, 
 CMARK_GFM_EXTENSIONS_EXPORT
 int cmark_gfm_extensions_get_table_row_is_header(cmark_node *node);
 
+/** Sets the column span for the table cell, returning 1 on success and 0 on error.
+ */
+CMARK_GFM_EXTENSIONS_EXPORT
+int cmark_gfm_extensions_set_table_cell_colspan(cmark_node *node, unsigned colspan);
+
+/** Sets the row span for the table cell, returning 1 on success and 0 on error.
+ */
+CMARK_GFM_EXTENSIONS_EXPORT
+int cmark_gfm_extensions_set_table_cell_rowspan(cmark_node *node, unsigned rowspan);
+
+/**
+ Gets the column span for the table cell, returning \c UINT_MAX on error.
+
+ A value of 0 indicates that the cell is a "filler" cell, intended to be overlapped with a previous
+ cell with a span > 1.
+
+ Column span is only parsed when \c CMARK_OPT_TABLE_SPANS is set.
+ */
+CMARK_GFM_EXTENSIONS_EXPORT
+unsigned cmark_gfm_extensions_get_table_cell_colspan(cmark_node *node);
+
+/**
+ Gets the row span for the table cell, returning \c UINT_MAX on error.
+
+ A value of 0 indicates that the cell is a "filler" cell, intended to be overlapped with a previous
+ cell with a span > 1.
+
+ Row span is only parsed when \c CMARK_OPT_TABLE_SPANS is set.
+ */
+CMARK_GFM_EXTENSIONS_EXPORT
+unsigned cmark_gfm_extensions_get_table_cell_rowspan(cmark_node *node);
+
 /** Sets whether the node is a table header row, returning 1 on success and 0 on error.
  */
 CMARK_GFM_EXTENSIONS_EXPORT
