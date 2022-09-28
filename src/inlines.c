@@ -47,6 +47,7 @@ typedef struct bracket {
   bracket_type type;
   bool active;
   bool bracket_after;
+  bool in_bracket[4];
 } bracket;
 
 typedef struct subject{
@@ -532,6 +533,7 @@ static void push_bracket(subject *subj, bracket_type type, cmark_node *inl_text)
   bracket *b = (bracket *)subj->mem->calloc(1, sizeof(bracket));
   if (subj->last_bracket != NULL) {
     subj->last_bracket->bracket_after = true;
+    memcpy(b->in_bracket, subj->last_bracket->in_bracket, sizeof(b->in_bracket));
   }
   b->type = type;
   b->active = true;
@@ -540,6 +542,7 @@ static void push_bracket(subject *subj, bracket_type type, cmark_node *inl_text)
   b->previous_delimiter = subj->last_delim;
   b->position = subj->pos;
   b->bracket_after = false;
+  b->in_bracket[type] = true;
   subj->last_bracket = b;
 }
 
@@ -1401,6 +1404,17 @@ match:
       }
       opener = opener->previous;
     }
+    bool in_image = false;
+    if (opener) {
+      in_image = opener->in_bracket[IMAGE];
+    }
+    bracket *opener2 = subj->last_bracket;
+    while (opener2 != opener) {
+      if (opener2->type == IMAGE) {
+        opener2->in_bracket[IMAGE] = in_image;
+      }
+      opener2 = opener2->previous;
+    }
   }
 
   return NULL;
@@ -1891,19 +1905,20 @@ cmark_chunk *cmark_inline_parser_get_chunk(cmark_inline_parser *parser) {
 }
 
 int cmark_inline_parser_in_bracket(cmark_inline_parser *parser, int type) {
-  for (bracket *b = parser->last_bracket; b; b = b->previous) {
-    if (b->active) {
-      switch (type) {
-        case 0:
-          return b->type == LINK;
-        case 1:
-          return b->type == IMAGE;
-        case 2:
-          return b->type == ATTRIBUTE;
-      }
-    }
+  bracket *b = parser->last_bracket;
+  if (!b) {
+    return 0;
   }
-  return 0;
+  switch (type) {
+    case 0:
+      return b->in_bracket[LINK];
+    case 1:
+      return b->in_bracket[IMAGE];
+    case 2:
+      return b->in_bracket[ATTRIBUTE];
+    default:
+      return 0;
+  }
 }
 
 void cmark_node_unput(cmark_node *node, int n) {
