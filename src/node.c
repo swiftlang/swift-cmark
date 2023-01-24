@@ -2,14 +2,19 @@
 #include <string.h>
 
 #include "cmark-gfm_config.h"
+#include "mutex.h"
 #include "node.h"
 #include "syntax_extension.h"
+
+CMARK_DEFINE_LOCK(nextflag)
 
 static void S_node_unlink(cmark_node *node);
 
 #define NODE_MEM(node) cmark_node_mem(node)
 
 void cmark_register_node_flag(cmark_node_internal_flags *flags) {
+  CMARK_INITIALIZE_AND_LOCK(nextflag);
+
   static cmark_node_internal_flags nextflag = CMARK_NODE__REGISTER_FIRST;
 
   // flags should be a pointer to a global variable and this function
@@ -27,6 +32,8 @@ void cmark_register_node_flag(cmark_node_internal_flags *flags) {
 
   *flags = nextflag;
   nextflag <<= 1;
+
+  CMARK_UNLOCK(nextflag);
 }
 
 void cmark_init_standard_node_flags() {}
