@@ -84,19 +84,17 @@ static void *arena_calloc(size_t nmem, size_t size) {
 
   CMARK_INITIALIZE_AND_LOCK(arena);
 
-  void *ptr = NULL;
-
+  struct arena_chunk *chunk;
   if (sz > A->sz) {
-    A->prev = alloc_arena_chunk(sz, A->prev);
-    ptr = (uint8_t *) A->prev->ptr;
+    A->prev = chunk = alloc_arena_chunk(sz, A->prev);
+  } else if (sz > A->sz - A->used) {
+    A = chunk = alloc_arena_chunk(A->sz + A->sz / 2, A);
   } else {
-    if (sz > A->sz - A->used) {
-      A = alloc_arena_chunk(A->sz + A->sz / 2, A);
-    }
-    ptr = (uint8_t *) A->ptr + A->used;
-    A->used += sz;
-    *((size_t *) ptr) = sz - sizeof(size_t);
+    chunk = A;
   }
+  void *ptr = (uint8_t *) chunk->ptr + chunk->used;
+  chunk->used += sz;
+  *((size_t *) ptr) = sz - sizeof(size_t);
   
   CMARK_UNLOCK(arena);
 
