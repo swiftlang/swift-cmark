@@ -1,6 +1,7 @@
 #include "cmark-gfm-core-extensions.h"
 #include "autolink.h"
 #include "mutex.h"
+#include "node.h"
 #include "strikethrough.h"
 #include "table.h"
 #include "tagfilter.h"
@@ -26,4 +27,8 @@ static void register_plugins(void) {
 
 void cmark_gfm_core_extensions_ensure_registered(void) {
   CMARK_RUN_ONCE(registered, register_plugins);
+
+  // Also initialize the standard node flags if they haven't been already, in case an existing
+  // caller has not updated their code but is already registering the core extensions.
+  cmark_init_standard_node_flags();
 }
