@@ -2,8 +2,11 @@
 #include <string.h>
 
 #include "cmark-gfm_config.h"
+#include "mutex.h"
 #include "node.h"
 #include "syntax_extension.h"
+
+CMARK_DEFINE_LOCK(shift)
 
 static void S_node_unlink(cmark_node *node);
 
@@ -14,6 +17,8 @@ cmark_node__internal_flags CMARK_NODE__LAST_LINE_BLANK;
 cmark_node__internal_flags CMARK_NODE__LAST_LINE_CHECKED;
 
 void cmark_register_node_flag(cmark_node__internal_flags *flags) {
+  CMARK_INITIALIZE_AND_LOCK(shift);
+
   static uint8_t shift = 0;
 
   // flags should be a pointer to a global variable and this function
@@ -31,16 +36,20 @@ void cmark_register_node_flag(cmark_node__internal_flags *flags) {
 
   *flags = (cmark_node__internal_flags)1 << shift;
   shift++;
+
+  CMARK_UNLOCK(shift);
+}
+
+CMARK_DEFINE_ONCE(initialized);
+
+static void initialize_standard_flags(void) {
+  cmark_register_node_flag(&CMARK_NODE__OPEN);
+  cmark_register_node_flag(&CMARK_NODE__LAST_LINE_BLANK);
+  cmark_register_node_flag(&CMARK_NODE__LAST_LINE_CHECKED);
 }
 
 void cmark_init_standard_node_flags() {
-  static int initialized = 0;
-  if (!initialized) {
-    initialized = 1;
-    cmark_register_node_flag(&CMARK_NODE__OPEN);
-    cmark_register_node_flag(&CMARK_NODE__LAST_LINE_BLANK);
-    cmark_register_node_flag(&CMARK_NODE__LAST_LINE_CHECKED);
-  }
+  CMARK_RUN_ONCE(initialized, initialize_standard_flags);
 }
 
 bool cmark_node_can_contain_type(cmark_node *node, cmark_node_type child_type) {
