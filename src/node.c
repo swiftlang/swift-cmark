@@ -2,12 +2,41 @@
 #include <string.h>
 
 #include "cmark-gfm_config.h"
+#include "mutex.h"
 #include "node.h"
 #include "syntax_extension.h"
+
+CMARK_DEFINE_LOCK(nextflag)
 
 static void S_node_unlink(cmark_node *node);
 
 #define NODE_MEM(node) cmark_node_mem(node)
+
+void cmark_register_node_flag(cmark_node_internal_flags *flags) {
+  CMARK_INITIALIZE_AND_LOCK(nextflag);
+
+  static cmark_node_internal_flags nextflag = CMARK_NODE__REGISTER_FIRST;
+
+  // flags should be a pointer to a global variable and this function
+  // should only be called once to initialize its value.
+  if (*flags) {
+    fprintf(stderr, "flag initialization error in cmark_register_node_flag\n");
+    abort();
+  }
+
+  // Check that we haven't run out of bits.
+  if (nextflag == 0) {
+    fprintf(stderr, "too many flags in cmark_register_node_flag\n");
+    abort();
+  }
+
+  *flags = nextflag;
+  nextflag <<= 1;
+
+  CMARK_UNLOCK(nextflag);
+}
+
+void cmark_init_standard_node_flags() {}
 
 bool cmark_node_can_contain_type(cmark_node *node, cmark_node_type child_type) {
   if (child_type == CMARK_NODE_DOCUMENT) {

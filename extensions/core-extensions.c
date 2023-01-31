@@ -1,6 +1,7 @@
 #include "cmark-gfm-core-extensions.h"
 #include "autolink.h"
 #include "mutex.h"
+#include "node.h"
 #include "strikethrough.h"
 #include "table.h"
 #include "tagfilter.h"
