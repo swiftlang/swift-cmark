@@ -7,6 +7,7 @@
 #include "syntax_extension.h"
 
 CMARK_DEFINE_LOCK(nextflag)
+CMARK_DEFINE_LOCK(safety)
 
 /**
  * Expensive safety checks are off by default, but can be enabled
@@ -15,7 +16,20 @@ CMARK_DEFINE_LOCK(nextflag)
 static bool enable_safety_checks = false;
 
 void cmark_enable_safety_checks(bool enable) {
+  CMARK_INITIALIZE_AND_LOCK(safety);
   enable_safety_checks = enable;
+  CMARK_UNLOCK(safety);
+}
+
+/**
+ * Check whether safety checks have been enabled in a function to guard access
+ * behind a lock.
+ */
+static bool S_safety_checks_enabled() {
+  CMARK_INITIALIZE_AND_LOCK(safety);
+  bool safety_enabled = enable_safety_checks;
+  CMARK_UNLOCK(safety);
+  return safety_enabled;
 }
 
 static void S_node_unlink(cmark_node *node);
@@ -95,7 +109,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
     return 0;
   }
 
-  if (enable_safety_checks) {
+  if (S_safety_checks_enabled()) {
     // Verify that child is not an ancestor of node or equal to node.
     cmark_node *cur = node;
     do {
