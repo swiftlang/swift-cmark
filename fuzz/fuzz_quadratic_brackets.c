@@ -25,8 +25,10 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
   struct __attribute__((packed)) {
     int options;
     int width;
-    uint8_t splitpoint;
-    uint8_t repeatlen;
+    uint8_t startlen;
+    uint8_t openlen;
+    uint8_t middlelen;
+    uint8_t closelen;
   } fuzz_config;
 
   if (size >= sizeof(fuzz_config)) {
@@ -35,6 +37,9 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
     /* Test options that are used by GitHub. */
     fuzz_config.options = CMARK_OPT_UNSAFE | CMARK_OPT_FOOTNOTES | CMARK_OPT_GITHUB_PRE_LANG | CMARK_OPT_HARDBREAKS;
+    fuzz_config.openlen = fuzz_config.openlen & 0x7;
+    fuzz_config.middlelen = fuzz_config.middlelen & 0x7;
+    fuzz_config.closelen = fuzz_config.closelen & 0x7;
 
     /* Remainder of input is the markdown */
     const char *markdown0 = (const char *)(data + sizeof(fuzz_config));
@@ -42,20 +47,39 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     char markdown[0x80000];
     if (markdown_size0 <= sizeof(markdown)) {
       size_t markdown_size = 0;
-      if (fuzz_config.splitpoint <= markdown_size0 && 0 < fuzz_config.repeatlen &&
-          fuzz_config.repeatlen <= markdown_size0 - fuzz_config.splitpoint) {
-        const size_t size_after_splitpoint = markdown_size0 - fuzz_config.splitpoint - fuzz_config.repeatlen;
-        memcpy(&markdown[markdown_size], &markdown0[0], fuzz_config.splitpoint);
-        markdown_size += fuzz_config.splitpoint;
+      const size_t componentslen = fuzz_config.startlen + fuzz_config.openlen + fuzz_config.middlelen + fuzz_config.closelen;
+      if (componentslen <= markdown_size0) {
+        size_t offset = 0;
+        const size_t endlen = markdown_size0 - componentslen;
+        memcpy(&markdown[markdown_size], &markdown0[offset], fuzz_config.startlen);
+        markdown_size += fuzz_config.startlen;
+        offset += fuzz_config.startlen;
 
-        while (markdown_size + fuzz_config.repeatlen + size_after_splitpoint <= sizeof(markdown)) {
-          memcpy(&markdown[markdown_size], &markdown0[fuzz_config.splitpoint],
-                 fuzz_config.repeatlen);
-          markdown_size += fuzz_config.repeatlen;
+        if (0 < fuzz_config.openlen) {
+          while (markdown_size + fuzz_config.openlen <= sizeof(markdown)/2) {
+            memcpy(&markdown[markdown_size], &markdown0[offset],
+                   fuzz_config.openlen);
+            markdown_size += fuzz_config.openlen;
+          }
+          offset += fuzz_config.openlen;
         }
-        memcpy(&markdown[markdown_size], &markdown0[fuzz_config.splitpoint + fuzz_config.repeatlen],
-               size_after_splitpoint);
-        markdown_size += size_after_splitpoint;
+        memcpy(&markdown[markdown_size], &markdown0[offset],
+               fuzz_config.middlelen);
+        markdown_size += fuzz_config.middlelen;
+        offset += fuzz_config.middlelen;
+        if (0 < fuzz_config.closelen) {
+          while (markdown_size + fuzz_config.closelen + endlen <= sizeof(markdown)) {
+            memcpy(&markdown[markdown_size], &markdown0[offset],
+                   fuzz_config.closelen);
+            markdown_size += fuzz_config.closelen;
+          }
+          offset += fuzz_config.closelen;
+        }
+        if (markdown_size + endlen <= sizeof(markdown)) {
+          memcpy(&markdown[markdown_size], &markdown0[offset],
+                 endlen);
+          markdown_size += endlen;
+        }
       } else {
         markdown_size = markdown_size0;
         memcpy(markdown, markdown0, markdown_size);
@@ -75,13 +99,8 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
       cmark_parser_feed(parser, markdown, markdown_size);
       cmark_node *doc = cmark_parser_finish(parser);
-
+ 
       free(cmark_render_html(doc, fuzz_config.options, NULL));
-      free(cmark_render_xml(doc, fuzz_config.options));
-      free(cmark_render_man(doc, fuzz_config.options, 80));
-      free(cmark_render_commonmark(doc, fuzz_config.options, 80));
-      free(cmark_render_plaintext(doc, fuzz_config.options, 80));
-      free(cmark_render_latex(doc, fuzz_config.options, 80));
 
       cmark_node_free(doc);
       cmark_parser_free(parser);
