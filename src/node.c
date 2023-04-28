@@ -7,30 +7,6 @@
 #include "syntax_extension.h"
 
 CMARK_DEFINE_LOCK(nextflag)
-CMARK_DEFINE_LOCK(safety)
-
-/**
- * Expensive safety checks are off by default, but can be enabled
- * by calling cmark_enable_safety_checks().
- */
-static bool enable_safety_checks = false;
-
-void cmark_enable_safety_checks(bool enable) {
-  CMARK_INITIALIZE_AND_LOCK(safety);
-  enable_safety_checks = enable;
-  CMARK_UNLOCK(safety);
-}
-
-/**
- * Check whether safety checks have been enabled in a function to guard access
- * behind a lock.
- */
-static bool S_safety_checks_enabled() {
-  CMARK_INITIALIZE_AND_LOCK(safety);
-  bool safety_enabled = enable_safety_checks;
-  CMARK_UNLOCK(safety);
-  return safety_enabled;
-}
 
 static void S_node_unlink(cmark_node *node);
 
@@ -60,7 +36,7 @@ void cmark_register_node_flag(cmark_node_internal_flags *flags) {
   CMARK_UNLOCK(nextflag);
 }
 
-void cmark_init_standard_node_flags(void) {}
+void cmark_init_standard_node_flags() {}
 
 bool cmark_node_can_contain_type(cmark_node *node, cmark_node_type child_type) {
   if (child_type == CMARK_NODE_DOCUMENT) {
@@ -102,6 +78,8 @@ bool cmark_node_can_contain_type(cmark_node *node, cmark_node_type child_type) {
 }
 
 static bool S_can_contain(cmark_node *node, cmark_node *child) {
+  cmark_node *cur;
+
   if (node == NULL || child == NULL) {
     return false;
   }
@@ -109,16 +87,14 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
     return 0;
   }
 
-  if (S_safety_checks_enabled()) {
-    // Verify that child is not an ancestor of node or equal to node.
-    cmark_node *cur = node;
-    do {
-      if (cur == child) {
-        return false;
-      }
-      cur = cur->parent;
-    } while (cur != NULL);
-  }
+  // Verify that child is not an ancestor of node or equal to node.
+  cur = node;
+  do {
+    if (cur == child) {
+      return false;
+    }
+    cur = cur->parent;
+  } while (cur != NULL);
 
   return cmark_node_can_contain_type(node, (cmark_node_type) child->type);
 }
@@ -373,14 +349,6 @@ cmark_node *cmark_node_nth_child(cmark_node *node, int n) {
   return ret;
 }
 
-cmark_node *cmark_node_parent_footnote_def(cmark_node *node) {
-  if (node == NULL) {
-    return NULL;
-  } else {
-    return node->parent_footnote_def;
-  }
-}
-
 void *cmark_node_get_user_data(cmark_node *node) {
   if (node == NULL) {
     return NULL;
@@ -602,31 +570,6 @@ int cmark_node_set_list_tight(cmark_node *node, int tight) {
 
   if (node->type == CMARK_NODE_LIST) {
     node->as.list.tight = tight == 1;
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
-int cmark_node_get_item_index(cmark_node *node) {
-  if (node == NULL) {
-    return 0;
-  }
-
-  if (node->type == CMARK_NODE_ITEM) {
-    return node->as.list.start;
-  } else {
-    return 0;
-  }
-}
-
-int cmark_node_set_item_index(cmark_node *node, int idx) {
-  if (node == NULL || idx < 0) {
-    return 0;
-  }
-
-  if (node->type == CMARK_NODE_ITEM) {
-    node->as.list.start = idx;
     return 1;
   } else {
     return 0;
