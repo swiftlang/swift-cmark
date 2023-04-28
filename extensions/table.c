@@ -387,7 +387,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   if (!marker_row) {
       return parent_container;
   }
-  
+
   assert(marker_row);
 
   cmark_arena_push();
@@ -1029,6 +1029,7 @@ cmark_syntax_extension *create_table_extension(void) {
   return self;
 }
 
+CMARK_GFM_EXPORT
 uint16_t cmark_gfm_extensions_get_table_columns(cmark_node *node) {
   if (node->type != CMARK_NODE_TABLE)
     return 0;
@@ -1036,6 +1037,7 @@ uint16_t cmark_gfm_extensions_get_table_columns(cmark_node *node) {
   return ((node_table *)node->as.opaque)->n_columns;
 }
 
+CMARK_GFM_EXPORT
 uint8_t *cmark_gfm_extensions_get_table_alignments(cmark_node *node) {
   if (node->type != CMARK_NODE_TABLE)
     return 0;
@@ -1043,16 +1045,19 @@ uint8_t *cmark_gfm_extensions_get_table_alignments(cmark_node *node) {
   return ((node_table *)node->as.opaque)->alignments;
 }
 
+CMARK_GFM_EXPORT
 int cmark_gfm_extensions_set_table_columns(cmark_node *node, uint16_t n_columns) {
   return set_n_table_columns(node, n_columns);
 }
 
+CMARK_GFM_EXPORT
 int cmark_gfm_extensions_set_table_alignments(cmark_node *node, uint16_t ncols, uint8_t *alignments) {
   uint8_t *a = (uint8_t *)cmark_node_mem(node)->calloc(1, ncols);
   memcpy(a, alignments, ncols);
   return set_table_alignments(node, a);
 }
 
+CMARK_GFM_EXPORT
 int cmark_gfm_extensions_get_table_row_is_header(cmark_node *node)
 {
   if (!node || node->type != CMARK_NODE_TABLE_ROW)
@@ -1061,6 +1066,7 @@ int cmark_gfm_extensions_get_table_row_is_header(cmark_node *node)
   return ((node_table_row *)node->as.opaque)->is_header;
 }
 
+CMARK_GFM_EXPORT
 int cmark_gfm_extensions_set_table_row_is_header(cmark_node *node, int is_header)
 {
   if (!node || node->type != CMARK_NODE_TABLE_ROW)
@@ -1070,21 +1076,25 @@ int cmark_gfm_extensions_set_table_row_is_header(cmark_node *node, int is_header
   return 1;
 }
 
+CMARK_GFM_EXPORT
 unsigned cmark_gfm_extensions_get_table_cell_colspan(cmark_node *node)
 {
   return get_cell_colspan(node);
 }
 
+CMARK_GFM_EXPORT
 unsigned cmark_gfm_extensions_get_table_cell_rowspan(cmark_node *node)
 {
   return get_cell_rowspan(node);
 }
 
+CMARK_GFM_EXPORT
 int cmark_gfm_extensions_set_table_cell_colspan(cmark_node *node, unsigned colspan)
 {
   return set_cell_colspan(node, colspan);
 }
 
+CMARK_GFM_EXPORT
 int cmark_gfm_extensions_set_table_cell_rowspan(cmark_node *node, unsigned rowspan)
 {
   return set_cell_rowspan(node, rowspan);
