@@ -87,14 +87,6 @@ struct cmark_node {
 
   cmark_syntax_extension *extension;
 
-  /**
-   * Used during cmark_render() to cache the most recent non-NULL
-   * extension, if you go up the parent chain like this:
-   *
-   * node->parent->...parent->extension
-   */
-  cmark_syntax_extension *ancestor_extension;
-
   union {
     int ref_ix;
     int def_count;
@@ -133,7 +125,7 @@ void cmark_register_node_flag(cmark_node_internal_flags *flags);
  * library. It is now a no-op.
  */
 CMARK_GFM_EXPORT
-void cmark_init_standard_node_flags(void);
+void cmark_init_standard_node_flags();
 
 static CMARK_INLINE cmark_mem *cmark_node_mem(cmark_node *node) {
   return node->content.mem;
@@ -157,13 +149,6 @@ static CMARK_INLINE bool CMARK_NODE_INLINE_P(cmark_node *node) {
 }
 
 CMARK_GFM_EXPORT bool cmark_node_can_contain_type(cmark_node *node, cmark_node_type child_type);
-
-/**
- * Enable (or disable) extra safety checks. These extra checks cause
- * extra performance overhead (in some cases quadratic), so they are only
- * intended to be used during testing.
- */
-CMARK_GFM_EXPORT void cmark_enable_safety_checks(bool enable);
 
 #ifdef __cplusplus
 }
