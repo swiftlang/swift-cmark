@@ -313,6 +313,10 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "link";
   case CMARK_NODE_IMAGE:
     return "image";
+  case CMARK_NODE_FOOTNOTE_REFERENCE:
+    return "footnote_reference";
+  case CMARK_NODE_FOOTNOTE_DEFINITION:
+    return "footnote_definition";
   case CMARK_NODE_ATTRIBUTE:
     return "attribute";
   }
