@@ -368,6 +368,11 @@ CMARK_GFM_EXPORT const char *cmark_node_get_literal(cmark_node *node);
  */
 CMARK_GFM_EXPORT int cmark_node_get_backtick_count(cmark_node *node);
 
+/** If 'node' is a footnote reference or footnote definition, reutrns the
+    string ID of that footnote, otherwise returns NULL.
+ */
+CMARK_GFM_EXPORT const char *cmark_node_get_footnote_id(cmark_node *node);
+
 /** Sets the string contents of 'node'.  Returns 1 on success,
  * 0 on failure.
  */
