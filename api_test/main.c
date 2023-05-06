@@ -1571,6 +1571,49 @@ static void table_spans(test_batch_runner *runner) {
   }
 }
 
+static void footnote_metadata(test_batch_runner *runner) {
+  static const char markdown[] =
+    "this is a test[^test] and also a test[^other]\n"
+    "\n"
+    "[^test]: still a test\n"
+    "\n"
+    "[^other]: lorem ipsum\n";
+  static const char expected[] =
+    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+    "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+    "<document xmlns=\"http://commonmark.org/xml/1.0\">\n"
+    "  <paragraph>\n"
+    "    <text xml:space=\"preserve\">this is a test</text>\n"
+    "    <footnote_reference id=\"test\" />\n"
+    "    <text xml:space=\"preserve\"> and also a test</text>\n"
+    "    <footnote_reference id=\"other\" />\n"
+    "  </paragraph>\n"
+    "  <footnote_definition id=\"test\">\n"
+    "    <paragraph>\n"
+    "      <text xml:space=\"preserve\">still a test</text>\n"
+    "    </paragraph>\n"
+    "  </footnote_definition>\n"
+    "  <footnote_definition id=\"other\">\n"
+    "    <paragraph>\n"
+    "      <text xml:space=\"preserve\">lorem ipsum</text>\n"
+    "    </paragraph>\n"
+    "  </footnote_definition>\n"
+    "</document>\n";
+
+  cmark_node *doc =
+      cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_FOOTNOTES);
+
+  const char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT);
+
+  STR_EQ(runner, xml, expected, "footnotes render correctly in XML");
+
+  cmark_node *test_def = cmark_node_nth_child(doc, 1);
+  STR_EQ(runner, cmark_node_get_footnote_id(test_def), "test", "footnote ID parsed properly");
+
+  cmark_node *other_def = cmark_node_nth_child(doc, 2);
+  STR_EQ(runner, cmark_node_get_footnote_id(other_def), "other", "footnote ID parsed properly");
+}
+
 int main() {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -1608,6 +1651,7 @@ int main() {
   verify_custom_attributes_node_with_footnote(runner);
   parser_interrupt(runner);
   table_spans(runner);
+  footnote_metadata(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;
