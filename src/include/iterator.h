@@ -1,11 +1,11 @@
 #ifndef CMARK_ITERATOR_H
 #define CMARK_ITERATOR_H
 
+#include "cmark-gfm.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "cmark-gfm.h"
 
 typedef struct {
   cmark_event_type ev_type;
