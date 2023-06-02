@@ -25,6 +25,7 @@ static void register_plugins(void) {
   cmark_register_plugin(core_extensions_registration);
 }
 
+CMARK_GFM_EXPORT
 void cmark_gfm_core_extensions_ensure_registered(void) {
   CMARK_RUN_ONCE(registered, register_plugins);
 }
