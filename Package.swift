@@ -53,8 +53,6 @@ let package = Package(
             "config.h.in",
             "CMakeLists.txt",
             "cmark-gfm_version.h.in",
-            "case_fold_switch.inc",
-            "entities.inc",
           ],
           cSettings: cSettings
         ),
