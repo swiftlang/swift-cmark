@@ -313,6 +313,10 @@ const char *cmark_node_get_type_string(cmark_node *node) {
     return "link";
   case CMARK_NODE_IMAGE:
     return "image";
+  case CMARK_NODE_FOOTNOTE_REFERENCE:
+    return "footnote_reference";
+  case CMARK_NODE_FOOTNOTE_DEFINITION:
+    return "footnote_definition";
   case CMARK_NODE_ATTRIBUTE:
     return "attribute";
   }
@@ -456,6 +460,24 @@ int cmark_node_set_literal(cmark_node *node, const char *content) {
   }
 
   return 0;
+}
+
+const char *cmark_node_get_footnote_id(cmark_node *node) {
+  if (node == NULL)
+    return NULL;
+
+  switch (node->type) {
+  case CMARK_NODE_FOOTNOTE_DEFINITION:
+    return cmark_chunk_to_cstr(NODE_MEM(node), &node->as.literal);
+
+  case CMARK_NODE_FOOTNOTE_REFERENCE:
+    return cmark_chunk_to_cstr(NODE_MEM(node->parent_footnote_def), &node->parent_footnote_def->as.literal);
+
+  default:
+    break;
+  }
+
+  return NULL;
 }
 
 const char *cmark_node_get_string_content(cmark_node *node) {

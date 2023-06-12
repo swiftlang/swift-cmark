@@ -137,6 +137,16 @@ static int S_render_node(cmark_node *node, cmark_event_type ev_type,
     case CMARK_NODE_ATTRIBUTE:
       // TODO
       break;
+    case CMARK_NODE_FOOTNOTE_DEFINITION:
+      cmark_strbuf_puts(xml, " id=\"");
+      escape_xml(xml, node->as.literal.data, node->as.literal.len);
+      cmark_strbuf_putc(xml, '"');
+      break;
+    case CMARK_NODE_FOOTNOTE_REFERENCE:
+      cmark_strbuf_puts(xml, " id=\"");
+      escape_xml(xml, node->parent_footnote_def->as.literal.data,
+                 node->parent_footnote_def->as.literal.len);
+      cmark_strbuf_putc(xml, '"');
     default:
       break;
     }
