@@ -111,6 +111,7 @@ struct cmark_node {
     cmark_attribute attribute;
     cmark_custom custom;
     int html_block_type;
+    int cell_index; // For keeping track of TABLE_CELL table alignments
     void *opaque;
   } as;
 };
