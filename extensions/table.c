@@ -22,6 +22,7 @@ cmark_node_type CMARK_NODE_TABLE, CMARK_NODE_TABLE_ROW,
 
 typedef struct {
   unsigned colspan, rowspan;
+  int cell_index;
 } node_cell_data;
 
 typedef struct {
@@ -145,8 +146,11 @@ static uint8_t get_cell_alignment(cmark_node *node) {
   if (!node || node->type != CMARK_NODE_TABLE_CELL)
     return 0;
 
+  node_cell_data *data = (node_cell_data *)node->as.opaque;
+  if (!data)
+    return 0;
   const uint8_t *alignments = get_table_alignments(node->parent->parent);
-  int i = node->as.cell_index;
+  int i = data->cell_index;
   return alignments[i];
 }
 
@@ -154,7 +158,10 @@ static int set_cell_index(cmark_node *node, int i) {
   if (!node || node->type != CMARK_NODE_TABLE_CELL)
     return 0;
 
-  node->as.cell_index = i;
+  node_cell_data *data = (node_cell_data *)node->as.opaque;
+  if (!data)
+    return 0;
+  data->cell_index = i;
   return 1;
 }
 
@@ -310,10 +317,9 @@ static table_row *row_from_string(cmark_syntax_extension *self,
         --cell->start_offset;
         ++cell->internal_offset;
       }
+      cell->cell_data = (node_cell_data *)parser->mem->calloc(1, sizeof(node_cell_data));
 
       if (parser->options & CMARK_OPT_TABLE_SPANS) {
-        cell->cell_data = (node_cell_data *)parser->mem->calloc(1, sizeof(node_cell_data));
-
         // Check for a column-spanning cell
         if (row->n_columns > 0 && cmark_strbuf_len(cell->buf) == 0 && cell->start_offset == cell->end_offset) {
           cell->cell_data->colspan = 0;
@@ -343,7 +349,8 @@ static table_row *row_from_string(cmark_syntax_extension *self,
           }
         }
       } else {
-        cell->cell_data = NULL;
+        cell->cell_data->colspan = 1;
+        cell->cell_data->rowspan = 1;
       }
 
       // make sure we never wrap row->n_columns
