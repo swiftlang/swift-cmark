@@ -1,4 +1,4 @@
-module cmark_gfm {
+module cmark_gfm [extern_c] {
     umbrella header "cmark-gfm.h"
     header "cmark-gfm_config.h"
     header "cmark-gfm-extension_api.h"

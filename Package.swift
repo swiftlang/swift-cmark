@@ -54,7 +54,10 @@ let package = Package(
             "CMakeLists.txt",
             "cmark-gfm_version.h.in",
           ],
-          cSettings: cSettings
+          cSettings: cSettings,
+          linkerSettings: [
+              .linkedLibrary("pthread", .when(platforms: [.linux])),
+          ]
         ),
         .target(name: "cmark-gfm-extensions",
           dependencies: [
