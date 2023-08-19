@@ -7731,6 +7731,50 @@ new paragraph~~.
 
 </div>
 
+<div class="extension">
+
+## Superscript (extension)
+
+GFM provides the `superscript` extension, which adds "superscript" spans.
+
+There are two ways to write superscripts. For simple uses, you can use a
+caret (`^`) to style the text between it and the next space (or the end of
+the line):
+
+```````````````````````````````` example superscript
+y = x^2 + 2
+
+Superscripting a whole ^word
+.
+<p>y = x<sup>2</sup> + 2</p>
+<p>Superscripting a whole <sup>word</sup></p>
+````````````````````````````````
+
+In addition, if you would like to raise more than one word, you can add
+parentheses around the text you would like to style in a superscript:
+
+```````````````````````````````` example superscript
+I would like to ^(raise this whole phrase), please.
+.
+<p>I would like to <sup>raise this whole phrase</sup>, please.</p>
+````````````````````````````````
+
+Superscripts can be nested, by adding additional carets:
+
+```````````````````````````````` example superscript
+z = t^x^2
+.
+<p>z = t<sup>x<sup>2</sup></sup></p>
+````````````````````````````````
+
+```````````````````````````````` example superscript
+For my next trick, I will ^(raise my text ^(twice)), at the same time!
+.
+<p>For my next trick, I will <sup>raise my text <sup>twice</sup></sup>, at the same time!</p>
+````````````````````````````````
+
+</div>
+
 ## Links
 
 A link contains [link text] (the visible text), a [link destination]
