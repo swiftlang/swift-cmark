@@ -174,7 +174,7 @@ if(CMARK_SHARED OR CMARK_STATIC)
     ${CMAKE_CURRENT_SOURCE_DIR}/include/syntax_extension.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/utf8.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/module.modulemap
-    DESTINATION include
+    DESTINATION include/cmark_gfm
     )
 
   install(EXPORT cmark-gfm DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
