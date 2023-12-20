@@ -55,6 +55,17 @@ if(CMARK_FUZZ_QUADRATIC)
   add_subdirectory(fuzz)
 endif()
 
+set(CMARK_TARGETS)
+if(CMARK_SHARED)
+  list(APPEND CMARK_TARGETS libcmark-gfm)
+  list(APPEND CMARK_TARGETS libcmark-gfm-extensions)
+endif()
+if(CMARK_STATIC)
+  list(APPEND CMARK_TARGETS libcmark-gfm_static)
+  list(APPEND CMARK_TARGETS libcmark-gfm-extensions_static)
+endif()
+export(TARGETS ${CMARK_TARGETS} FILE cmark-gfmConfig.cmake)
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
   "Choose the type of build, options are: Debug Profile Release Asan Ubsan." FORCE)
