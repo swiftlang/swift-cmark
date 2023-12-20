@@ -81,6 +81,10 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
 if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
+  target_include_directories(${LIBRARY} PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extensions/include>)
+
   # Include minor version and patch level in soname for now.
   set_target_properties(${LIBRARY} PROPERTIES
     OUTPUT_NAME "cmark-gfm"
@@ -101,6 +105,10 @@ endif()
 
 if (CMARK_STATIC)
   add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
+  target_include_directories(${LIBRARY} PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extensions/include>)
+
   set_target_properties(${STATICLIBRARY} PROPERTIES
     COMPILE_FLAGS -DCMARK_GFM_STATIC_DEFINE
     POSITION_INDEPENDENT_CODE ON)
