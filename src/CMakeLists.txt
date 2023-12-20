@@ -149,11 +149,31 @@ if(CMARK_SHARED OR CMARK_STATIC)
     DESTINATION ${libdir}/pkgconfig)
 
   install(FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/buffer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/chunk.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark_ctype.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_config.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-extension_api.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/export.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_version.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/export.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/footnotes.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/houdini.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/html.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/inlines.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/iterator.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/map.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/mutex.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/node.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/parser.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/plugin.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/references.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/registry.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/render.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/scanners.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/syntax_extension.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/utf8.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/module.modulemap
     DESTINATION include
     )
 
