@@ -18,8 +18,15 @@ set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
-include(FindAsan)
 include(CheckFileOffsetBits)
+include(FindAsan)
+include(GenerateExportHeader)
+include(GNUInstallDirs)
+
+if(NOT MSVC OR CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
+  set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
+  include(InstallRequiredSystemLibraries)
+endif()
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")

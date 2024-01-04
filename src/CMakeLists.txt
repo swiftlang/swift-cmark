@@ -1,5 +1,3 @@
-include(GNUInstallDirs)
-
 set(LIBRARY "libcmark-gfm")
 set(STATICLIBRARY "libcmark-gfm_static")
 file(GLOB HEADERS include/*.h)
@@ -47,10 +45,7 @@ include_directories(
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark-gfm_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark-gfm_version.h)
 
-include (GenerateExportHeader)
-
-include("../CheckFileOffsetBits.cmake")
-CHECK_FILE_OFFSET_BITS()
+check_file_offset_bits()
 
 add_executable(${PROGRAM} ${PROGRAM_SOURCES})
 
@@ -131,11 +126,6 @@ if (MSVC)
   set_property(TARGET ${PROGRAM}
     APPEND PROPERTY LINK_FLAGS /INCREMENTAL:NO)
 endif(MSVC)
-
-if(NOT MSVC OR CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
-  set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-  include(InstallRequiredSystemLibraries)
-endif()
 
 set(libdir lib${LIB_SUFFIX})
 
