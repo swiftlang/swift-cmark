@@ -226,11 +226,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Wno-unused-parameter -std=c99 -pedantic")
 endif()
 
-# Compile as C++ under MSVC older than 12.0
-if(MSVC AND MSVC_VERSION LESS 1800)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /TP")
-endif()
-
 if(CMAKE_BUILD_TYPE STREQUAL "Ubsan")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=undefined")
 endif()
