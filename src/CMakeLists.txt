@@ -55,10 +55,6 @@ elseif(CMARK_STATIC)
   target_link_libraries(${PROGRAM} libcmark-gfm-extensions_static libcmark-gfm_static)
 endif()
 
-# Disable the PUBLIC declarations when compiling the executable:
-set_target_properties(${PROGRAM} PROPERTIES
-  COMPILE_FLAGS "-DCMARK_GFM_STATIC_DEFINE -DCMARK_GFM_EXTENSIONS_STATIC_DEFINE")
-
 # Check integrity of node structure when compiled as debug:
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DCMARK_DEBUG_NODES -DDEBUG")
 set(CMAKE_LINKER_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG}")
@@ -92,12 +88,13 @@ endif()
 
 if (CMARK_STATIC)
   add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
+  target_compile_definitions(${STATICLIBRARY} PUBLIC
+    CMARK_GFM_STATIC_DEFINE)
   target_include_directories(${LIBRARY} PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extensions/include>)
 
   set_target_properties(${STATICLIBRARY} PROPERTIES
-    COMPILE_FLAGS -DCMARK_GFM_STATIC_DEFINE
     POSITION_INDEPENDENT_CODE ON)
 
   if (MSVC)
