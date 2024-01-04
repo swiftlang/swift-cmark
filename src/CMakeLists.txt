@@ -176,12 +176,3 @@ endif()
 CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-
-if(CMARK_LIB_FUZZER)
-  add_executable(cmark-fuzz ../test/cmark-fuzz.c ${LIBRARY_SOURCES})
-  target_link_libraries(cmark-fuzz "${CMAKE_LIB_FUZZER_PATH}")
-  # cmark is written in C but the libFuzzer runtime is written in C++ which
-  # needs to link against the C++ runtime.
-  set_target_properties(cmark-fuzz PROPERTIES
-    LINKER_LANGUAGE CXX)
-endif()

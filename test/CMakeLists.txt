@@ -92,3 +92,15 @@ else(Python3_Interpreter_FOUND)
   message(WARNING "A python 3 interpreter is required to run the spec tests")
 
 endif(Python3_Interpreter_FOUND)
+
+
+if(CMARK_LIB_FUZZER)
+  add_executable(cmark-fuzz cmark-fuzz.c)
+  target_link_libraries(cmark-fuzz PRIVATE
+    libcmark-gfm_static
+    "${CMAKE_LIB_FUZZER_PATH}")
+  # cmark is written in C but the libFuzzer runtime is written in C++ which
+  # needs to link against the C++ runtime.
+  set_target_properties(cmark-fuzz PROPERTIES
+    LINKER_LANGUAGE CXX)
+endif()
