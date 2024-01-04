@@ -79,11 +79,12 @@ add_compile_definitions(CMARK_USE_CMAKE_HEADERS)
 option(CMARK_FUZZ_QUADRATIC "Build quadratic fuzzing harness" OFF)
 
 if(CMARK_FUZZ_QUADRATIC)
-  set(FUZZER_FLAGS "-fsanitize=fuzzer-no-link,address -g")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FUZZER_FLAGS}")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FUZZER_FLAGS}")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${FUZZER_FLAGS}")
-  set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${FUZZER_FLAGS}")
+  # FIXME(compnerd) why do we enable debug information?
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-g>)
+  # FIXME(compnerd) why do we use fuzzer-no-link with a custom variable for the
+  # runtime rather than `-fsanitize=fuzzer,address`?
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize=fuzzer-no-link,address>)
+  add_link_options($<$<COMPILE_LANGUAGE:C>:-fsanitize=address>)
 endif()
 
 add_subdirectory(src)
