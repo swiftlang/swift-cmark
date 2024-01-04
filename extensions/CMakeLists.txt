@@ -81,10 +81,6 @@ if (CMARK_SHARED OR CMARK_STATIC)
   install(EXPORT cmark-gfm-extensions DESTINATION lib${LIB_SUFFIX}/cmake-gfm-extensions)
 endif()
 
-# Feature tests
-include(CheckCSourceRuns)
-include(CheckSymbolExists)
-
 # Always compile with warnings
 if(MSVC)
   # Force to always compile with W4
