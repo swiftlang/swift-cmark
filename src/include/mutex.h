@@ -3,6 +3,8 @@
 
 #include "cmark-gfm_config.h"
 
+#include <stdbool.h>
+
 #ifdef CMARK_THREADING
 
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))

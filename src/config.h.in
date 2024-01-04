@@ -5,12 +5,6 @@
 extern "C" {
 #endif
 
-#if __STDC_VERSION__ >= 199901l
-  #include <stdbool.h>
-#elif !defined(__cplusplus)
-  typedef char bool;
-#endif
-
 #cmakedefine CMARK_THREADING
 
 #ifdef __cplusplus

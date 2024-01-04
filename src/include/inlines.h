@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 #include <stdlib.h>
+
 #include "cmark-gfm_config.h"
 #include "references.h"
 

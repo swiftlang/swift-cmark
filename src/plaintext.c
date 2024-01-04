@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "node.h"
 #include "syntax_extension.h"
 #include "render.h"

@@ -1,4 +1,6 @@
+#include <stdbool.h>
 #include <stdlib.h>
+
 #include "buffer.h"
 #include "chunk.h"
 #include "cmark-gfm.h"

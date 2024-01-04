@@ -1,8 +1,10 @@
+#include <stdbool.h>
+#include <stddef.h>
+#include <string.h>
+
 #include "autolink.h"
 #include <parser.h>
-#include <string.h>
 #include <utf8.h>
-#include <stddef.h>
 
 #if defined(_WIN32)
 #define strncasecmp _strnicmp
