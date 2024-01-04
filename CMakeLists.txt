@@ -78,6 +78,10 @@ add_compile_definitions(CMARK_USE_CMAKE_HEADERS)
 
 option(CMARK_FUZZ_QUADRATIC "Build quadratic fuzzing harness" OFF)
 
+if(CMARK_LIB_FUZZER)
+  add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize-coverage=trace-pc-guard>)
+endif()
+
 if(CMARK_FUZZ_QUADRATIC)
   # FIXME(compnerd) why do we enable debug information?
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-g>)
