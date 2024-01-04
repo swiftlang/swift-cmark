@@ -31,14 +31,6 @@ extern "C" {
 
 #define CMARK_THREADING
 
-#ifndef CMARK_INLINE
-  #if defined(_MSC_VER) && !defined(__cplusplus)
-    #define CMARK_INLINE __inline
-  #else
-    #define CMARK_INLINE inline
-  #endif
-#endif
-
 /* snprintf and vsnprintf fallbacks for MSVC before 2015,
    due to Valentin Milea http://stackoverflow.com/questions/2915672/
 */
@@ -51,7 +43,7 @@ extern "C" {
 #define snprintf c99_snprintf
 #define vsnprintf c99_vsnprintf
 
-CMARK_INLINE int c99_vsnprintf(char *outBuf, size_t size, const char *format, va_list ap)
+inline int c99_vsnprintf(char *outBuf, size_t size, const char *format, va_list ap)
 {
     int count = -1;
 
@@ -63,7 +55,7 @@ CMARK_INLINE int c99_vsnprintf(char *outBuf, size_t size, const char *format, va
     return count;
 }
 
-CMARK_INLINE int c99_snprintf(char *outBuf, size_t size, const char *format, ...)
+inline int c99_snprintf(char *outBuf, size_t size, const char *format, ...)
 {
     int count;
     va_list ap;

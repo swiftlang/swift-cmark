@@ -54,7 +54,7 @@ pthread_mutex_lock(&NAME##_lock);
 
 #else // no threading support
 
-static CMARK_INLINE bool check_latch(int *latch) {
+static inline bool check_latch(int *latch) {
   if (!*latch) {
     *latch = 1;
     return true;
