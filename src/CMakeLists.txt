@@ -1,6 +1,5 @@
 set(LIBRARY "libcmark-gfm")
 set(STATICLIBRARY "libcmark-gfm_static")
-file(GLOB HEADERS include/*.h)
 set(LIBRARY_SOURCES
   cmark.c
   node.c
@@ -30,7 +29,6 @@ set(LIBRARY_SOURCES
   syntax_extension.c
   registry.c
   plugin.c
-  ${HEADERS}
   )
 
 set(PROGRAM "cmark-gfm")
