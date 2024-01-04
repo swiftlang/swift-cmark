@@ -11,8 +11,6 @@ extern "C" {
   typedef char bool;
 #endif
 
-#cmakedefine HAVE___BUILTIN_EXPECT
-
 #cmakedefine CMARK_THREADING
 
 #ifdef __cplusplus

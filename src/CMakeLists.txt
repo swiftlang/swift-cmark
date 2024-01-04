@@ -202,12 +202,8 @@ if(CMARK_SHARED OR CMARK_STATIC)
 endif()
 
 # Feature tests
-include(CheckCSourceCompiles)
 include(CheckCSourceRuns)
 include(CheckSymbolExists)
-CHECK_C_SOURCE_COMPILES(
-  "int main() { __builtin_expect(0,0); return 0; }"
-  HAVE___BUILTIN_EXPECT)
 
 CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
