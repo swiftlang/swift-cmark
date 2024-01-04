@@ -71,9 +71,6 @@ if (CMARK_SHARED)
   # Avoid name clash between PROGRAM and LIBRARY pdb files.
   set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark-gfm_dll)
 
-  generate_export_header(${LIBRARY}
-    BASE_NAME ${PROJECT_NAME})
-
   list(APPEND CMARK_INSTALL ${LIBRARY})
 endif()
 
@@ -97,11 +94,6 @@ if (CMARK_STATIC)
       OUTPUT_NAME "cmark-gfm"
       VERSION ${PROJECT_VERSION})
   endif(MSVC)
-
-  if (NOT CMARK_SHARED)
-    generate_export_header(${STATICLIBRARY}
-      BASE_NAME ${PROJECT_NAME})
-  endif()
 
   list(APPEND CMARK_INSTALL ${STATICLIBRARY})
 endif()

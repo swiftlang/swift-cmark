@@ -21,7 +21,6 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 include(CheckFileOffsetBits)
 include(CTest)
 include(FindAsan)
-include(GenerateExportHeader)
 include(GNUInstallDirs)
 
 if(NOT MSVC OR CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
