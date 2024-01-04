@@ -15,3 +15,9 @@ if(CMARK_SHARED)
 else()
   target_link_libraries(api_test libcmark-gfm-extensions_static libcmark-gfm_static)
 endif()
+
+add_test(NAME api_test COMMAND api_test)
+if(WIN32 AND CMARK_SHARED)
+  set_tests_properties(api_test PROPERTIES
+    ENVIRONMENT "PATH=$<TARGET_FILE_DIR:libcmark-gfm>;$<TARGET_FILE_DIR:libcmark-gfm-extensions>;$ENV{PATH}")
+endif()
