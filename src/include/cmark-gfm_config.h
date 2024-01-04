@@ -18,15 +18,6 @@ extern "C" {
   typedef char bool;
 #endif
 
-#if defined(__has_include)
-#  if __has_include(<unistd.h>)
-#    define HAVE_UNISTD_H
-#  endif
-#elif defined(unix) || defined(__unix__) || defined(__unix) || defined(__APPLE__)
-  // Apple Clang does not define any of the unix symbols, even though it provides unistd.h
-#  define HAVE_UNISTD_H
-#endif
-
 #define HAVE___BUILTIN_EXPECT
 
 #define CMARK_THREADING

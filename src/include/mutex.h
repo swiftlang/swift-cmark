@@ -5,7 +5,7 @@
 
 #ifdef CMARK_THREADING
 
-#ifdef HAVE_UNISTD_H
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #include <unistd.h>
 #endif
 
