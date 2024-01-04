@@ -55,13 +55,6 @@ elseif(CMARK_STATIC)
   target_link_libraries(${PROGRAM} libcmark-gfm-extensions_static libcmark-gfm_static)
 endif()
 
-# Check integrity of node structure when compiled as debug:
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DCMARK_DEBUG_NODES -DDEBUG")
-set(CMAKE_LINKER_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG}")
-
-set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")
-set(CMAKE_LINKER_PROFILE "${CMAKE_LINKER_FLAGS_RELEASE} -pg")
-
 if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
   target_include_directories(${LIBRARY} PUBLIC

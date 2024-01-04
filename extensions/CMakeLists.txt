@@ -19,9 +19,6 @@ include_directories(
 
 include_directories(include ${CMAKE_CURRENT_BINARY_DIR})
 
-set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_RELEASE} -pg")
-set(CMAKE_LINKER_PROFILE "${CMAKE_LINKER_FLAGS_RELEASE} -pg")
-
 if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
 

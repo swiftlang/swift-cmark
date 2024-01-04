@@ -50,6 +50,13 @@ if(CMAKE_BUILD_TYPE STREQUAL "Ubsan")
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize=undefined>)
 endif()
 
+# Check integrity of node structure when compiled as debug
+add_compile_definitions($<$<CONFIG:Debug>:CMARK_DEBUG_NODES>)
+# FIXME(compnerd) why do we not use `!defined(NDEBUG)`?
+add_compile_definitions($<$<CONFIG:Debug>:DEBUG>)
+
+add_compile_options($<$<AND:$<CONFIG:PROFILE>,$<COMPILE_LANGUAGE:C>>:-pg>)
+
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")
 endif()
