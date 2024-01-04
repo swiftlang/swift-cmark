@@ -107,9 +107,7 @@ IF (Python_Interpreter_FOUND)
 
 ELSE(Python_Interpreter_FOUND)
 
-  message("\n*** A python 3 interpreter is required to run the spec tests.\n")
-  add_test(skipping_spectests
-    echo "Skipping spec tests, because no python 3 interpreter is available.")
+  message(WARNING "A python 3 interpreter is required to run the spec tests")
 
 ENDIF(Python_Interpreter_FOUND)
 
