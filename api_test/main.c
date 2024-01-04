@@ -1388,7 +1388,7 @@ static void parser_interrupt(test_batch_runner *runner) {
   cmark_gfm_core_extensions_ensure_registered();
 
   cmark_syntax_extension *my_ext = cmark_syntax_extension_new("interrupt");
-  cmark_syntax_extension_set_private(my_ext, run_inner_parser, NULL);
+  cmark_syntax_extension_set_private(my_ext, (void *)&run_inner_parser, NULL);
   cmark_syntax_extension_set_match_inline_func(my_ext, reentrant_parse_inline_ext);
 
   cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
