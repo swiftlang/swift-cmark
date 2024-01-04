@@ -67,6 +67,9 @@ else()
 endif()
 set(CMAKE_C_STANDARD_REQUIRED YES)
 
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
+
 # Use CMake's generated headers instead of the Swift package prebuilt ones
 add_compile_definitions(CMARK_USE_CMAKE_HEADERS)
 
