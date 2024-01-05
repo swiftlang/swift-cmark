@@ -84,7 +84,6 @@ install(FILES
   include/inlines.h
   include/iterator.h
   include/map.h
-  include/mutex.h
   include/node.h
   include/parser.h
   include/plugin.h
