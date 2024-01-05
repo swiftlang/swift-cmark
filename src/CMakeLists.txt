@@ -32,7 +32,6 @@ set(LIBRARY_SOURCES
   )
 
 set(PROGRAM "cmark-gfm")
-set(PROGRAM_SOURCES "${PROJECT_SOURCE_DIR}/bin/main.c")
 
 include_directories(include ${CMAKE_CURRENT_BINARY_DIR})
 include_directories(
@@ -45,7 +44,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark-gfm_version.h.in
 
 check_file_offset_bits()
 
-add_executable(${PROGRAM} ${PROGRAM_SOURCES})
+add_executable(${PROGRAM}
+  ${PROJECT_SOURCE_DIR}/bin/main.c)
 
 if(CMARK_SHARED)
   target_link_libraries(${PROGRAM} libcmark-gfm-extensions libcmark-gfm)
@@ -147,8 +147,8 @@ if(CMARK_SHARED OR CMARK_STATIC)
   install(EXPORT cmark-gfm
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
 
-  set(CMARK_TARGETS_FILE ${CMAKE_CURRENT_BINARY_DIR}/cmarkTargets.cmake)
-  export(TARGETS ${CMARK_INSTALL} FILE ${CMARK_TARGETS_FILE})
+  export(TARGETS ${CMARK_INSTALL}
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/cmarkTargets.cmake)
 endif()
 
 CONFIGURE_FILE(
