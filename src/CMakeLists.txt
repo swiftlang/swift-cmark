@@ -1,9 +1,3 @@
-include_directories(include)
-include_directories(
-  ${PROJECT_SOURCE_DIR}/extensions/include
-  ${PROJECT_BINARY_DIR}/extensions
-)
-
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_VERSION_MINOR 29)
 set(PROJECT_VERSION_PATCH 0)

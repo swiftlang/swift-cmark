@@ -1,5 +1,3 @@
-include_directories(include)
-
 add_library(libcmark-gfm-extensions
   autolink.c
   core-extensions.c
