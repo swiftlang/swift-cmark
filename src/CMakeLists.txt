@@ -1,6 +1,3 @@
-set(LIBRARY "libcmark-gfm")
-set(PROGRAM "cmark-gfm")
-
 include_directories(include)
 include_directories(
   ${PROJECT_SOURCE_DIR}/extensions/include
@@ -12,13 +9,13 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark-gfm_version.h.in
 
 check_file_offset_bits()
 
-add_executable(${PROGRAM}
+add_executable(cmark-gfm
   ${PROJECT_SOURCE_DIR}/bin/main.c)
-target_link_libraries(${PROGRAM}
+target_link_libraries(cmark-gfm
   libcmark-gfm
   libcmark-gfm-extensions)
 
-add_library(${LIBRARY}
+add_library(libcmark-gfm
   arena.c
   blocks.c
   buffer.c
@@ -47,30 +44,30 @@ add_library(${LIBRARY}
   syntax_extension.c
   utf8.c
   xml.c)
-target_compile_definitions(${LIBRARY} PUBLIC
+target_compile_definitions(libcmark-gfm PUBLIC
   $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:CMARK_GFM_STATIC_DEFINE>)
-target_include_directories(${LIBRARY} PUBLIC
+target_include_directories(libcmark-gfm PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/include>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extensions/include>)
-  target_link_libraries(${LIBRARY} PRIVATE
+  target_link_libraries(libcmark-gfm PRIVATE
     $<$<BOOL:${THREADS_FOUND}>:Threads::Threads>)
 
 # Include minor version and patch level in soname for now.
-set_target_properties(${LIBRARY} PROPERTIES
+set_target_properties(libcmark-gfm PROPERTIES
   OUTPUT_NAME "cmark-gfm"
   SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM}
   VERSION ${PROJECT_VERSION})
 
-set_property(TARGET ${LIBRARY}
+set_property(TARGET libcmark-gfm
   APPEND PROPERTY MACOSX_RPATH true)
 
 # Avoid name clash between PROGRAM and LIBRARY pdb files.
-set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark-gfm_dll)
+set_target_properties(libcmark-gfm PROPERTIES PDB_NAME cmark-gfm_dll)
 
-list(APPEND CMARK_INSTALL ${LIBRARY})
+list(APPEND CMARK_INSTALL libcmark-gfm)
 
-install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
+install(TARGETS cmark-gfm ${CMARK_INSTALL}
   EXPORT cmark-gfm
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
