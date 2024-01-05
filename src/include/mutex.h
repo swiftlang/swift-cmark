@@ -1,8 +1,6 @@
 #ifndef CMARK_MUTEX_H
 #define CMARK_MUTEX_H
 
-#include "cmark-gfm_config.h"
-
 #include <stdbool.h>
 
 #ifdef CMARK_THREADING

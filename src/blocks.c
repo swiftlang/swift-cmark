@@ -13,7 +13,6 @@
 
 #include "cmark_ctype.h"
 #include "syntax_extension.h"
-#include "cmark-gfm_config.h"
 #include "parser.h"
 #include "cmark-gfm.h"
 #include "node.h"

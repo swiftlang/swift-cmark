@@ -74,9 +74,6 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
 set(CMAKE_INCLUDE_CURRENT_DIR YES)
 
-# Use CMake's generated headers instead of the Swift package prebuilt ones
-add_compile_definitions(CMARK_USE_CMAKE_HEADERS)
-
 option(CMARK_FUZZ_QUADRATIC "Build quadratic fuzzing harness" OFF)
 
 if(CMARK_LIB_FUZZER)

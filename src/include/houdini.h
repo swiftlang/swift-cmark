@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include "cmark-gfm_config.h"
+
 #include "buffer.h"
 
 #ifdef HOUDINI_USE_LOCALE

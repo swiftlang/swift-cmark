@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "cmark_ctype.h"
-#include "cmark-gfm_config.h"
 #include "cmark-gfm.h"
 #include "houdini.h"
 #include "scanners.h"

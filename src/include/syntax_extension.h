@@ -3,7 +3,6 @@
 
 #include "cmark-gfm.h"
 #include "cmark-gfm-extension_api.h"
-#include "cmark-gfm_config.h"
 
 #include <stdbool.h>
 

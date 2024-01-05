@@ -41,7 +41,6 @@ let package = Package(
           exclude: [
             "scanners.re",
             "libcmark-gfm.pc.in",
-            "config.h.in",
             "CMakeLists.txt",
             "cmark-gfm_version.h.in",
           ],
