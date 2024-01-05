@@ -1,61 +1,36 @@
 set(LIBRARY "libcmark-gfm-extensions")
-set(STATICLIBRARY "libcmark-gfm-extensions_static")
-set(LIBRARY_SOURCES
-    core-extensions.c
-    table.c
-    strikethrough.c
-    autolink.c
-    tagfilter.c
-    ext_scanners.c
-    ext_scanners.re
-    ext_scanners.h
-    tasklist.c
-   )
 
 include_directories(include)
 
-if (CMARK_SHARED)
-  add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
+add_library(${LIBRARY}
+  autolink.c
+  core-extensions.c
+  ext_scanners.c
+  ext_scanners.h
+  ext_scanners.re
+  strikethrough.c
+  table.c
+  tagfilter.c
+  tasklist.c)
+target_compile_definitions(${LIBRARY} PUBLIC
+  $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:CMARK_GFM_STATIC_DEFINE>)
 
-  set_target_properties(${LIBRARY} PROPERTIES
-    OUTPUT_NAME "cmark-gfm-extensions"
-    DEFINE_SYMBOL "libcmark_gfm_EXPORTS"
-    SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM}
-    VERSION ${PROJECT_VERSION})
+set_target_properties(${LIBRARY} PROPERTIES
+  OUTPUT_NAME "cmark-gfm-extensions"
+  DEFINE_SYMBOL "libcmark_gfm_EXPORTS"
+  SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM}
+  VERSION ${PROJECT_VERSION})
 
-  set_property(TARGET ${LIBRARY}
-    APPEND PROPERTY MACOSX_RPATH true)
+set_property(TARGET ${LIBRARY}
+  APPEND PROPERTY MACOSX_RPATH true)
 
-  # Avoid name clash between PROGRAM and LIBRARY pdb files.
-  set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark-gfm-extensions_dll)
+# Avoid name clash between PROGRAM and LIBRARY pdb files.
+set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark-gfm-extensions_dll)
 
-  list(APPEND CMARK_INSTALL ${LIBRARY})
-  target_link_libraries(${LIBRARY} libcmark-gfm)
+list(APPEND CMARK_INSTALL ${LIBRARY})
+target_link_libraries(${LIBRARY} libcmark-gfm)
 
-endif()
 
-if (CMARK_STATIC)
-  add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
-  target_compile_definitions(${STATICLIBRARY} PUBLIC
-    CMARK_GFM_STATIC_DEFINE)
-  target_link_libraries(${STATICLIBRARY} PRIVATE
-    libcmark-gfm)
-
-  set_target_properties(${STATICLIBRARY} PROPERTIES
-    POSITION_INDEPENDENT_CODE ON)
-
-  if (MSVC)
-    set_target_properties(${STATICLIBRARY} PROPERTIES
-      OUTPUT_NAME "cmark-gfm-extensions_static"
-      VERSION ${PROJECT_VERSION})
-  else()
-    set_target_properties(${STATICLIBRARY} PROPERTIES
-      OUTPUT_NAME "cmark-gfm-extensions"
-      VERSION ${PROJECT_VERSION})
-  endif(MSVC)
-
-  list(APPEND CMARK_INSTALL ${STATICLIBRARY})
-endif()
 
 set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
 
@@ -66,12 +41,10 @@ install(TARGETS ${CMARK_INSTALL}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
-if (CMARK_SHARED OR CMARK_STATIC)
-  install(FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-core-extensions.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/module.modulemap
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cmark_gfm_extensions)
+install(FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-core-extensions.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/module.modulemap
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cmark_gfm_extensions)
 
-  install(EXPORT cmark-gfm-extensions
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake-gfm-extensions)
-endif()
+install(EXPORT cmark-gfm-extensions
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake-gfm-extensions)

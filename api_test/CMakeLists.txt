@@ -10,14 +10,12 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/extensions/include
   ${PROJECT_BINARY_DIR}/extensions
 )
-if(CMARK_SHARED)
-  target_link_libraries(api_test libcmark-gfm-extensions libcmark-gfm)
-else()
-  target_link_libraries(api_test libcmark-gfm-extensions_static libcmark-gfm_static)
-endif()
+target_link_libraries(api_test PRIVATE
+  libcmark-gfm
+  libcmark-gfm-extensions)
 
 add_test(NAME api_test COMMAND api_test)
-if(WIN32 AND CMARK_SHARED)
+if(WIN32 AND BUILD_SHARED_LIBS)
   set_tests_properties(api_test PROPERTIES
     ENVIRONMENT "PATH=$<TARGET_FILE_DIR:libcmark-gfm>;$<TARGET_FILE_DIR:libcmark-gfm-extensions>;$ENV{PATH}")
 endif()
