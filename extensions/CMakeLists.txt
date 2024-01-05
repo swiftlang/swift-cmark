@@ -32,8 +32,6 @@ target_link_libraries(${LIBRARY} libcmark-gfm)
 
 
 
-set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-
 install(TARGETS ${CMARK_INSTALL}
   EXPORT cmark-gfm-extensions
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
