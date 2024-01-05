@@ -42,7 +42,6 @@ let package = Package(
             "scanners.re",
             "libcmark-gfm.pc.in",
             "CMakeLists.txt",
-            "cmark-gfm_version.h.in",
           ],
           cSettings: cSettings
         ),

@@ -1,10 +1,3 @@
-set(PROJECT_VERSION_MAJOR 0)
-set(PROJECT_VERSION_MINOR 29)
-set(PROJECT_VERSION_PATCH 0)
-set(PROJECT_VERSION_GFM 13)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark-gfm_version.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/cmark-gfm_version.h)
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark-gfm.pc.in
   ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc @ONLY)
 
