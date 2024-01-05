@@ -52,18 +52,12 @@ target_include_directories(libcmark-gfm PUBLIC
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extensions/include>)
   target_link_libraries(libcmark-gfm PRIVATE
     $<$<BOOL:${THREADS_FOUND}>:Threads::Threads>)
-
-# Include minor version and patch level in soname for now.
 set_target_properties(libcmark-gfm PROPERTIES
-  OUTPUT_NAME "cmark-gfm"
+  MACOSX_RPATH TRUE
+  OUTPUT_NAME cmark-gfm
+  PDB_NAME libcmark-gfm
   SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM}
   VERSION ${PROJECT_VERSION})
-
-set_property(TARGET libcmark-gfm
-  APPEND PROPERTY MACOSX_RPATH true)
-
-# Avoid name clash between PROGRAM and LIBRARY pdb files.
-set_target_properties(libcmark-gfm PROPERTIES PDB_NAME cmark-gfm_dll)
 
 list(APPEND CMARK_INSTALL libcmark-gfm)
 

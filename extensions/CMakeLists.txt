@@ -12,21 +12,17 @@ add_library(libcmark-gfm-extensions
   tasklist.c)
 target_compile_definitions(libcmark-gfm-extensions PUBLIC
   $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:CMARK_GFM_STATIC_DEFINE>)
-
+target_link_libraries(libcmark-gfm-extensions PRIVATE
+  libcmark-gfm)
 set_target_properties(libcmark-gfm-extensions PROPERTIES
-  OUTPUT_NAME "cmark-gfm-extensions"
-  DEFINE_SYMBOL "libcmark_gfm_EXPORTS"
+  DEFINE_SYMBOL libcmark_gfm_EXPORTS
+  MACOSX_RPATH TRUE
+  OUTPUT_NAME cmark-gfm-extensions
+  PDB_NAME libcmark-gfm-extensions
   SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM}
   VERSION ${PROJECT_VERSION})
 
-set_property(TARGET libcmark-gfm-extensions
-  APPEND PROPERTY MACOSX_RPATH true)
-
-# Avoid name clash between PROGRAM and LIBRARY pdb files.
-set_target_properties(libcmark-gfm-extensions PROPERTIES PDB_NAME cmark-gfm-extensions_dll)
-
 list(APPEND CMARK_INSTALL libcmark-gfm-extensions)
-target_link_libraries(libcmark-gfm-extensions libcmark-gfm)
 
 
 
