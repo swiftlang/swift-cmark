@@ -76,6 +76,8 @@ set(CMAKE_C_EXTENSIONS NO)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
 
+set(CMAKE_INCLUDE_CURRENT_DIR YES)
+
 # Use CMake's generated headers instead of the Swift package prebuilt ones
 add_compile_definitions(CMARK_USE_CMAKE_HEADERS)
 

@@ -17,7 +17,7 @@ include_directories(
   ${PROJECT_BINARY_DIR}/src
 )
 
-include_directories(include ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(include)
 
 if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})

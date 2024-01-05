@@ -33,7 +33,7 @@ set(LIBRARY_SOURCES
 
 set(PROGRAM "cmark-gfm")
 
-include_directories(include ${CMAKE_CURRENT_BINARY_DIR})
+include_directories(include)
 include_directories(
   ${PROJECT_SOURCE_DIR}/extensions/include
   ${PROJECT_BINARY_DIR}/extensions
@@ -56,6 +56,7 @@ endif()
 if (CMARK_SHARED)
   add_library(${LIBRARY} SHARED ${LIBRARY_SOURCES})
   target_include_directories(${LIBRARY} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extensions/include>)
     target_link_libraries(${LIBRARY} PRIVATE
@@ -81,6 +82,7 @@ if (CMARK_STATIC)
   target_compile_definitions(${STATICLIBRARY} PUBLIC
     CMARK_GFM_STATIC_DEFINE)
   target_include_directories(${LIBRARY} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extensions/include>)
   target_link_libraries(${STATICLIBRARY} PRIVATE
