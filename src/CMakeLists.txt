@@ -4,6 +4,10 @@ include_directories(
   ${PROJECT_BINARY_DIR}/extensions
 )
 
+set(PROJECT_VERSION_MAJOR 0)
+set(PROJECT_VERSION_MINOR 29)
+set(PROJECT_VERSION_PATCH 0)
+set(PROJECT_VERSION_GFM 13)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark-gfm_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark-gfm_version.h)
 
@@ -56,7 +60,7 @@ set_target_properties(libcmark-gfm PROPERTIES
   MACOSX_RPATH TRUE
   OUTPUT_NAME cmark-gfm
   PDB_NAME libcmark-gfm
-  SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM}
+  SOVERSION ${PROJECT_VERSION}
   VERSION ${PROJECT_VERSION})
 
 list(APPEND CMARK_INSTALL libcmark-gfm)

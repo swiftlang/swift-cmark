@@ -9,12 +9,9 @@ if(POLICY CMP0092)
 endif()
 
 project(cmark-gfm)
-
-set(PROJECT_VERSION_MAJOR 0)
-set(PROJECT_VERSION_MINOR 29)
-set(PROJECT_VERSION_PATCH 0)
-set(PROJECT_VERSION_GFM 13)
-set(PROJECT_VERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}.gfm.${PROJECT_VERSION_GFM})
+# NOTE: we cannot simply version the project due to the use of an invalid
+# version (the infixed `.gfm.`).
+set(PROJECT_VERSION 0.29.0.gfm.13)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
