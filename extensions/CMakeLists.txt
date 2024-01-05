@@ -12,11 +12,6 @@ set(LIBRARY_SOURCES
     tasklist.c
    )
 
-include_directories(
-  ${PROJECT_SOURCE_DIR}/src/include
-  ${PROJECT_BINARY_DIR}/src
-)
-
 include_directories(include)
 
 if (CMARK_SHARED)
@@ -43,6 +38,8 @@ if (CMARK_STATIC)
   add_library(${STATICLIBRARY} STATIC ${LIBRARY_SOURCES})
   target_compile_definitions(${STATICLIBRARY} PUBLIC
     CMARK_GFM_STATIC_DEFINE)
+  target_link_libraries(${STATICLIBRARY} PRIVATE
+    libcmark-gfm)
 
   set_target_properties(${STATICLIBRARY} PROPERTIES
     POSITION_INDEPENDENT_CODE ON)
