@@ -5,6 +5,12 @@ set(PROJECT_VERSION_GFM 13)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmark-gfm_version.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/cmark-gfm_version.h)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark-gfm.pc.in
+  ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc @ONLY)
+
 check_file_offset_bits()
 
 add_executable(cmark-gfm
@@ -57,55 +63,40 @@ set_target_properties(libcmark-gfm PROPERTIES
   SOVERSION ${PROJECT_VERSION}
   VERSION ${PROJECT_VERSION})
 
-list(APPEND CMARK_INSTALL libcmark-gfm)
 
-install(TARGETS cmark-gfm ${CMARK_INSTALL}
+install(TARGETS cmark-gfm libcmark-gfm
   EXPORT cmark-gfm
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  )
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark-gfm.pc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc @ONLY)
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(FILES
+  include/buffer.h
+  include/chunk.h
+  include/cmark_ctype.h
+  include/cmark-gfm.h
+  include/cmark-gfm_config.h
+  include/cmark-gfm-extension_api.h
+  include/cmark-gfm_version.h
+  include/export.h
+  include/footnotes.h
+  include/houdini.h
+  include/html.h
+  include/inlines.h
+  include/iterator.h
+  include/map.h
+  include/mutex.h
+  include/node.h
+  include/parser.h
+  include/plugin.h
+  include/references.h
+  include/registry.h
+  include/render.h
+  include/scanners.h
+  include/syntax_extension.h
+  include/utf8.h
+  include/module.modulemap
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cmark_gfm)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
-
-install(FILES
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/buffer.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/chunk.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark_ctype.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_config.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-extension_api.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm_version.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/export.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/footnotes.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/houdini.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/html.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/inlines.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/iterator.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/map.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/mutex.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/node.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/parser.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/plugin.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/references.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/registry.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/render.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/scanners.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/syntax_extension.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/utf8.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/module.modulemap
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cmark_gfm
-  )
-
 install(EXPORT cmark-gfm
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
-
-export(TARGETS ${CMARK_INSTALL}
-  FILE ${CMAKE_CURRENT_BINARY_DIR}/cmarkTargets.cmake)
-
-CONFIGURE_FILE(
-  ${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
-  ${CMAKE_CURRENT_BINARY_DIR}/config.h)

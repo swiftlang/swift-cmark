@@ -20,21 +20,15 @@ set_target_properties(libcmark-gfm-extensions PROPERTIES
   SOVERSION ${PROJECT_VERSION}
   VERSION ${PROJECT_VERSION})
 
-list(APPEND CMARK_INSTALL libcmark-gfm-extensions)
 
-
-
-install(TARGETS ${CMARK_INSTALL}
+install(TARGETS libcmark-gfm-extensions
   EXPORT cmark-gfm-extensions
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  )
-
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-core-extensions.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/module.modulemap
+  include/cmark-gfm-core-extensions.h
+  include/module.modulemap
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cmark_gfm_extensions)
-
 install(EXPORT cmark-gfm-extensions
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake-gfm-extensions)
