@@ -98,20 +98,18 @@ if (CMARK_STATIC)
   list(APPEND CMARK_INSTALL ${STATICLIBRARY})
 endif()
 
-set(libdir lib${LIB_SUFFIX})
-
 install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
   EXPORT cmark-gfm
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION ${libdir}
-  ARCHIVE DESTINATION ${libdir}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
 if(CMARK_SHARED OR CMARK_STATIC)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark-gfm.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc @ONLY)
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc
-    DESTINATION ${libdir}/pkgconfig)
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
   install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/buffer.h
@@ -139,10 +137,11 @@ if(CMARK_SHARED OR CMARK_STATIC)
     ${CMAKE_CURRENT_SOURCE_DIR}/include/syntax_extension.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/utf8.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/module.modulemap
-    DESTINATION include/cmark_gfm
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cmark_gfm
     )
 
-  install(EXPORT cmark-gfm DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
+  install(EXPORT cmark-gfm
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
 
   set(CMARK_TARGETS_FILE ${CMAKE_CURRENT_BINARY_DIR}/cmarkTargets.cmake)
   export(TARGETS ${CMARK_INSTALL} FILE ${CMARK_TARGETS_FILE})

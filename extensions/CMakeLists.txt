@@ -64,16 +64,17 @@ set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
 
 install(TARGETS ${CMARK_INSTALL}
   EXPORT cmark-gfm-extensions
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib${LIB_SUFFIX}
-  ARCHIVE DESTINATION lib${LIB_SUFFIX}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
 if (CMARK_SHARED OR CMARK_STATIC)
   install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/include/cmark-gfm-core-extensions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/module.modulemap
-    DESTINATION include/cmark_gfm_extensions)
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cmark_gfm_extensions)
 
-  install(EXPORT cmark-gfm-extensions DESTINATION lib${LIB_SUFFIX}/cmake-gfm-extensions)
+  install(EXPORT cmark-gfm-extensions
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake-gfm-extensions)
 endif()
