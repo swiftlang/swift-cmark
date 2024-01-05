@@ -13,6 +13,27 @@ project(cmark-gfm)
 # version (the infixed `.gfm.`).
 set(PROJECT_VERSION 0.29.0.gfm.13)
 
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED YES)
+set(CMAKE_C_EXTENSIONS NO)
+
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
+
+set(CMAKE_INCLUDE_CURRENT_DIR YES)
+
+option(CMARK_FUZZ_QUADRATIC "Build quadratic fuzzing harness" OFF)
+option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
+option(CMARK_THREADING "Add locks around static accesses" OFF)
+
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+    message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")
+endif()
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+  "Choose the type of build, options are: Debug Profile Release Asan Ubsan." FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 include(CheckFileOffsetBits)
@@ -58,24 +79,6 @@ add_compile_definitions($<$<CONFIG:Debug>:DEBUG>)
 
 add_compile_options($<$<AND:$<CONFIG:PROFILE>,$<COMPILE_LANGUAGE:C>>:-pg>)
 
-if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-    message(FATAL_ERROR "Do not build in-source.\nPlease remove CMakeCache.txt and the CMakeFiles/ directory.\nThen: mkdir build ; cd build ; cmake .. ; make")
-endif()
-
-option(CMARK_LIB_FUZZER "Build libFuzzer fuzzing harness" OFF)
-option(CMARK_THREADING "Add locks around static accesses" OFF)
-
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_STANDARD_REQUIRED YES)
-set(CMAKE_C_EXTENSIONS NO)
-
-set(CMAKE_C_VISIBILITY_PRESET hidden)
-set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
-
-set(CMAKE_INCLUDE_CURRENT_DIR YES)
-
-option(CMARK_FUZZ_QUADRATIC "Build quadratic fuzzing harness" OFF)
-
 if(CMARK_LIB_FUZZER)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize-coverage=trace-pc-guard>)
 endif()
@@ -88,6 +91,8 @@ if(CMARK_FUZZ_QUADRATIC)
   add_compile_options($<$<COMPILE_LANGUAGE:C>:-fsanitize=fuzzer-no-link,address>)
   add_link_options($<$<COMPILE_LANGUAGE:C>:-fsanitize=address>)
 endif()
+
+check_file_offset_bits()
 
 add_subdirectory(src)
 add_subdirectory(extensions)
@@ -107,7 +112,3 @@ endif()
 export(TARGETS libcmark-gfm libcmark-gfm-extensions
   FILE cmark-gfmConfig.cmake)
 
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
-  "Choose the type of build, options are: Debug Profile Release Asan Ubsan." FORCE)
-endif(NOT CMAKE_BUILD_TYPE)

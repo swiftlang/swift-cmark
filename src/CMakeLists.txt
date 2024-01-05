@@ -1,14 +1,6 @@
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark-gfm.pc.in
   ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc @ONLY)
 
-check_file_offset_bits()
-
-add_executable(cmark-gfm
-  ${PROJECT_SOURCE_DIR}/bin/main.c)
-target_link_libraries(cmark-gfm
-  libcmark-gfm
-  libcmark-gfm-extensions)
-
 add_library(libcmark-gfm
   arena.c
   blocks.c
@@ -52,6 +44,12 @@ set_target_properties(libcmark-gfm PROPERTIES
   PDB_NAME libcmark-gfm
   SOVERSION ${PROJECT_VERSION}
   VERSION ${PROJECT_VERSION})
+
+add_executable(cmark-gfm
+  ${PROJECT_SOURCE_DIR}/bin/main.c)
+target_link_libraries(cmark-gfm
+  libcmark-gfm
+  libcmark-gfm-extensions)
 
 
 install(TARGETS cmark-gfm libcmark-gfm
