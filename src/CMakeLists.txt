@@ -58,6 +58,8 @@ if (CMARK_SHARED)
   target_include_directories(${LIBRARY} PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extensions/include>)
+    target_link_libraries(${LIBRARY} PRIVATE
+      $<$<BOOL:${THREADS_FOUND}>:Threads::Threads>)
 
   # Include minor version and patch level in soname for now.
   set_target_properties(${LIBRARY} PROPERTIES
@@ -81,6 +83,8 @@ if (CMARK_STATIC)
   target_include_directories(${LIBRARY} PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extensions/include>)
+  target_link_libraries(${STATICLIBRARY} PRIVATE
+    $<$<BOOL:${Threads_FOUND}>:Threads::Threads>)
 
   set_target_properties(${STATICLIBRARY} PROPERTIES
     POSITION_INDEPENDENT_CODE ON)
@@ -145,16 +149,6 @@ if(CMARK_SHARED OR CMARK_STATIC)
 
   set(CMARK_TARGETS_FILE ${CMAKE_CURRENT_BINARY_DIR}/cmarkTargets.cmake)
   export(TARGETS ${CMARK_INSTALL} FILE ${CMARK_TARGETS_FILE})
-
-  if(CMARK_THREADING AND NOT APPLE AND NOT MSVC AND NOT ANDROID)
-    if(CMARK_SHARED)
-      target_link_libraries(${LIBRARY} pthread)
-    endif(CMARK_SHARED)
-
-    if(CMARK_STATIC)
-      target_link_libraries(${STATICLIBRARY} pthread)
-    endif(CMARK_STATIC)
-  endif()
 endif()
 
 CONFIGURE_FILE(
