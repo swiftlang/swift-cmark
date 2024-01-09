@@ -30,8 +30,12 @@ add_library(libcmark-gfm
   syntax_extension.c
   utf8.c
   xml.c)
-target_compile_definitions(libcmark-gfm PUBLIC
-  $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:CMARK_GFM_STATIC_DEFINE>)
+if(NOT BUILD_SHARED_LIBS)
+  target_compile_definitions(libcmark-gfm PUBLIC
+    CMARK_GFM_STATIC_DEFINE)
+  target_compile_options(libcmark-gfm PUBLIC
+    $<$<COMPILE_LANGUAGE:Swift>:-Xcc -DCMARK_GFM_STATIC_DEFINE>)
+endif()
 target_include_directories(libcmark-gfm PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/include>
