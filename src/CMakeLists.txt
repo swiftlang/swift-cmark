@@ -90,3 +90,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 install(EXPORT cmark-gfm
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
+
+export(TARGETS libcmark-gfm
+  FILE ${CMAKE_CURRENT_BINARY_DIR}/cmarkTargets.cmake)
