@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "cmark-gfm.h"
 #include "parser.h"
 #include "references.h"

@@ -1,4 +1,6 @@
+#include <stdbool.h>
 #include <stdlib.h>
+
 #include "buffer.h"
 #include "chunk.h"
 #include "cmark-gfm.h"
@@ -7,13 +9,13 @@
 #include "node.h"
 #include "syntax_extension.h"
 
-static CMARK_INLINE void S_cr(cmark_renderer *renderer) {
+static inline void S_cr(cmark_renderer *renderer) {
   if (renderer->need_cr < 1) {
     renderer->need_cr = 1;
   }
 }
 
-static CMARK_INLINE void S_blankline(cmark_renderer *renderer) {
+static inline void S_blankline(cmark_renderer *renderer) {
   if (renderer->need_cr < 2) {
     renderer->need_cr = 2;
   }

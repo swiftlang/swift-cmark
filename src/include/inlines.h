@@ -5,8 +5,9 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 #include <stdlib.h>
-#include "cmark-gfm_config.h"
+
 #include "references.h"
 
 cmark_chunk cmark_clean_url(cmark_mem *mem, cmark_chunk *url);

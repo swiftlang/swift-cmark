@@ -1,6 +1,8 @@
 #ifndef CMARK_REFERENCES_H
 #define CMARK_REFERENCES_H
 
+#include <stdbool.h>
+
 #include "map.h"
 
 #ifdef __cplusplus

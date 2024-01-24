@@ -4,28 +4,19 @@
 import PackageDescription
 
 #if os(Windows)
-#if arch(i386) || arch(x86_64)
-    var cSettings: [CSetting] = [
-        .define("_X86_", .when(platforms: [.windows])),
-    ]
-#elseif arch(arm) || arch(arm64)
-    var cSettings: [CSetting] = [
-        .define("_ARM_", .when(platforms: [.windows])),
-    ]
-#else
-#error("unsupported architecture")
-#endif
     // When building the library on Windows, we do not have proper control of
     // whether it is being built statically or dynamically.  However, given the
     // current default of static, we will assume that we are building
     // statically.  More importantly, should this not hold, this will fail at
     // link time.
-    cSettings += [
+    let cSettings: [CSetting] = [
         .define("CMARK_GFM_STATIC_DEFINE", .when(platforms: [.windows])),
-        .define("CMARK_GFM_EXTENSIONS_STATIC_DEFINE", .when(platforms: [.windows])),
+        .define("CMARK_THREADING"),
     ]
 #else
-    let cSettings: [CSetting] = []
+    let cSettings: [CSetting] = [
+        .define("CMARK_THREADING"),
+    ]
 #endif
 
 let package = Package(
@@ -50,9 +41,7 @@ let package = Package(
           exclude: [
             "scanners.re",
             "libcmark-gfm.pc.in",
-            "config.h.in",
             "CMakeLists.txt",
-            "cmark-gfm_version.h.in",
           ],
           cSettings: cSettings
         ),

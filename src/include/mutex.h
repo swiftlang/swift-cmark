@@ -1,11 +1,11 @@
 #ifndef CMARK_MUTEX_H
 #define CMARK_MUTEX_H
 
-#include "cmark-gfm_config.h"
+#include <stdbool.h>
 
 #ifdef CMARK_THREADING
 
-#ifdef HAVE_UNISTD_H
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 #include <unistd.h>
 #endif
 
@@ -54,7 +54,7 @@ pthread_mutex_lock(&NAME##_lock);
 
 #else // no threading support
 
-static CMARK_INLINE bool check_latch(int *latch) {
+static inline bool check_latch(int *latch) {
   if (!*latch) {
     *latch = 1;
     return true;

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cmark-gfm_config.h"
 #include "cmark-gfm.h"
 #include "mutex.h"
 #include "syntax_extension.h"

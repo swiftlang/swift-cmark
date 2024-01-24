@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "tasklist.h"
 #include <parser.h>
 #include <render.h>

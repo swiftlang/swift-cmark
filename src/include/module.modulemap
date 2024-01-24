@@ -1,6 +1,5 @@
 module cmark_gfm {
-    umbrella header "cmark-gfm.h"
-    header "cmark-gfm_config.h"
+    header "cmark-gfm.h"
     header "cmark-gfm-extension_api.h"
     header "buffer.h"
     header "chunk.h"
@@ -11,7 +10,6 @@ module cmark_gfm {
     header "inlines.h"
     header "iterator.h"
     header "map.h"
-    header "mutex.h"
     header "node.h"
     header "parser.h"
     header "plugin.h"

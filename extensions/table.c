@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include <cmark-gfm-extension_api.h>
 #include <html.h>
 #include <inlines.h>

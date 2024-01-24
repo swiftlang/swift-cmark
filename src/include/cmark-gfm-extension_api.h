@@ -7,6 +7,8 @@ extern "C" {
 
 #include "cmark-gfm.h"
 
+#include <stdbool.h>
+
 struct cmark_renderer;
 struct cmark_html_renderer;
 struct cmark_chunk;

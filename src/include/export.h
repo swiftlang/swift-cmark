@@ -1,13 +1,6 @@
 #ifndef CMARK_GFM_EXPORT_H
 #define CMARK_GFM_EXPORT_H
 
-#ifdef CMARK_USE_CMAKE_HEADERS
-// if the CMake config header exists, use that instead of this Swift package prebuilt one
-// we need to undefine the header guard, since export.h uses the same one
-#undef CMARK_GFM_EXPORT_H
-#include "cmark-gfm_export.h"
-#else
-
 #ifdef CMARK_GFM_STATIC_DEFINE
 #  define CMARK_GFM_EXPORT
 #  define CMARK_GFM_NO_EXPORT
@@ -44,7 +37,5 @@
 #ifndef CMARK_GFM_DEPRECATED_NO_EXPORT
 #  define CMARK_GFM_DEPRECATED_NO_EXPORT CMARK_GFM_NO_EXPORT CMARK_GFM_DEPRECATED
 #endif
-
-#endif /* not CMARK_USE_CMAKE_HEADERS */
 
 #endif /* not CMARK_GFM_EXPORT_H */
