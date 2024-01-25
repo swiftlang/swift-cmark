@@ -10,6 +10,8 @@ add_library(libcmark-gfm-extensions
   tasklist.c)
 target_compile_definitions(libcmark-gfm-extensions PUBLIC
   $<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:CMARK_GFM_STATIC_DEFINE>)
+target_include_directories(libcmark-gfm-extensions PUBLIC
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/cmark_gfm_extensions>)
 target_link_libraries(libcmark-gfm-extensions PRIVATE
   libcmark-gfm)
 set_target_properties(libcmark-gfm-extensions PROPERTIES

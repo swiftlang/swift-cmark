@@ -39,7 +39,8 @@ endif()
 target_include_directories(libcmark-gfm PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/include>
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extensions/include>)
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/extensions/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/cmark_gfm>)
   target_link_libraries(libcmark-gfm PRIVATE
     $<$<BOOL:${THREADS_FOUND}>:Threads::Threads>)
 set_target_properties(libcmark-gfm PROPERTIES
