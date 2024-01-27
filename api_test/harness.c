@@ -1,4 +1,7 @@
-#define _DEFAULT_SOURCE
+// _GNU_SOURCE is all ISO/POSIX/XOPEN/BSD/SVID + GNU extensions. It also sets
+// _DEFAULT_SOURCE on newer glibc. We need this for strdup/snprintf/fdopen/etc.
+#define _GNU_SOURCE
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
