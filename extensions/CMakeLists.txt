@@ -33,4 +33,4 @@ install(FILES
   include/module.modulemap
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cmark_gfm_extensions)
 install(EXPORT cmark-gfm-extensions
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake-gfm-extensions)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/cmark-gfm-extensions)

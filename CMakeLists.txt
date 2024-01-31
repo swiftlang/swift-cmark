@@ -109,6 +109,11 @@ if(CMARK_FUZZ_QUADRATIC)
   add_subdirectory(fuzz)
 endif()
 
-export(TARGETS libcmark-gfm libcmark-gfm-extensions
-  FILE cmark-gfmConfig.cmake)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(cmark-gfm-config.cmake.in
+  ${CMAKE_BINARY_DIR}/cmake/modules/cmark-gfm-config.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
+install(FILES
+  ${CMAKE_BINARY_DIR}/cmake/modules/cmark-gfm-config.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
 
