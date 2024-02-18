@@ -1,8 +1,10 @@
 #ifndef CMARK_PARSER_H
 #define CMARK_PARSER_H
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "references.h"
 #include "node.h"
 #include "buffer.h"

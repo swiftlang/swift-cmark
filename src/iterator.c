@@ -1,7 +1,7 @@
 #include <assert.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
-#include "cmark-gfm_config.h"
 #include "node.h"
 #include "cmark-gfm.h"
 #include "iterator.h"

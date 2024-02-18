@@ -1,10 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
 #include <assert.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "cmark-gfm_config.h"
 #include "cmark-gfm.h"
 #include "node.h"
 #include "buffer.h"
@@ -22,9 +22,8 @@
 
 // Functions to convert cmark_nodes to commonmark strings.
 
-static CMARK_INLINE void outc(cmark_renderer *renderer, cmark_node *node, 
-                              cmark_escaping escape,
-                              int32_t c, unsigned char nextc) {
+static inline void outc(cmark_renderer *renderer, cmark_node *node,
+                        cmark_escaping escape, int32_t c, unsigned char nextc) {
   bool needs_escaping = false;
   bool follows_digit =
       renderer->buffer->size > 0 &&

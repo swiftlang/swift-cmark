@@ -1,5 +1,6 @@
-#include <stdlib.h>
 #include <assert.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
 #include "cmark-gfm.h"
 #include "syntax_extension.h"

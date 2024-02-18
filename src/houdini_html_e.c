@@ -4,6 +4,16 @@
 
 #include "houdini.h"
 
+#if !defined(__has_builtin)
+# define __has_builtin(b) 0
+#endif
+
+#if !__has_builtin(__builtin_expect)
+# define __builtin_expect(e, v) (e)
+#endif
+
+#define unlikely(e) __builtin_expect((e), 0)
+
 /**
  * According to the OWASP rules:
  *

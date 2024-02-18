@@ -1,8 +1,9 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <errno.h>
-#include "cmark-gfm_config.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "cmark-gfm.h"
 #include "node.h"
 #include "cmark-gfm-extension_api.h"
