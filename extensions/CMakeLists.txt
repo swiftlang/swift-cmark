@@ -19,6 +19,7 @@ set_target_properties(libcmark-gfm-extensions PROPERTIES
   MACOSX_RPATH TRUE
   OUTPUT_NAME cmark-gfm-extensions
   PDB_NAME libcmark-gfm-extensions
+  POSITION_INDEPENDENT_CODE YES
   SOVERSION ${PROJECT_VERSION}
   VERSION ${PROJECT_VERSION})
 
