@@ -1,13 +1,13 @@
 #ifndef CMARK_HOUDINI_H
 #define CMARK_HOUDINI_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 
 #include "buffer.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifdef HOUDINI_USE_LOCALE
 #define _isxdigit(c) isxdigit(c)

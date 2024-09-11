@@ -1,10 +1,6 @@
 #ifndef CMARK_NODE_H
 #define CMARK_NODE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -13,6 +9,10 @@ extern "C" {
 #include "cmark-gfm-extension_api.h"
 #include "buffer.h"
 #include "chunk.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct {
   cmark_list_type list_type;
