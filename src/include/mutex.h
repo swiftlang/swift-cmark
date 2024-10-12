@@ -3,9 +3,15 @@
 
 #include <stdbool.h>
 
+#ifndef CMARK_THREADING
+#if !defined(__wasi__) || defined(_REENTRANT)
+#define CMARK_THREADING
+#endif
+#endif
+
 #ifdef CMARK_THREADING
 
-#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__wasi__)
 #include <unistd.h>
 #endif
 

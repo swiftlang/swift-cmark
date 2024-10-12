@@ -54,7 +54,7 @@ void INT_EQ(test_batch_runner *runner, int got, int expected, const char *msg,
   }
 }
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__wasi__)
 #include <unistd.h>
 
 static char *write_tmp(char const *header, char const *data) {
@@ -79,7 +79,7 @@ void STR_EQ(test_batch_runner *runner, const char *got, const char *expected,
   va_end(ap);
 
   if (!cond) {
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__wasi__)
     char *got_fn = write_tmp("actual\n", got);
     char *expected_fn = write_tmp("expected\n", expected);
     char buf[1024];
