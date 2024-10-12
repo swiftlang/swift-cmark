@@ -11,12 +11,9 @@ import PackageDescription
     // link time.
     let cSettings: [CSetting] = [
         .define("CMARK_GFM_STATIC_DEFINE", .when(platforms: [.windows])),
-        .define("CMARK_THREADING"),
     ]
 #else
-    let cSettings: [CSetting] = [
-        .define("CMARK_THREADING"),
-    ]
+    let cSettings: [CSetting] = []
 #endif
 
 let package = Package(
