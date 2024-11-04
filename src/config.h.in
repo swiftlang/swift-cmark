@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#cmakedefine CMARK_THREADING
+#cmakedefine01 CMARK_THREADING
 
 #ifdef __cplusplus
 }

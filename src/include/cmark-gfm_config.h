@@ -12,7 +12,13 @@
 extern "C" {
 #endif
 
-#define CMARK_THREADING
+#ifndef CMARK_THREADING
+#if defined(__wasi__) && !defined(_REENTRANT)
+#define CMARK_THREADING 0
+#else
+#define CMARK_THREADING 1
+#endif
+#endif
 
 #ifdef __cplusplus
 }
