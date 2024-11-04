@@ -42,7 +42,6 @@ include(FindAsan)
 if(CMARK_THREADING)
   set(THREADS_PREFER_PTHREAD_FLAG YES)
   include(FindThreads)
-  add_compile_definitions(CMARK_THREADING)
 endif()
 include(GNUInstallDirs)
 

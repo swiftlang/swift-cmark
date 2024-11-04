@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+#define CMARK_THREADING
+
 #ifdef __cplusplus
 }
 #endif
