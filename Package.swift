@@ -38,6 +38,7 @@ let package = Package(
           exclude: [
             "scanners.re",
             "libcmark-gfm.pc.in",
+            "config.h.in",
             "CMakeLists.txt",
           ],
           cSettings: cSettings

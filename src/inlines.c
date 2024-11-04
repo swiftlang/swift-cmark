@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "cmark_ctype.h"
+#include "cmark-gfm_config.h"
 #include "node.h"
 #include "parser.h"
 #include "references.h"

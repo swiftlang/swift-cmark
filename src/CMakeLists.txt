@@ -1,3 +1,6 @@
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in
+  ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark-gfm.pc.in
   ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc @ONLY)
 
@@ -68,6 +71,7 @@ install(FILES
   include/chunk.h
   include/cmark_ctype.h
   include/cmark-gfm.h
+  include/cmark-gfm_config.h
   include/cmark-gfm-extension_api.h
   include/cmark-gfm_version.h
   include/export.h
