@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "cmark-gfm_config.h"
 #include "cmark-gfm.h"
 #include "node.h"
 #include "buffer.h"
