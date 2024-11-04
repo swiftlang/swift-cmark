@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "cmark-gfm_config.h"
 #include "cmark_ctype.h"
 #include "buffer.h"
 

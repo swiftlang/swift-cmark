@@ -42,7 +42,6 @@ include(FindAsan)
 if(CMARK_THREADING)
   set(THREADS_PREFER_PTHREAD_FLAG YES)
   include(FindThreads)
-  add_compile_definitions(CMARK_THREADING)
 endif()
 include(GNUInstallDirs)
 
@@ -76,6 +75,8 @@ endif()
 add_compile_definitions($<$<CONFIG:Debug>:CMARK_DEBUG_NODES>)
 # FIXME(compnerd) why do we not use `!defined(NDEBUG)`?
 add_compile_definitions($<$<CONFIG:Debug>:DEBUG>)
+# Use CMake's generated headers instead of the Swift package prebuilt ones
+add_compile_definitions(CMARK_USE_CMAKE_HEADERS)
 
 add_compile_options($<$<AND:$<CONFIG:PROFILE>,$<COMPILE_LANGUAGE:C>>:-pg>)
 
