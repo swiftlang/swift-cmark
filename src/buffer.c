@@ -52,9 +52,14 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
   bufsize_t new_size = target_size + target_size / 2;
   new_size += 1;
   new_size = (new_size + 7) & ~7;
-
-  buf->ptr = (unsigned char *)buf->mem->realloc(buf->asize ? buf->ptr : NULL,
-                                                new_size);
+  
+  unsigned char *new_ptr = (unsigned char *)buf->mem->realloc(buf->asize ? buf->ptr : NULL, new_size);
+  
+  if (new_ptr != NULL) {
+    // Only update the buffer if realloc succeeded
+    buf->ptr = new_ptr;
+  }
+  
   buf->asize = new_size;
 }
 
