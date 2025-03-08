@@ -1,12 +1,12 @@
 #ifndef CMARK_PLUGIN_H
 #define CMARK_PLUGIN_H
 
+#include "cmark-gfm.h"
+#include "cmark-gfm-extension_api.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "cmark-gfm.h"
-#include "cmark-gfm-extension_api.h"
 
 /**
  * cmark_plugin:

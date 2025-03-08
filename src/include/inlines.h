@@ -1,14 +1,14 @@
 #ifndef CMARK_INLINES_H
 #define CMARK_INLINES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 #include <stdlib.h>
 
 #include "references.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 cmark_chunk cmark_clean_url(cmark_mem *mem, cmark_chunk *url);
 cmark_chunk cmark_clean_title(cmark_mem *mem, cmark_chunk *title);

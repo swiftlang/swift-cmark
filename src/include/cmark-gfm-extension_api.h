@@ -1,13 +1,13 @@
 #ifndef CMARK_GFM_EXTENSION_API_H
 #define CMARK_GFM_EXTENSION_API_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "cmark-gfm.h"
 
 #include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct cmark_renderer;
 struct cmark_html_renderer;

@@ -1,12 +1,12 @@
 #ifndef CMARK_REGISTRY_H
 #define CMARK_REGISTRY_H
 
+#include "cmark-gfm.h"
+#include "cmark-gfm-extension_api.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "cmark-gfm.h"
-#include "cmark-gfm-extension_api.h"
 
 CMARK_GFM_EXPORT
 void cmark_register_plugin(cmark_plugin_init_func reg_fn);

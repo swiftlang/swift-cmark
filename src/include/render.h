@@ -1,15 +1,15 @@
 #ifndef CMARK_RENDER_H
 #define CMARK_RENDER_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 #include <stdlib.h>
 
 #include "buffer.h"
 #include "chunk.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum { LITERAL, NORMAL, TITLE, URL } cmark_escaping;
 
