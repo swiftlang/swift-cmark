@@ -90,6 +90,13 @@ typedef enum {
   CMARK_PAREN_DELIM
 } cmark_delim_type;
 
+typedef enum {
+  CMARK_NO_LIST_MARKER,
+  CMARK_HYPHEN_LIST_MARKER,
+  CMARK_PLUS_LIST_MARKER,
+  CMARK_ASTERISK_LIST_MARKER
+} cmark_list_marker_type;
+
 typedef struct cmark_node cmark_node;
 typedef struct cmark_parser cmark_parser;
 typedef struct cmark_iter cmark_iter;
@@ -394,6 +401,16 @@ CMARK_GFM_EXPORT cmark_list_type cmark_node_get_list_type(cmark_node *node);
  */
 CMARK_GFM_EXPORT int cmark_node_set_list_type(cmark_node *node,
                                           cmark_list_type type);
+
+/** Returns the list marker of 'node', or `CMARK_NO_LIST_MARKER` if 'node'
+ * is not a list.
+ */
+CMARK_GFM_EXPORT cmark_list_marker_type cmark_node_get_list_marker(cmark_node *node);
+
+/** Sets the list marker of 'node', returning 1 on success and 0 on error.
+ */
+CMARK_GFM_EXPORT int cmark_node_set_list_marker(cmark_node *node,
+                                                cmark_list_marker_type listMarker);
 
 /** Returns the list delimiter type of 'node', or `CMARK_NO_DELIM` if 'node'
  * is not a list.
@@ -865,6 +882,9 @@ const char *cmark_version_string(void);
 #define ORDERED_LIST CMARK_ORDERED_LIST
 #define PERIOD_DELIM CMARK_PERIOD_DELIM
 #define PAREN_DELIM CMARK_PAREN_DELIM
+#define HYPHEN_LIST_MARKER CMARK_HYPHEN_LIST_MARKER
+#define PLUS_LIST_MARKER CMARK_PLUS_LIST_MARKER
+#define ASTERISK_LIST_MARKER CMARK_ASTERISK_LIST_MARKER
 #endif
 
 typedef int32_t bufsize_t;

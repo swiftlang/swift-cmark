@@ -107,6 +107,8 @@ static void accessors(test_batch_runner *runner) {
          "get_list_type bullet");
   INT_EQ(runner, cmark_node_get_list_tight(bullet_list), 1,
          "get_list_tight tight");
+  INT_EQ(runner, cmark_node_get_list_marker(bullet_list), CMARK_ASTERISK_LIST_MARKER,
+         "get_list_marker asterisk");
 
   cmark_node *ordered_list = cmark_node_next(bullet_list);
   INT_EQ(runner, cmark_node_get_list_type(ordered_list), CMARK_ORDERED_LIST,
@@ -146,6 +148,7 @@ static void accessors(test_batch_runner *runner) {
 
   OK(runner, cmark_node_set_heading_level(heading, 3), "set_heading_level");
 
+  OK(runner, cmark_node_set_list_marker(bullet_list, CMARK_PLUS_LIST_MARKER), "set_list_marker plus");
   OK(runner, cmark_node_set_list_type(bullet_list, CMARK_ORDERED_LIST),
      "set_list_type ordered");
   OK(runner, cmark_node_set_list_delim(bullet_list, CMARK_PAREN_DELIM),
@@ -211,6 +214,7 @@ static void accessors(test_batch_runner *runner) {
          "get_list_type error");
   INT_EQ(runner, cmark_node_get_list_start(code), 0, "get_list_start error");
   INT_EQ(runner, cmark_node_get_list_tight(fenced), 0, "get_list_tight error");
+  INT_EQ(runner, cmark_node_get_list_marker(heading), CMARK_NO_LIST_MARKER, "get_list_marker error");
   OK(runner, cmark_node_get_literal(ordered_list) == NULL, "get_literal error");
   OK(runner, cmark_node_get_fence_info(paragraph) == NULL,
      "get_fence_info error");
@@ -225,6 +229,7 @@ static void accessors(test_batch_runner *runner) {
      "set_list_type error");
   OK(runner, !cmark_node_set_list_start(code, 3), "set_list_start error");
   OK(runner, !cmark_node_set_list_tight(fenced, 0), "set_list_tight error");
+  OK(runner, !cmark_node_set_list_marker(heading, CMARK_PLUS_LIST_MARKER), "set_list_marker error");
   OK(runner, !cmark_node_set_literal(ordered_list, "content\n"),
      "set_literal error");
   OK(runner, !cmark_node_set_fence_info(paragraph, "lang"),
@@ -240,6 +245,8 @@ static void accessors(test_batch_runner *runner) {
      "set_list_type invalid");
   OK(runner, !cmark_node_set_list_start(bullet_list, -1),
      "set_list_start negative");
+  OK(runner, !cmark_node_set_list_marker(bullet_list, CMARK_NO_LIST_MARKER),
+     "set_list_marker invalid");
 
   cmark_node_free(doc);
 }
