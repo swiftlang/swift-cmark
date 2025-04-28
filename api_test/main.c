@@ -1579,6 +1579,114 @@ static void table_spans(test_batch_runner *runner) {
   }
 }
 
+static void cjk_emphasis(test_batch_runner *runner) {
+  static const char markdown[] =
+    "**テスト。**テスト\n"
+    "\n"
+    "**テスト**。テスト\n"
+    "\n"
+    "**テスト、**テスト\n"
+    "\n"
+    "**テスト**、テスト\n"
+    "\n"
+    "**テスト？**テスト\n"
+    "\n"
+    "**テスト**？テスト\n";
+  static const char expected_html[] =
+    "<p><strong>テスト。</strong>テスト</p>\n"
+    "<p><strong>テスト</strong>。テスト</p>\n"
+    "<p><strong>テスト、</strong>テスト</p>\n"
+    "<p><strong>テスト</strong>、テスト</p>\n"
+    "<p><strong>テスト？</strong>テスト</p>\n"
+    "<p><strong>テスト</strong>？テスト</p>\n";
+
+  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+
+  char *html = cmark_render_html(doc, CMARK_OPT_DEFAULT, NULL);
+  STR_EQ(runner, html, expected_html, "emphasis parsing with CJK didn't generate expected HTML");
+
+  free(html);
+  cmark_node_free(doc);
+}
+
+static void cjk_emoji_emphasis(test_batch_runner *runner) {
+  static const char markdown[] =
+    "テスト。**テスト。**テスト\n"
+    "\n"
+    "テスト。**テスト**。テスト\n"
+    "\n"
+    "テスト、**テスト、**テスト\n"
+    "\n"
+    "テスト、**テスト**、テスト\n"
+    "\n"
+    "テスト？**テスト？**テスト\n"
+    "\n"
+    "テスト？**テスト**？テスト\n"
+    "\n"
+    "テスト**テスト？**テスト\n"
+    "\n"
+    "テスト**テスト**？テスト\n"
+    "\n"
+    "テスト✌🏻**テスト？**テスト\n"
+    "\n"
+    "テスト✌🏻**テスト**？テスト\n"
+    "\n"
+    "テスト🇯🇵**テスト？**テスト\n"
+    "\n"
+    "テスト🇯🇵**テスト**？テスト\n"
+    "\n"
+    "テスト🏴󠁧󠁢󠁳󠁣󠁴󠁿**テスト？**テスト\n"
+    "\n"
+    "テスト🏴󠁧󠁢󠁳󠁣󠁴󠁿**テスト**？テスト\n"
+    "\n"
+    "テスト*️⃣**テスト？**テスト\n"
+    "\n"
+    "テスト*️⃣**テスト**？テスト\n"
+    "\n"
+    "テスト©️**テスト？**テスト\n"
+    "\n"
+    "テスト©️**テスト**？テスト\n"
+    "\n"
+    "テスト©**テスト？**テスト\n"
+    "\n"
+    "テスト©**テスト**？テスト\n"
+    "\n"
+    "テスト⌛**テスト？**テスト\n"
+    "\n"
+    "テスト⌛**テスト**？テスト\n";
+  static const char expected_html[] =
+    "<p>テスト。<strong>テスト。</strong>テスト</p>\n"
+    "<p>テスト。<strong>テスト</strong>。テスト</p>\n"
+    "<p>テスト、<strong>テスト、</strong>テスト</p>\n"
+    "<p>テスト、<strong>テスト</strong>、テスト</p>\n"
+    "<p>テスト？<strong>テスト？</strong>テスト</p>\n"
+    "<p>テスト？<strong>テスト</strong>？テスト</p>\n"
+    "<p>テスト<strong>テスト？</strong>テスト</p>\n"
+    "<p>テスト<strong>テスト</strong>？テスト</p>\n"
+    "<p>テスト✌🏻<strong>テスト？</strong>テスト</p>\n"
+    "<p>テスト✌🏻<strong>テスト</strong>？テスト</p>\n"
+    "<p>テスト🇯🇵<strong>テスト？</strong>テスト</p>\n"
+    "<p>テスト🇯🇵<strong>テスト</strong>？テスト</p>\n"
+    "<p>テスト🏴󠁧󠁢󠁳󠁣󠁴󠁿<strong>テスト？</strong>テスト</p>\n"
+    "<p>テスト🏴󠁧󠁢󠁳󠁣󠁴󠁿<strong>テスト</strong>？テスト</p>\n"
+    "<p>テスト*️⃣<strong>テスト？</strong>テスト</p>\n"
+    "<p>テスト*️⃣<strong>テスト</strong>？テスト</p>\n"
+    "<p>テスト©️<strong>テスト？</strong>テスト</p>\n"
+    "<p>テスト©️<strong>テスト</strong>？テスト</p>\n"
+    "<p>テスト©<strong>テスト？</strong>テスト</p>\n"
+    "<p>テスト©<strong>テスト</strong>？テスト</p>\n"
+    "<p>テスト⌛<strong>テスト？</strong>テスト</p>\n"
+    "<p>テスト⌛<strong>テスト</strong>？テスト</p>\n";
+
+  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+
+  char *html = cmark_render_html(doc, CMARK_OPT_DEFAULT, NULL);
+  STR_EQ(runner, html, expected_html, "emphasis parsing with CJK and emoji didn't generate expected HTML");
+
+  free(html);
+  cmark_node_free(doc);
+}
+
 int main() {
   int retval;
   test_batch_runner *runner = test_batch_runner_new();
@@ -1616,6 +1724,8 @@ int main() {
   verify_custom_attributes_node_with_footnote(runner);
   parser_interrupt(runner);
   table_spans(runner);
+  cjk_emphasis(runner);
+  cjk_emoji_emphasis(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;

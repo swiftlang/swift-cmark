@@ -315,3 +315,20 @@ int cmark_utf8proc_is_punctuation(int32_t uc) {
       uc == 92917 || (uc >= 92983 && uc <= 92987) || uc == 92996 ||
       uc == 113823);
 }
+
+int cmark_utf8proc_is_cjk_character(int32_t uc) {
+#include "cjk_ranges.inc"
+}
+
+int cmark_utf8proc_is_non_cjk_punctuation_character(int32_t uc) {
+  return cmark_utf8proc_is_punctuation(uc)
+    && !cmark_utf8proc_is_cjk_character(uc);
+}
+
+int cmark_utf8proc_is_ideographic_variation_selector(int32_t uc) {
+  return 0xE0100 <= uc && uc <= 0xE01EF;
+}
+
+int cmark_utf8proc_is_standard_variation_selector_following_cjk(int32_t uc) {
+  return (0xFE00 <= uc && uc <= 0xFE02) || (uc == 0xFE0E);
+}
