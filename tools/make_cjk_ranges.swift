@@ -111,6 +111,8 @@ func cjkEawRanges() async throws -> (cjkRanges: [CodePointRange], nonCjkRanges: 
         OneOrMore(.whitespace)
         "; "
         Capture(as: widthTypeRef) {
+            // The East Asian Width value abbreviations, as defined here:
+            // https://www.unicode.org/reports/tr11/#Definitions
             ChoiceOf {
                 "A"
                 "F"
