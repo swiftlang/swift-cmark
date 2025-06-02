@@ -88,26 +88,61 @@ extension [CodePointRange] {
     }
 }
 
-/// Returns the ranges of code points that have an East Asian Width of W, F, or H.
-func cjkEawRanges() async throws -> (cjkRanges: [CodePointRange], nonCjkRanges: [CodePointRange]) {
-    let codePointRegex = Repeat(4...5) {
+/// Returns a regular expression component used to capture a four- or five-digit hexadecimal number,
+/// commonly used when parsing code points from Unicode data files.
+func codePointRegex() -> some RegexComponent<Substring> {
+    Repeat(4...5) {
         One(.hexDigit)
     }
+}
 
+/// Returns a regular expression component that matches a single code point value and captures it
+/// with the given reference.
+func captureSingleCodePoint(
+    as reference: Reference<UInt32>
+) -> some RegexComponent<(Substring, UInt32)> {
+    TryCapture(as: reference) {
+        codePointRegex()
+    } transform: { UInt32($0, radix: 16) }
+}
+
+/// Returns a regular expression component that matches a single code point value and captures it
+/// with the given optional reference.
+func captureOptionalCodePoint(
+    as reference: Reference<UInt32?>
+) -> some RegexComponent<(Substring, UInt32?)> {
+    Capture(as: reference) {
+        codePointRegex()
+    } transform: { UInt32($0, radix: 16) }
+}
+
+/// Returns a regular expression component that matches a code point or code point range as
+/// commonly written in Unicode data files.
+///
+/// Unicode data files will commonly write code point references in the form `ABCD` or `ABCD..BCDE`,
+/// indicating a single code point or a range of adjacent code points. This regex component matches
+/// both of these forms and converts the hexadecimal number into a `UInt32`.
+func captureCodePointRange(
+    codePointRef: Reference<UInt32>,
+    codePointEndRef: Reference<UInt32?>
+) -> some RegexComponent<(Substring, UInt32, UInt32??)> {
+    Regex {
+        captureSingleCodePoint(as: codePointRef)
+        Optionally {
+            ".."
+            captureOptionalCodePoint(as: codePointEndRef)
+        }
+    }
+}
+
+/// Returns the ranges of code points that have an East Asian Width of W, F, or H.
+func cjkEawRanges() async throws -> (cjkRanges: [CodePointRange], nonCjkRanges: [CodePointRange]) {
     let codePointRef = Reference(UInt32.self)
     let codePointEndRef = Reference(UInt32?.self)
     let widthTypeRef = Reference(String.self)
     let lineMatchRegex = Regex {
         Anchor.startOfLine
-        TryCapture(as: codePointRef) {
-            codePointRegex
-        } transform: { UInt32($0, radix: 16) }
-        Optionally {
-            ".."
-            Capture(as: codePointEndRef) {
-                codePointRegex
-            } transform: { UInt32($0, radix: 16) }
-        }
+        captureCodePointRange(codePointRef: codePointRef, codePointEndRef: codePointEndRef)
         OneOrMore(.whitespace)
         "; "
         Capture(as: widthTypeRef) {
@@ -153,25 +188,14 @@ func cjkEawRanges() async throws -> (cjkRanges: [CodePointRange], nonCjkRanges: 
 
 /// Returns the ranges of code points with a Script property of Hangul.
 func hangulRanges() async throws -> [CodePointRange] {
-    let codePointRegex = Repeat(4...5) {
-        One(.hexDigit)
-    }
-
     let codePointRef = Reference(UInt32.self)
     let codePointEndRef = Reference(UInt32?.self)
     let lineMatchRegex = Regex {
         Anchor.startOfLine
-        TryCapture(as: codePointRef) {
-            codePointRegex
-        } transform: { UInt32($0, radix: 16) }
-        Optionally {
-            ".."
-            Capture(as: codePointEndRef) {
-                codePointRegex
-            } transform: { UInt32($0, radix: 16) }
-        }
+        captureCodePointRange(codePointRef: codePointRef, codePointEndRef: codePointEndRef)
         OneOrMore(.whitespace)
         "; "
+        // Only capture lines with Hangul script; discard the rest
         "Hangul"
         OneOrMore(.whitespace)
         "#"
@@ -192,10 +216,6 @@ func hangulRanges() async throws -> [CodePointRange] {
 
 /// Returns the ranges of single code points that count as emoji.
 func singleCodePointEmojiRanges() async throws -> [CodePointRange] {
-    let codePointRegex = Repeat(4...5) {
-        One(.hexDigit)
-    }
-
     let codePointRef = Reference(UInt32.self)
     let codePointEndRef = Reference(UInt32?.self)
 
@@ -203,15 +223,7 @@ func singleCodePointEmojiRanges() async throws -> [CodePointRange] {
     // sequences like `XXXX FE0F`
     let lineMatchRegex = Regex {
         Anchor.startOfLine
-        TryCapture(as: codePointRef) {
-            codePointRegex
-        } transform: { UInt32($0, radix: 16) }
-        Optionally {
-            ".."
-            Capture(as: codePointEndRef) {
-                codePointRegex
-            } transform: { UInt32($0, radix: 16) }
-        }
+        captureCodePointRange(codePointRef: codePointRef, codePointEndRef: codePointEndRef)
         OneOrMore(.whitespace)
         ";"
     }
@@ -249,16 +261,10 @@ let unassignedAsCjkRanges: [CodePointRange] = [
 
 /// Returns the emoji code points that have a selectable text representation.
 func textSwitchableEmojiRanges() async throws -> [CodePointRange] {
-    let codePointRegex = Repeat(4...5) {
-        One(.hexDigit)
-    }
-
     let codePointRef = Reference(UInt32.self)
     let lineMatchRegex = Regex {
         Anchor.startOfLine
-        TryCapture(as: codePointRef) {
-            codePointRegex
-        } transform: { UInt32($0, radix: 16) }
+        captureSingleCodePoint(as: codePointRef)
         " FE0E"
         OneOrMore(.whitespace)
         ";"
@@ -275,16 +281,10 @@ func textSwitchableEmojiRanges() async throws -> [CodePointRange] {
 
 /// Returns the non-emoji code points that have a selectable emoji representation.
 func emojiSwitchableTextRanges() async throws -> [CodePointRange] {
-    let codePointRegex = Repeat(4...5) {
-        One(.hexDigit)
-    }
-
     let codePointRef = Reference(UInt32.self)
     let lineMatchRegex = Regex {
         Anchor.startOfLine
-        TryCapture(as: codePointRef) {
-            codePointRegex
-        } transform: { UInt32($0, radix: 16) }
+        captureSingleCodePoint(as: codePointRef)
         " FE0F"
         OneOrMore(.whitespace)
         ";"
