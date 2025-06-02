@@ -329,6 +329,6 @@ int cmark_utf8proc_is_ideographic_variation_selector(int32_t uc) {
   return 0xE0100 <= uc && uc <= 0xE01EF;
 }
 
-int cmark_utf8proc_is_standard_variation_selector_following_cjk(int32_t uc) {
-  return (0xFE00 <= uc && uc <= 0xFE02) || (uc == 0xFE0E);
+int cmark_utf8proc_is_non_emoji_general_use_variation_selector(int32_t uc) {
+  return 0xFE00 <= uc && uc <= 0xFE0E;
 }

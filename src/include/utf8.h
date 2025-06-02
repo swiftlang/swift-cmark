@@ -42,10 +42,10 @@ int cmark_utf8proc_is_non_cjk_punctuation_character(int32_t uc);
 CMARK_GFM_EXPORT
 int cmark_utf8proc_is_ideographic_variation_selector(int32_t uc);
 
-/// Whether the given code point is a Standard Variation Selector that can
-/// follow CJK characters.
+/// Whether the given code point is a Variation Selector other than the Emoji
+/// Presentation Selector.
 CMARK_GFM_EXPORT
-int cmark_utf8proc_is_standard_variation_selector_following_cjk(int32_t uc);
+int cmark_utf8proc_is_non_emoji_general_use_variation_selector(int32_t uc);
 
 #ifdef __cplusplus
 }

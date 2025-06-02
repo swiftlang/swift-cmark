@@ -1591,14 +1591,32 @@ static void cjk_emphasis(test_batch_runner *runner) {
     "\n"
     "**テスト？**テスト\n"
     "\n"
-    "**テスト**？テスト\n";
+    "**テスト**？テスト\n"
+    "\n"
+    "正體字。︁_Traditional._\n"
+    "\n"
+    "正體字。︁__Hong Kong and Taiwan.__\n"
+    "\n"
+    "简体字 / 新字体。︀_Simplified._\n"
+    "\n"
+    "简体字 / 新字体。︀__Mainland China or Japan.__\n"
+    "\n"
+    "**“︁Git”︁**Hub\n"
+    "\n"
+    "“︁Git”︁__Hub__\n";
   static const char expected_html[] =
     "<p><strong>テスト。</strong>テスト</p>\n"
     "<p><strong>テスト</strong>。テスト</p>\n"
     "<p><strong>テスト、</strong>テスト</p>\n"
     "<p><strong>テスト</strong>、テスト</p>\n"
     "<p><strong>テスト？</strong>テスト</p>\n"
-    "<p><strong>テスト</strong>？テスト</p>\n";
+    "<p><strong>テスト</strong>？テスト</p>\n"
+    "<p>正體字。︁<em>Traditional.</em></p>\n"
+    "<p>正體字。︁<strong>Hong Kong and Taiwan.</strong></p>\n"
+    "<p>简体字 / 新字体。︀<em>Simplified.</em></p>\n"
+    "<p>简体字 / 新字体。︀<strong>Mainland China or Japan.</strong></p>\n"
+    "<p>**“︁Git”︁**Hub</p>\n"
+    "<p>“︁Git”︁<strong>Hub</strong></p>\n";
 
   cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
 
