@@ -265,6 +265,8 @@ func textSwitchableEmojiRanges() async throws -> [CodePointRange] {
     let lineMatchRegex = Regex {
         Anchor.startOfLine
         captureSingleCodePoint(as: codePointRef)
+        // The Text Presentation Selector, character, used to select the text presentation of a
+        // switchable character.
         " FE0E"
         OneOrMore(.whitespace)
         ";"
@@ -285,6 +287,8 @@ func emojiSwitchableTextRanges() async throws -> [CodePointRange] {
     let lineMatchRegex = Regex {
         Anchor.startOfLine
         captureSingleCodePoint(as: codePointRef)
+        // The Emoji Presentation Selector character, used to select the emoji presentation of a
+        // switchable character.
         " FE0F"
         OneOrMore(.whitespace)
         ";"
