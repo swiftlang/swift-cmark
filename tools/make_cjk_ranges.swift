@@ -132,8 +132,6 @@ func cjkEawRanges() async throws -> (cjkRanges: [CodePointRange], nonCjkRanges: 
     var nonCjkRanges: [CodePointRange] = []
     for try await line in eawInputDataURL.lines {
         if let match = try lineMatchRegex.firstMatch(in: line) {
-            guard ["W", "F", "H"].contains(match[widthTypeRef]) else { continue }
-
             let range: CodePointRange
             if let codePointEnd = match[codePointEndRef] {
                 range = .range(match[codePointRef]...codePointEnd)
@@ -141,6 +139,7 @@ func cjkEawRanges() async throws -> (cjkRanges: [CodePointRange], nonCjkRanges: 
                 range = .single(match[codePointRef])
             }
 
+            // Wide, Fullwidth and Halfwidth values are considered CJK for this segment
             if ["W", "F", "H"].contains(match[widthTypeRef]) {
                 cjkRanges.append(range)
             } else {
