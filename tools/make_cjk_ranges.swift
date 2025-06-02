@@ -22,29 +22,29 @@ import RegexBuilder
 /// > Also check the linked section for `unassignedAsCjkRanges` to see if that needs updating.
 let unicodeVersion = "16.0"
 
+let dataDirectory = URL(fileURLWithPath: #file)
+    .deletingLastPathComponent().deletingLastPathComponent()
+    .appending(components: "data")
+
 // https://www.unicode.org/reports/tr41/tr41-34.html#Data11
 // Local copy fetched from https://www.unicode.org/Public/16.0.0/ucd/EastAsianWidth.txt
-let eawInputDataURL = URL(fileURLWithPath: #file)
-    .deletingLastPathComponent().deletingLastPathComponent()
-    .appending(components: "data", "EastAsianWidth.txt")
+let eawInputDataURL =
+    dataDirectory.appending(components: "EastAsianWidth.txt")
 
 // https://www.unicode.org/reports/tr41/tr41-34.html#Data24
 // Local copy fetched from https://www.unicode.org/Public/16.0.0/ucd/Scripts.txt
-let scriptsInputDataURL = URL(fileURLWithPath: #file)
-    .deletingLastPathComponent().deletingLastPathComponent()
-    .appending(components: "data", "Scripts.txt")
+let scriptsInputDataURL =
+    dataDirectory.appending(components: "Scripts.txt")
 
 // https://www.unicode.org/reports/tr51/#emoji_data
 // Local copy fetched from https://www.unicode.org/Public/emoji/16.0/emoji-sequences.txt
-let emojiSequencesInputDataURL = URL(fileURLWithPath: #file)
-    .deletingLastPathComponent().deletingLastPathComponent()
-    .appending(components: "data", "emoji-sequences.txt")
+let emojiSequencesInputDataURL =
+    dataDirectory.appending(components: "emoji-sequences.txt")
 
 // Same source as above
 // Local copy fetched from https://www.unicode.org/Public/16.0.0/ucd/emoji/emoji-variation-sequences.txt
-let emojiVariationSequencesInputDataURL = URL(fileURLWithPath: #file)
-    .deletingLastPathComponent().deletingLastPathComponent()
-    .appending(components: "data", "emoji-variation-sequences.txt")
+let emojiVariationSequencesInputDataURL =
+    dataDirectory.appending(components: "emoji-variation-sequences.txt")
 
 extension UInt32 {
     var hexString: String {
