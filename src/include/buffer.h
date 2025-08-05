@@ -6,6 +6,7 @@
 #include <string.h>
 #include <limits.h>
 #include <stdint.h>
+#include "cmark-gfm_config.h"
 #include "cmark-gfm.h"
 
 #ifdef __cplusplus
