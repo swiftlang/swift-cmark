@@ -5,6 +5,7 @@ module cmark_gfm {
     header "buffer.h"
     header "chunk.h"
     header "cmark_ctype.h"
+    header "export.h"
     header "footnotes.h"
     header "houdini.h"
     header "html.h"
