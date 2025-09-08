@@ -1,15 +1,15 @@
 #ifndef CMARK_GFM_CORE_EXTENSIONS_H
 #define CMARK_GFM_CORE_EXTENSIONS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "cmark-gfm-extension_api.h"
 #include "export.h"
 
 #include <stdbool.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 CMARK_GFM_EXPORT
 void cmark_gfm_core_extensions_ensure_registered(void);
