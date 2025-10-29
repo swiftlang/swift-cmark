@@ -2,7 +2,7 @@
 #define CMARK_HOUDINI_H
 
 #include <stdint.h>
-
+#include "cmark-gfm_config.h"
 #include "buffer.h"
 
 #ifdef __cplusplus

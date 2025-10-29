@@ -1,11 +1,13 @@
 #ifndef CMARK_MUTEX_H
 #define CMARK_MUTEX_H
 
+#include "cmark-gfm_config.h"
+
 #include <stdbool.h>
 
-#ifdef CMARK_THREADING
+#if CMARK_THREADING
 
-#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__wasi__)
 #include <unistd.h>
 #endif
 

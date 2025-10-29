@@ -1,5 +1,6 @@
 module cmark_gfm {
     header "cmark-gfm.h"
+    header "cmark-gfm_config.h"
     header "cmark-gfm-extension_api.h"
     header "buffer.h"
     header "chunk.h"
