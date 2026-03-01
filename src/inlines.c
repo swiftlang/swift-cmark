@@ -68,6 +68,8 @@ typedef struct subject{
   bufsize_t backticks[MAXBACKTICKS + 1];
   bool scanned_for_backticks;
   bool no_link_openers;
+  bool cjk_friendly_emphasis;
+  int8_t *skip_chars;
 } subject;
 
 void cmark_set_default_skip_chars(int8_t **skip_chars, bool use_memcpy) {
@@ -211,6 +213,8 @@ static void subject_from_buf(cmark_mem *mem, int line_number, int block_offset, 
   }
   e->scanned_for_backticks = false;
   e->no_link_openers = true;
+  e->cjk_friendly_emphasis = false;
+  e->skip_chars = NULL;
 }
 
 static inline int isbacktick(int c) { return (c == '`'); }
@@ -428,12 +432,16 @@ static cmark_node *handle_backticks(subject *subj, int options) {
 static int scan_delims(cmark_parser *parser, subject *subj, unsigned char c,
                        bool *can_open, bool *can_close) {
   int numdelims = 0;
-  bufsize_t before_char_pos, after_char_pos, before_before_char_pos;
+  bufsize_t before_char_pos, after_char_pos;
   int32_t after_char = 0;
   int32_t before_char = 0;
-  int32_t before_before_char = 0;
   int len;
   bool left_flanking, right_flanking;
+  bool cjk = parser->cjk_friendly_emphasis;
+
+  // CJK mode needs before_before_char for variation selector lookahead
+  bufsize_t before_before_char_pos;
+  int32_t before_before_char = 0;
 
   if (subj->pos == 0) {
     before_char = 10;
@@ -441,28 +449,42 @@ static int scan_delims(cmark_parser *parser, subject *subj, unsigned char c,
     before_char_pos = subj->pos - 1;
 
     // walk back to the beginning of the UTF_8 sequence:
-    while ((peek_at(subj, before_char_pos) >> 6 == 2 || parser->skip_chars[peek_at(subj, before_char_pos)]) && before_char_pos > 0) {
-      before_char_pos -= 1;
+    if (cjk) {
+      while ((peek_at(subj, before_char_pos) >> 6 == 2 || parser->skip_chars[peek_at(subj, before_char_pos)]) && before_char_pos > 0) {
+        before_char_pos -= 1;
+      }
+    } else {
+      while (peek_at(subj, before_char_pos) >> 6 == 2 && before_char_pos > 0) {
+        before_char_pos -= 1;
+      }
     }
     len = cmark_utf8proc_iterate(subj->input.data + before_char_pos,
                                  subj->pos - before_char_pos, &before_char);
-    if (len == -1 || (before_char < 256 && parser->skip_chars[(unsigned char) before_char])) {
-      before_char = 10;
+    if (cjk) {
+      if (len == -1 || (before_char < 256 && parser->skip_chars[(unsigned char) before_char])) {
+        before_char = 10;
+      }
+    } else {
+      if (len == -1) {
+        before_char = 10;
+      }
     }
 
-    if (before_char_pos == 0) {
-      before_before_char = 10;
-    } else {
-      before_before_char_pos = before_char_pos - 1;
-      // walk back to the beginning of the previous UTF-8 sequence again:
-      while ((peek_at(subj, before_before_char_pos) >> 6 == 2 || parser->skip_chars[peek_at(subj, before_before_char_pos)]) && before_before_char_pos > 0) {
-        before_before_char_pos -= 1;
-      }
-      len = cmark_utf8proc_iterate(subj->input.data + before_before_char_pos,
-                                   subj->pos - before_before_char_pos,
-                                   &before_before_char);
-      if (len == -1 || (before_before_char < 256 && parser->skip_chars[(unsigned char) before_before_char])) {
+    if (cjk) {
+      if (before_char_pos == 0) {
         before_before_char = 10;
+      } else {
+        before_before_char_pos = before_char_pos - 1;
+        // walk back to the beginning of the previous UTF-8 sequence again:
+        while ((peek_at(subj, before_before_char_pos) >> 6 == 2 || parser->skip_chars[peek_at(subj, before_before_char_pos)]) && before_before_char_pos > 0) {
+          before_before_char_pos -= 1;
+        }
+        len = cmark_utf8proc_iterate(subj->input.data + before_before_char_pos,
+                                     subj->pos - before_before_char_pos,
+                                     &before_before_char);
+        if (len == -1 || (before_before_char < 256 && parser->skip_chars[(unsigned char) before_before_char])) {
+          before_before_char = 10;
+        }
       }
     }
   }
@@ -482,71 +504,107 @@ static int scan_delims(cmark_parser *parser, subject *subj, unsigned char c,
   } else {
     after_char_pos = subj->pos;
 
-    while (parser->skip_chars[peek_at(subj, after_char_pos)] && after_char_pos < subj->input.len) {
-      after_char_pos += 1;
+    if (cjk) {
+      while (parser->skip_chars[peek_at(subj, after_char_pos)] && after_char_pos < subj->input.len) {
+        after_char_pos += 1;
+      }
     }
     len = cmark_utf8proc_iterate(subj->input.data + after_char_pos,
                                  subj->input.len - after_char_pos, &after_char);
-    if (len == -1 || (after_char < 256 && parser->skip_chars[(unsigned char) after_char])) {
-      after_char = 10;
+    if (cjk) {
+      if (len == -1 || (after_char < 256 && parser->skip_chars[(unsigned char) after_char])) {
+        after_char = 10;
+      }
+    } else {
+      if (len == -1) {
+        after_char = 10;
+      }
     }
   }
 
-  // a delimiter is left-flanking if it is:
-  // - not followed by whitespace, and
-  // - one of:
-  //   - not followed by a non-CJK punctuation character, or
-  //   - preceded by one of the following:
-  //     - whitespace
-  //     - a non-CJK punctuation character
-  //     - a CJK character
-  //     - an Ideographic Variation Selector
-  //     - a Non-emoji General-use Variation Selector, which is itself preceded
-  //       by one of:
-  //       - a non-CJK punctuation character, or
-  //       - a CJK character
-  left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
-                  (!cmark_utf8proc_is_non_cjk_punctuation_character(after_char) ||
-                   cmark_utf8proc_is_space(before_char) ||
-                   cmark_utf8proc_is_non_cjk_punctuation_character(before_char) ||
-                   cmark_utf8proc_is_cjk_character(before_char) ||
-                   cmark_utf8proc_is_ideographic_variation_selector(before_char) ||
-                   (cmark_utf8proc_is_non_emoji_general_use_variation_selector(before_char) &&
-                    (cmark_utf8proc_is_cjk_character(before_before_char) ||
-                     cmark_utf8proc_is_non_cjk_punctuation_character(before_before_char))));
+  if (cjk) {
+    // CJK-friendly flanking rules:
+    // A delimiter is left-flanking if it is:
+    // - not followed by whitespace, and
+    // - one of:
+    //   - not followed by a non-CJK punctuation character, or
+    //   - preceded by one of the following:
+    //     - whitespace
+    //     - a non-CJK punctuation character
+    //     - a CJK character
+    //     - an Ideographic Variation Selector
+    //     - a Non-emoji General-use Variation Selector, which is itself preceded
+    //       by one of:
+    //       - a non-CJK punctuation character, or
+    //       - a CJK character
+    left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
+                    (!cmark_utf8proc_is_non_cjk_punctuation_character(after_char) ||
+                     cmark_utf8proc_is_space(before_char) ||
+                     cmark_utf8proc_is_non_cjk_punctuation_character(before_char) ||
+                     cmark_utf8proc_is_cjk_character(before_char) ||
+                     cmark_utf8proc_is_ideographic_variation_selector(before_char) ||
+                     (cmark_utf8proc_is_non_emoji_general_use_variation_selector(before_char) &&
+                      (cmark_utf8proc_is_cjk_character(before_before_char) ||
+                       cmark_utf8proc_is_non_cjk_punctuation_character(before_before_char))));
 
-  // a delimiter is right flanking if it is:
-  // - not preceded by whitespace, and
-  // - one of:
-  //   - not preceded by a non-CJK punctuation sequence, i.e. one of the following:
-  //     - a non-CJK punctuation character, or
-  //     - a Non-emoji General-use Variation Selector, which is itself preceded
-  //       by a non-CJK punctuation character
-  //   - or, followed by one of the following:
-  //     - whitespace
-  //     - a non-CJK punctuation character
-  //     - a CJK character
-  right_flanking = numdelims > 0 && !cmark_utf8proc_is_space(before_char) &&
-                   (!(cmark_utf8proc_is_non_cjk_punctuation_character(before_char) ||
-                      (cmark_utf8proc_is_non_emoji_general_use_variation_selector(before_char) &&
-                       cmark_utf8proc_is_non_cjk_punctuation_character(before_before_char))) ||
-                    cmark_utf8proc_is_space(after_char) ||
-                    cmark_utf8proc_is_non_cjk_punctuation_character(after_char) ||
-                    cmark_utf8proc_is_cjk_character(after_char));
-  if (c == '_') {
-    *can_open = left_flanking &&
-                (!right_flanking || cmark_utf8proc_is_punctuation(before_char) ||
-                 (cmark_utf8proc_is_non_emoji_general_use_variation_selector(before_char) &&
-                  cmark_utf8proc_is_punctuation(before_before_char)));
-    *can_close = right_flanking &&
-                 (!left_flanking || cmark_utf8proc_is_punctuation(after_char));
-  } else if (c == '\'' || c == '"') {
-    *can_open = left_flanking && !right_flanking &&
-	         before_char != ']' && before_char != ')';
-    *can_close = right_flanking;
+    // A delimiter is right flanking if it is:
+    // - not preceded by whitespace, and
+    // - one of:
+    //   - not preceded by a non-CJK punctuation sequence, i.e. one of the following:
+    //     - a non-CJK punctuation character, or
+    //     - a Non-emoji General-use Variation Selector, which is itself preceded
+    //       by a non-CJK punctuation character
+    //   - or, followed by one of the following:
+    //     - whitespace
+    //     - a non-CJK punctuation character
+    //     - a CJK character
+    right_flanking = numdelims > 0 && !cmark_utf8proc_is_space(before_char) &&
+                     (!(cmark_utf8proc_is_non_cjk_punctuation_character(before_char) ||
+                        (cmark_utf8proc_is_non_emoji_general_use_variation_selector(before_char) &&
+                         cmark_utf8proc_is_non_cjk_punctuation_character(before_before_char))) ||
+                      cmark_utf8proc_is_space(after_char) ||
+                      cmark_utf8proc_is_non_cjk_punctuation_character(after_char) ||
+                      cmark_utf8proc_is_cjk_character(after_char));
+
+    if (c == '_') {
+      *can_open = left_flanking &&
+                  (!right_flanking || cmark_utf8proc_is_punctuation(before_char) ||
+                   (cmark_utf8proc_is_non_emoji_general_use_variation_selector(before_char) &&
+                    cmark_utf8proc_is_punctuation(before_before_char)));
+      *can_close = right_flanking &&
+                   (!left_flanking || cmark_utf8proc_is_punctuation(after_char));
+    } else if (c == '\'' || c == '"') {
+      *can_open = left_flanking && !right_flanking &&
+                  before_char != ']' && before_char != ')';
+      *can_close = right_flanking;
+    } else {
+      *can_open = left_flanking;
+      *can_close = right_flanking;
+    }
   } else {
-    *can_open = left_flanking;
-    *can_close = right_flanking;
+    // Standard CommonMark flanking rules
+    left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
+                    (!cmark_utf8proc_is_punctuation(after_char) ||
+                     cmark_utf8proc_is_space(before_char) ||
+                     cmark_utf8proc_is_punctuation(before_char));
+    right_flanking = numdelims > 0 && !cmark_utf8proc_is_space(before_char) &&
+                     (!cmark_utf8proc_is_punctuation(before_char) ||
+                      cmark_utf8proc_is_space(after_char) ||
+                      cmark_utf8proc_is_punctuation(after_char));
+
+    if (c == '_') {
+      *can_open = left_flanking &&
+                  (!right_flanking || cmark_utf8proc_is_punctuation(before_char));
+      *can_close = right_flanking &&
+                   (!left_flanking || cmark_utf8proc_is_punctuation(after_char));
+    } else if (c == '\'' || c == '"') {
+      *can_open = left_flanking && !right_flanking &&
+                  before_char != ']' && before_char != ')';
+      *can_close = right_flanking;
+    } else {
+      *can_open = left_flanking;
+      *can_close = right_flanking;
+    }
   }
   return numdelims;
 }
@@ -1761,6 +1819,8 @@ void cmark_parse_inlines(cmark_parser *parser,
   subject subj;
   cmark_chunk content = {parent->content.ptr, parent->content.size, 0};
   subject_from_buf(parser->mem, parent->start_line, parent->start_column - 1 + parent->internal_offset, &subj, &content, refmap);
+  subj.cjk_friendly_emphasis = parser->cjk_friendly_emphasis;
+  subj.skip_chars = parser->skip_chars;
   if ((options & CMARK_OPT_PRESERVE_WHITESPACE) == 0)
     cmark_chunk_rtrim(&subj.input);
 
@@ -1968,19 +2028,53 @@ int cmark_inline_parser_scan_delimiters(cmark_inline_parser *parser,
   int32_t before_char = 0;
   int len;
   bool space_before, space_after;
+  bool cjk = parser->cjk_friendly_emphasis;
+
+  // CJK mode needs before_before_char for variation selector lookahead
+  bufsize_t before_before_char_pos;
+  int32_t before_before_char = 0;
 
   if (parser->pos == 0) {
     before_char = 10;
   } else {
     before_char_pos = parser->pos - 1;
     // walk back to the beginning of the UTF_8 sequence:
-    while (peek_at(parser, before_char_pos) >> 6 == 2 && before_char_pos > 0) {
-      before_char_pos -= 1;
+    if (cjk) {
+      while ((peek_at(parser, before_char_pos) >> 6 == 2 || parser->skip_chars[peek_at(parser, before_char_pos)]) && before_char_pos > 0) {
+        before_char_pos -= 1;
+      }
+    } else {
+      while (peek_at(parser, before_char_pos) >> 6 == 2 && before_char_pos > 0) {
+        before_char_pos -= 1;
+      }
     }
     len = cmark_utf8proc_iterate(parser->input.data + before_char_pos,
                                  parser->pos - before_char_pos, &before_char);
-    if (len == -1) {
-      before_char = 10;
+    if (cjk) {
+      if (len == -1 || (before_char < 256 && parser->skip_chars[(unsigned char) before_char])) {
+        before_char = 10;
+      }
+    } else {
+      if (len == -1) {
+        before_char = 10;
+      }
+    }
+
+    if (cjk) {
+      if (before_char_pos == 0) {
+        before_before_char = 10;
+      } else {
+        before_before_char_pos = before_char_pos - 1;
+        while ((peek_at(parser, before_before_char_pos) >> 6 == 2 || parser->skip_chars[peek_at(parser, before_before_char_pos)]) && before_before_char_pos > 0) {
+          before_before_char_pos -= 1;
+        }
+        len = cmark_utf8proc_iterate(parser->input.data + before_before_char_pos,
+                                     parser->pos - before_before_char_pos,
+                                     &before_before_char);
+        if (len == -1 || (before_before_char < 256 && parser->skip_chars[(unsigned char) before_before_char])) {
+          before_before_char = 10;
+        }
+      }
     }
   }
 
@@ -1989,21 +2083,56 @@ int cmark_inline_parser_scan_delimiters(cmark_inline_parser *parser,
     advance(parser);
   }
 
-  len = cmark_utf8proc_iterate(parser->input.data + parser->pos,
-                               parser->input.len - parser->pos, &after_char);
-  if (len == -1) {
-    after_char = 10;
+  if (cjk) {
+    bufsize_t after_char_pos = parser->pos;
+    while (parser->skip_chars[peek_at(parser, after_char_pos)] && after_char_pos < parser->input.len) {
+      after_char_pos += 1;
+    }
+    len = cmark_utf8proc_iterate(parser->input.data + after_char_pos,
+                                 parser->input.len - after_char_pos, &after_char);
+    if (len == -1 || (after_char < 256 && parser->skip_chars[(unsigned char) after_char])) {
+      after_char = 10;
+    }
+  } else {
+    len = cmark_utf8proc_iterate(parser->input.data + parser->pos,
+                                 parser->input.len - parser->pos, &after_char);
+    if (len == -1) {
+      after_char = 10;
+    }
   }
 
-  *punct_before = cmark_utf8proc_is_punctuation(before_char);
-  *punct_after = cmark_utf8proc_is_punctuation(after_char);
-  space_before = cmark_utf8proc_is_space(before_char) != 0;
-  space_after = cmark_utf8proc_is_space(after_char) != 0;
+  if (cjk) {
+    *punct_before = cmark_utf8proc_is_punctuation(before_char);
+    *punct_after = cmark_utf8proc_is_punctuation(after_char);
 
-  *left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
-                  !(*punct_after && !space_before && !*punct_before);
-  *right_flanking = numdelims > 0 && !cmark_utf8proc_is_space(before_char) &&
-                  !(*punct_before && !space_after && !*punct_after);
+    *left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
+                    (!cmark_utf8proc_is_non_cjk_punctuation_character(after_char) ||
+                     cmark_utf8proc_is_space(before_char) ||
+                     cmark_utf8proc_is_non_cjk_punctuation_character(before_char) ||
+                     cmark_utf8proc_is_cjk_character(before_char) ||
+                     cmark_utf8proc_is_ideographic_variation_selector(before_char) ||
+                     (cmark_utf8proc_is_non_emoji_general_use_variation_selector(before_char) &&
+                      (cmark_utf8proc_is_cjk_character(before_before_char) ||
+                       cmark_utf8proc_is_non_cjk_punctuation_character(before_before_char))));
+
+    *right_flanking = numdelims > 0 && !cmark_utf8proc_is_space(before_char) &&
+                     (!(cmark_utf8proc_is_non_cjk_punctuation_character(before_char) ||
+                        (cmark_utf8proc_is_non_emoji_general_use_variation_selector(before_char) &&
+                         cmark_utf8proc_is_non_cjk_punctuation_character(before_before_char))) ||
+                      cmark_utf8proc_is_space(after_char) ||
+                      cmark_utf8proc_is_non_cjk_punctuation_character(after_char) ||
+                      cmark_utf8proc_is_cjk_character(after_char));
+  } else {
+    *punct_before = cmark_utf8proc_is_punctuation(before_char);
+    *punct_after = cmark_utf8proc_is_punctuation(after_char);
+    space_before = cmark_utf8proc_is_space(before_char) != 0;
+    space_after = cmark_utf8proc_is_space(after_char) != 0;
+
+    *left_flanking = numdelims > 0 && !cmark_utf8proc_is_space(after_char) &&
+                    !(*punct_after && !space_before && !*punct_before);
+    *right_flanking = numdelims > 0 && !cmark_utf8proc_is_space(before_char) &&
+                    !(*punct_before && !space_after && !*punct_after);
+  }
 
   return numdelims;
 }

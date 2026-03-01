@@ -381,6 +381,12 @@ void cmark_syntax_extension_set_commonmark_escape_func(cmark_syntax_extension *e
 /** See the documentation for 'cmark_syntax_extension'
  */
 CMARK_GFM_EXPORT
+void cmark_syntax_extension_set_cjk_friendly_emphasis(cmark_syntax_extension *extension,
+                                                      bool cjk_friendly_emphasis);
+
+/** See the documentation for 'cmark_syntax_extension'
+ */
+CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_private(cmark_syntax_extension *extension,
                                         void *priv,
                                         cmark_free_func free_func);
@@ -638,7 +644,7 @@ void cmark_inline_parser_set_offset(cmark_inline_parser *parser, int offset);
 CMARK_GFM_EXPORT
 struct cmark_chunk *cmark_inline_parser_get_chunk(cmark_inline_parser *parser);
 
-/** Returns 1 if the inline parser is currently in a bracket; pass 2 for attribute, 
+/** Returns 1 if the inline parser is currently in a bracket; pass 2 for attribute,
  * 1 for 'image' if you want to know about an image-type bracket, 0 for link-type. */
 CMARK_GFM_EXPORT
 int cmark_inline_parser_in_bracket(cmark_inline_parser *parser, int type);

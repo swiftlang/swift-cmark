@@ -1618,13 +1618,18 @@ static void cjk_emphasis(test_batch_runner *runner) {
     "<p>**“︁Git”︁**Hub</p>\n"
     "<p>“︁Git”︁<strong>Hub</strong></p>\n";
 
-  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+  cmark_gfm_core_extensions_ensure_registered();
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
+  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("cjk_friendly_emphasis"));
+  cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+  cmark_node *doc = cmark_parser_finish(parser);
 
   char *html = cmark_render_html(doc, CMARK_OPT_DEFAULT, NULL);
   STR_EQ(runner, html, expected_html, "emphasis parsing with CJK didn't generate expected HTML");
 
   free(html);
   cmark_node_free(doc);
+  cmark_parser_free(parser);
 }
 
 static void cjk_emoji_emphasis(test_batch_runner *runner) {
@@ -1696,13 +1701,40 @@ static void cjk_emoji_emphasis(test_batch_runner *runner) {
     "<p>テスト⌛<strong>テスト？</strong>テスト</p>\n"
     "<p>テスト⌛<strong>テスト</strong>？テスト</p>\n";
 
-  cmark_node *doc = cmark_parse_document(markdown, sizeof(markdown) - 1, CMARK_OPT_DEFAULT);
+  cmark_gfm_core_extensions_ensure_registered();
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
+  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("cjk_friendly_emphasis"));
+  cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+  cmark_node *doc = cmark_parser_finish(parser);
 
   char *html = cmark_render_html(doc, CMARK_OPT_DEFAULT, NULL);
   STR_EQ(runner, html, expected_html, "emphasis parsing with CJK and emoji didn't generate expected HTML");
 
   free(html);
   cmark_node_free(doc);
+  cmark_parser_free(parser);
+}
+
+static void cjk_strikethrough_emphasis(test_batch_runner *runner) {
+  // With CJK extension + strikethrough: CJK punctuation should not prevent flanking
+  static const char markdown[] =
+    "~~テスト。~~テスト\n";
+  static const char expected_html[] =
+    "<p><del>テスト。</del>テスト</p>\n";
+
+  cmark_gfm_core_extensions_ensure_registered();
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
+  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("strikethrough"));
+  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("cjk_friendly_emphasis"));
+  cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+  cmark_node *doc = cmark_parser_finish(parser);
+
+  char *html = cmark_render_html(doc, CMARK_OPT_DEFAULT, cmark_parser_get_syntax_extensions(parser));
+  STR_EQ(runner, html, expected_html, "strikethrough with CJK extension should handle CJK punctuation");
+
+  free(html);
+  cmark_node_free(doc);
+  cmark_parser_free(parser);
 }
 
 int main() {
@@ -1744,6 +1776,7 @@ int main() {
   table_spans(runner);
   cjk_emphasis(runner);
   cjk_emoji_emphasis(runner);
+  cjk_strikethrough_emphasis(runner);
 
   test_print_summary(runner);
   retval = test_ok(runner) ? 0 : 1;
