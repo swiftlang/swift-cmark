@@ -116,7 +116,7 @@ static void arena_free(void *ptr) {
   /* no-op */
 }
 
-cmark_mem CMARK_ARENA_MEM_ALLOCATOR = {arena_calloc, arena_realloc, arena_free};
+cmark_mem CMARK_ARENA_MEM_ALLOCATOR = {arena_calloc, arena_realloc, arena_free, 0, 0};
 
 cmark_mem *cmark_get_arena_mem_allocator(void) {
   return &CMARK_ARENA_MEM_ALLOCATOR;
