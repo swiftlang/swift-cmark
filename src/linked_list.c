@@ -1,10 +1,11 @@
 #include <stdlib.h>
 
 #include "cmark-gfm.h"
+#include "mem.h"
 
 cmark_llist *cmark_llist_append(cmark_mem *mem, cmark_llist *head, void *data) {
   cmark_llist *tmp;
-  cmark_llist *new_node = (cmark_llist *) mem->calloc(1, sizeof(cmark_llist));
+  cmark_llist *new_node = CMARK_MALLOC(mem, cmark_llist);
 
   new_node->data = data;
   new_node->next = NULL;
@@ -28,7 +29,7 @@ void cmark_llist_free_full(cmark_mem *mem, cmark_llist *head, cmark_free_func fr
 
     prev = tmp;
     tmp = tmp->next;
-    mem->free(prev);
+    cmark_mem_free(mem, prev);
   }
 }
 

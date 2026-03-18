@@ -24,6 +24,7 @@
 #include "houdini.h"
 #include "buffer.h"
 #include "footnotes.h"
+#include "mem.h"
 
 #define CODE_INDENT 4
 #define TAB_STOP 4
@@ -83,7 +84,7 @@ static cmark_node *make_block(cmark_mem *mem, cmark_node_type tag,
                               int start_line, int start_column) {
   cmark_node *e;
 
-  e = (cmark_node *)mem->calloc(1, sizeof(*e));
+  e = CMARK_MALLOC(mem, cmark_node);
   cmark_strbuf_init(mem, &e->content, 32);
   e->type = (uint16_t)tag;
   e->flags = CMARK_NODE__OPEN;
@@ -107,10 +108,10 @@ int cmark_parser_attach_syntax_extension(cmark_parser *parser,
     if (!parser->inline_syntax_extensions) {
       // if we're loading an inline extension into this parser for the first time,
       // allocate new buffers for the inline parser character arrays
-      parser->skip_chars = (int8_t *)parser->mem->calloc(sizeof(int8_t), 256);
+      parser->skip_chars = CMARK_CALLOC(parser->mem, int8_t, 256);
       cmark_set_default_skip_chars(&parser->skip_chars, true);
 
-      parser->special_chars = (int8_t *)parser->mem->calloc(sizeof(int8_t), 256);
+      parser->special_chars = CMARK_CALLOC(parser->mem, int8_t, 256);
       cmark_set_default_special_chars(&parser->special_chars, true);
     }
 
@@ -160,7 +161,7 @@ static void cmark_parser_reset(cmark_parser *parser) {
 }
 
 cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
-  cmark_parser *parser = (cmark_parser *)mem->calloc(1, sizeof(cmark_parser));
+  cmark_parser *parser = CMARK_MALLOC(mem, cmark_parser);
   parser->mem = mem;
   parser->options = options;
   cmark_set_default_skip_chars(&parser->skip_chars, false);
@@ -179,8 +180,8 @@ void cmark_parser_free(cmark_parser *parser) {
 
   // If any inline syntax extensions were added, free the memory allocated for the special-chars arrays
   if (parser->inline_syntax_extensions) {
-    mem->free(parser->special_chars);
-    mem->free(parser->skip_chars);
+    cmark_mem_free(mem, parser->special_chars);
+    cmark_mem_free(mem, parser->skip_chars);
   }
 
   cmark_parser_dispose(parser);
@@ -188,7 +189,7 @@ void cmark_parser_free(cmark_parser *parser) {
   cmark_strbuf_free(&parser->linebuf);
   cmark_llist_free(parser->mem, parser->syntax_extensions);
   cmark_llist_free(parser->mem, parser->inline_syntax_extensions);
-  mem->free(parser);
+  cmark_mem_free(mem, parser);
 }
 
 static cmark_node *finalize(cmark_parser *parser, cmark_node *b);
@@ -537,7 +538,7 @@ static void process_footnotes(cmark_parser *parser) {
 
         cur->as.literal = cmark_chunk_buf_detach(&buf);
       } else {
-        cmark_node *text = (cmark_node *)parser->mem->calloc(1, sizeof(*text));
+        cmark_node *text = CMARK_MALLOC(parser->mem, cmark_node);
         cmark_strbuf_init(parser->mem, &text->content, 0);
         text->type = (uint16_t) CMARK_NODE_TEXT;
 
@@ -603,7 +604,7 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
       }
     }
 
-    data = (cmark_list *)mem->calloc(1, sizeof(*data));
+    data = CMARK_MALLOC(mem, cmark_list);
     data->marker_offset = 0; // will be adjusted later
     data->list_type = CMARK_BULLET_LIST;
     data->bullet_char = c;
@@ -643,7 +644,7 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
         }
       }
 
-      data = (cmark_list *)mem->calloc(1, sizeof(*data));
+      data = CMARK_MALLOC(mem, cmark_list);
       data->marker_offset = 0; // will be adjusted later
       data->list_type = CMARK_ORDERED_LIST;
       data->bullet_char = 0;
@@ -1321,7 +1322,7 @@ static void open_new_blocks(cmark_parser *parser, cmark_node **container,
                              parser->first_nonspace + 1);
       /* TODO: static */
       memcpy(&((*container)->as.list), data, sizeof(*data));
-      parser->mem->free(data);
+      cmark_mem_free(parser->mem, data);
     } else if (indented && !maybe_lazy && !parser->blank) {
       S_advance_offset(parser, input, CODE_INDENT, true);
       *container = add_child(parser, *container, CMARK_NODE_CODE_BLOCK,

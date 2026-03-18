@@ -5,6 +5,7 @@
 #include "cmark-gfm.h"
 #include "syntax_extension.h"
 #include "buffer.h"
+#include "mem.h"
 
 extern cmark_mem CMARK_DEFAULT_MEM_ALLOCATOR;
 
@@ -16,14 +17,14 @@ void cmark_syntax_extension_free(cmark_mem *mem, cmark_syntax_extension *extensi
   }
 
   cmark_llist_free(mem, extension->special_inline_chars);
-  mem->free(extension->name);
-  mem->free(extension);
+  cmark_mem_free(mem, extension->name);
+  cmark_mem_free(mem, extension);
 }
 
 cmark_syntax_extension *cmark_syntax_extension_new(const char *name) {
-  cmark_syntax_extension *res = (cmark_syntax_extension *) _mem->calloc(1, sizeof(cmark_syntax_extension));
+  cmark_syntax_extension *res = CMARK_MALLOC(_mem, cmark_syntax_extension);
   size_t size = strlen(name) + 1;
-  res->name = (char *) _mem->calloc(size, sizeof(char));
+  res->name = CMARK_CALLOC(_mem, char, size);
 #if defined(_WIN32)
   strcpy_s(res->name, size, name);
 #else

@@ -6,13 +6,14 @@
 #include "node.h"
 #include "cmark-gfm.h"
 #include "iterator.h"
+#include "mem.h"
 
 cmark_iter *cmark_iter_new(cmark_node *root) {
   if (root == NULL) {
     return NULL;
   }
   cmark_mem *mem = root->content.mem;
-  cmark_iter *iter = (cmark_iter *)mem->calloc(1, sizeof(cmark_iter));
+  cmark_iter *iter = CMARK_MALLOC(mem, cmark_iter);
   iter->mem = mem;
   iter->root = root;
   iter->cur.ev_type = CMARK_EVENT_NONE;
@@ -22,7 +23,7 @@ cmark_iter *cmark_iter_new(cmark_node *root) {
   return iter;
 }
 
-void cmark_iter_free(cmark_iter *iter) { iter->mem->free(iter); }
+void cmark_iter_free(cmark_iter *iter) { cmark_mem_free(iter->mem, iter); }
 
 static bool S_is_leaf(cmark_node *node) {
   switch (node->type) {

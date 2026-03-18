@@ -66,6 +66,9 @@ static void *xrealloc_typed(void *ptr, size_t size, cmark_malloc_type_id type_id
 
 #else
 
+static void *xcalloc(size_t nmem, size_t size);
+static void *xrealloc(void *ptr, size_t size);
+
 static void *xcalloc_typed(size_t nmem, size_t size, cmark_malloc_type_id type_id) {
   return xcalloc(nmem, size);
 }
