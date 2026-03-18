@@ -22,6 +22,7 @@ add_library(libcmark-gfm
   linked_list.c
   man.c
   map.c
+  mem.c
   node.c
   plaintext.c
   plugin.c
