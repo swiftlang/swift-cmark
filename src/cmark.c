@@ -79,7 +79,7 @@ static void *xrealloc_typed(void *ptr, size_t size, cmark_malloc_type_id type_id
 
 #endif
 
-static void *xcalloc(size_t nmem, size_t size) CMARK_MALLOC_TYPED(xcalloc_typed, 2) {
+static void *xcalloc(size_t nmem, size_t size) {
   void *ptr = calloc(nmem, size);
   if (!ptr) {
     fprintf(stderr, "[cmark] calloc returned null pointer, aborting\n");
@@ -88,7 +88,7 @@ static void *xcalloc(size_t nmem, size_t size) CMARK_MALLOC_TYPED(xcalloc_typed,
   return ptr;
 }
 
-static void *xrealloc(void *ptr, size_t size) CMARK_MALLOC_TYPED(xrealloc_typed, 2) {
+static void *xrealloc(void *ptr, size_t size) {
   void *new_ptr = realloc(ptr, size);
   if (!new_ptr) {
     fprintf(stderr, "[cmark] realloc returned null pointer, aborting\n");
