@@ -13,7 +13,7 @@ int cmark_plugin_register_syntax_extension(cmark_plugin    * plugin,
 
 cmark_plugin *
 cmark_plugin_new(void) {
-  cmark_plugin *res = CMARK_MALLOC(&CMARK_DEFAULT_MEM_ALLOCATOR, cmark_plugin);
+  cmark_plugin *res = CMARK_CALLOC_ONE(&CMARK_DEFAULT_MEM_ALLOCATOR, cmark_plugin);
 
   res->syntax_extensions = NULL;
 

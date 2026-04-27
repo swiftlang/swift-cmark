@@ -26,7 +26,7 @@ void cmark_footnote_create(cmark_map *map, cmark_node *node) {
 
   assert(map->sorted == NULL);
 
-  ref = CMARK_MALLOC(map->mem, cmark_footnote);
+  ref = CMARK_CALLOC_ONE(map->mem, cmark_footnote);
   ref->entry.label = reflabel;
   ref->node = node;
   ref->entry.age = map->size;

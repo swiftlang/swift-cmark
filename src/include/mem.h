@@ -28,7 +28,7 @@ CMARK_GFM_EXPORT
 void *cmark_mem_calloc(cmark_mem *mem, size_t count, size_t size) CMARK_MALLOC_TYPED(cmark_mem_calloc_typed, 3);
 
 #define CMARK_CALLOC(MEM, TYPE, COUNT) (TYPE *)cmark_mem_calloc(MEM, COUNT, sizeof(TYPE))
-#define CMARK_MALLOC(MEM, TYPE) CMARK_CALLOC(MEM, TYPE, 1)
+#define CMARK_CALLOC_ONE(MEM, TYPE) CMARK_CALLOC(MEM, TYPE, 1)
 
 CMARK_GFM_EXPORT
 void *cmark_mem_realloc(cmark_mem *mem, void *ptr, size_t size) CMARK_MALLOC_TYPED(cmark_mem_realloc_typed, 3);

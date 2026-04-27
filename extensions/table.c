@@ -223,7 +223,7 @@ static int increment_cell_rowspan(cmark_node *node) {
 
 static cmark_strbuf *unescape_pipes(cmark_mem *mem, unsigned char *string, bufsize_t len)
 {
-  cmark_strbuf *res = CMARK_MALLOC(mem, cmark_strbuf);
+  cmark_strbuf *res = CMARK_CALLOC_ONE(mem, cmark_strbuf);
   bufsize_t r, w;
 
   cmark_strbuf_init(mem, res, len + 1);
@@ -280,7 +280,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
   int row_end_offset = 0;
   int int_overflow_abort = 0;
 
-  row = CMARK_MALLOC(parser->mem, table_row);
+  row = CMARK_CALLOC_ONE(parser->mem, table_row);
   row->n_columns = 0;
   row->cells = NULL;
 
@@ -320,7 +320,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
         --cell->start_offset;
         ++cell->internal_offset;
       }
-      cell->cell_data = CMARK_MALLOC(parser->mem, node_cell_data);
+      cell->cell_data = CMARK_CALLOC_ONE(parser->mem, node_cell_data);
 
       if (parser->options & CMARK_OPT_TABLE_SPANS) {
         // Check for a column-spanning cell
@@ -491,7 +491,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   }
 
   cmark_node_set_syntax_extension(parent_container, self);
-  parent_container->as.opaque = CMARK_MALLOC(parser->mem, node_table);
+  parent_container->as.opaque = CMARK_CALLOC_ONE(parser->mem, node_table);
   set_n_table_columns(parent_container, header_row->n_columns);
 
   // allocate alignments based on delimiter_row->n_columns
@@ -518,7 +518,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   table_header->end_column = parent_container->start_column + (int)strlen(parent_string) - 2;
   table_header->start_line = table_header->end_line = parent_container->start_line;
 
-  table_header->as.opaque = ntr = CMARK_MALLOC(parser->mem, node_table_row);
+  table_header->as.opaque = ntr = CMARK_CALLOC_ONE(parser->mem, node_table_row);
   ntr->is_header = true;
 
   for (i = 0; i < header_row->n_columns; ++i) {
@@ -565,7 +565,7 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
                              parent_container->start_column);
   cmark_node_set_syntax_extension(table_row_block, self);
   table_row_block->end_column = parent_container->end_column;
-  table_row_block->as.opaque = CMARK_MALLOC(parser->mem, node_table_row);
+  table_row_block->as.opaque = CMARK_CALLOC_ONE(parser->mem, node_table_row);
 
   row = row_from_string(self, parser, input + cmark_parser_get_first_nonspace(parser),
       len - cmark_parser_get_first_nonspace(parser));
@@ -1033,11 +1033,11 @@ static void html_render(cmark_syntax_extension *extension,
 
 static void opaque_alloc(cmark_syntax_extension *self, cmark_mem *mem, cmark_node *node) {
   if (node->type == CMARK_NODE_TABLE) {
-    node->as.opaque = CMARK_MALLOC(mem, node_table);
+    node->as.opaque = CMARK_CALLOC_ONE(mem, node_table);
   } else if (node->type == CMARK_NODE_TABLE_ROW) {
-    node->as.opaque = CMARK_MALLOC(mem, node_table_row);
+    node->as.opaque = CMARK_CALLOC_ONE(mem, node_table_row);
   } else if (node->type == CMARK_NODE_TABLE_CELL) {
-    node->as.opaque = CMARK_MALLOC(mem, node_cell_data);
+    node->as.opaque = CMARK_CALLOC_ONE(mem, node_cell_data);
   }
 }
 

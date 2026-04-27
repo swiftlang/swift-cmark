@@ -13,7 +13,7 @@ cmark_iter *cmark_iter_new(cmark_node *root) {
     return NULL;
   }
   cmark_mem *mem = root->content.mem;
-  cmark_iter *iter = CMARK_MALLOC(mem, cmark_iter);
+  cmark_iter *iter = CMARK_CALLOC_ONE(mem, cmark_iter);
   iter->mem = mem;
   iter->root = root;
   iter->cur.ev_type = CMARK_EVENT_NONE;

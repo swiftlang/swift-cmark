@@ -122,7 +122,7 @@ void cmark_map_free(cmark_map *map) {
 }
 
 cmark_map *cmark_map_new(cmark_mem *mem, cmark_map_free_f free) {
-  cmark_map *map = CMARK_MALLOC(mem, cmark_map);
+  cmark_map *map = CMARK_CALLOC_ONE(mem, cmark_map);
   map->mem = mem;
   map->free = free;
   map->max_ref_size = UINT_MAX;

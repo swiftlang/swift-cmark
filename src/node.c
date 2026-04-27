@@ -126,7 +126,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
 }
 
 cmark_node *cmark_node_new_with_mem_and_ext(cmark_node_type type, cmark_mem *mem, cmark_syntax_extension *extension) {
-  cmark_node *node = CMARK_MALLOC(mem, cmark_node);
+  cmark_node *node = CMARK_CALLOC_ONE(mem, cmark_node);
   cmark_strbuf_init(mem, &node->content, 0);
   node->type = (uint16_t)type;
   node->extension = extension;

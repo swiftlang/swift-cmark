@@ -30,7 +30,7 @@ void cmark_reference_create(cmark_map *map, cmark_chunk *label,
 
   assert(map->sorted == NULL);
 
-  ref = CMARK_MALLOC(map->mem, cmark_reference);
+  ref = CMARK_CALLOC_ONE(map->mem, cmark_reference);
   ref->entry.label = reflabel;
   ref->is_attributes_reference = false;
   ref->url = cmark_clean_url(map->mem, url);
@@ -55,7 +55,7 @@ void cmark_reference_create_attributes(cmark_map *map, cmark_chunk *label,
 
   assert(map->sorted == NULL);
 
-  ref = CMARK_MALLOC(map->mem, cmark_reference);
+  ref = CMARK_CALLOC_ONE(map->mem, cmark_reference);
   ref->entry.label = reflabel;
   ref->is_attributes_reference = true;
   ref->url = cmark_chunk_literal("");

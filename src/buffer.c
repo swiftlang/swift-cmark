@@ -151,7 +151,7 @@ unsigned char *cmark_strbuf_detach(cmark_strbuf *buf) {
 
   if (buf->asize == 0) {
     /* return an empty string */
-    return CMARK_MALLOC(buf->mem, unsigned char);
+    return CMARK_CALLOC_ONE(buf->mem, unsigned char);
   }
 
   cmark_strbuf_init(buf->mem, buf, 0);

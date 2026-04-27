@@ -84,7 +84,7 @@ static cmark_node *make_block(cmark_mem *mem, cmark_node_type tag,
                               int start_line, int start_column) {
   cmark_node *e;
 
-  e = CMARK_MALLOC(mem, cmark_node);
+  e = CMARK_CALLOC_ONE(mem, cmark_node);
   cmark_strbuf_init(mem, &e->content, 32);
   e->type = (uint16_t)tag;
   e->flags = CMARK_NODE__OPEN;
@@ -161,7 +161,7 @@ static void cmark_parser_reset(cmark_parser *parser) {
 }
 
 cmark_parser *cmark_parser_new_with_mem(int options, cmark_mem *mem) {
-  cmark_parser *parser = CMARK_MALLOC(mem, cmark_parser);
+  cmark_parser *parser = CMARK_CALLOC_ONE(mem, cmark_parser);
   parser->mem = mem;
   parser->options = options;
   cmark_set_default_skip_chars(&parser->skip_chars, false);
@@ -538,7 +538,7 @@ static void process_footnotes(cmark_parser *parser) {
 
         cur->as.literal = cmark_chunk_buf_detach(&buf);
       } else {
-        cmark_node *text = CMARK_MALLOC(parser->mem, cmark_node);
+        cmark_node *text = CMARK_CALLOC_ONE(parser->mem, cmark_node);
         cmark_strbuf_init(parser->mem, &text->content, 0);
         text->type = (uint16_t) CMARK_NODE_TEXT;
 
@@ -604,7 +604,7 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
       }
     }
 
-    data = CMARK_MALLOC(mem, cmark_list);
+    data = CMARK_CALLOC_ONE(mem, cmark_list);
     data->marker_offset = 0; // will be adjusted later
     data->list_type = CMARK_BULLET_LIST;
     data->bullet_char = c;
@@ -644,7 +644,7 @@ static bufsize_t parse_list_marker(cmark_mem *mem, cmark_chunk *input,
         }
       }
 
-      data = CMARK_MALLOC(mem, cmark_list);
+      data = CMARK_CALLOC_ONE(mem, cmark_list);
       data->marker_offset = 0; // will be adjusted later
       data->list_type = CMARK_ORDERED_LIST;
       data->bullet_char = 0;

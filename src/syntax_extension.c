@@ -22,7 +22,7 @@ void cmark_syntax_extension_free(cmark_mem *mem, cmark_syntax_extension *extensi
 }
 
 cmark_syntax_extension *cmark_syntax_extension_new(const char *name) {
-  cmark_syntax_extension *res = CMARK_MALLOC(_mem, cmark_syntax_extension);
+  cmark_syntax_extension *res = CMARK_CALLOC_ONE(_mem, cmark_syntax_extension);
   size_t size = strlen(name) + 1;
   res->name = CMARK_CALLOC(_mem, char, size);
 #if defined(_WIN32)

@@ -5,7 +5,7 @@
 
 cmark_llist *cmark_llist_append(cmark_mem *mem, cmark_llist *head, void *data) {
   cmark_llist *tmp;
-  cmark_llist *new_node = CMARK_MALLOC(mem, cmark_llist);
+  cmark_llist *new_node = CMARK_CALLOC_ONE(mem, cmark_llist);
 
   new_node->data = data;
   new_node->next = NULL;
