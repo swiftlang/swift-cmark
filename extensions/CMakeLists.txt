@@ -29,6 +29,11 @@ install(TARGETS libcmark-gfm-extensions
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if(MSVC)
+  install(FILES $<TARGET_FILE_DIR:libcmark-gfm-extensions>/$<TARGET_FILE_BASE_NAME:libcmark-gfm-extensions>.pdb
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    OPTIONAL)
+endif()
 install(FILES
   include/cmark-gfm-core-extensions.h
   include/module.modulemap
