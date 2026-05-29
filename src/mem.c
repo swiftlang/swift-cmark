@@ -29,14 +29,4 @@ void *cmark_mem_realloc_typed(cmark_mem *mem, void *ptr, size_t size, cmark_mall
   return mem->realloc(ptr, size);
 }
 
-#else
-
-void *cmark_mem_calloc_typed(cmark_mem *mem, size_t count, size_t size, cmark_malloc_type_id type_id) {
-  return cmark_mem_calloc(mem, count, size);
-}
-
-void *cmark_mem_realloc_typed(cmark_mem *mem, void *ptr, size_t size, cmark_malloc_type_id type_id) {
-  return cmark_mem_realloc(mem, ptr, size);
-}
-
 #endif

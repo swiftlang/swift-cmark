@@ -9,10 +9,8 @@ extern "C" {
 #endif
 
 #if defined(_MALLOC_TYPE_ENABLED) && _MALLOC_TYPE_ENABLED
-# define CMARK_MALLOC_TYPED(F,N) _MALLOC_TYPED(F,N)
-#else
-# define CMARK_MALLOC_TYPED(F,N)
-#endif
+
+#define CMARK_MALLOC_TYPED(F,N) _MALLOC_TYPED(F,N)
 
 CMARK_GFM_EXPORT
 void *cmark_mem_calloc_typed(cmark_mem *mem, size_t count, size_t size, cmark_malloc_type_id type_id);
@@ -23,6 +21,10 @@ CMARK_GFM_EXPORT
 void *cmark_mem_realloc_typed(cmark_mem *mem, void *ptr, size_t size, cmark_malloc_type_id type_id);
 
 #define cmark_mem_realloc_typed_backdeploy cmark_mem_realloc_typed
+
+#else
+# define CMARK_MALLOC_TYPED(F,N)
+#endif
 
 CMARK_GFM_EXPORT
 void *cmark_mem_calloc(cmark_mem *mem, size_t count, size_t size) CMARK_MALLOC_TYPED(cmark_mem_calloc_typed, 3);
