@@ -1619,8 +1619,7 @@ static void cjk_emphasis(test_batch_runner *runner) {
     "<p>“︁Git”︁<strong>Hub</strong></p>\n";
 
   cmark_gfm_core_extensions_ensure_registered();
-  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
-  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("cjk_friendly_emphasis"));
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_CJK_FRIENDLY_EMPHASIS);
   cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
   cmark_node *doc = cmark_parser_finish(parser);
 
@@ -1702,8 +1701,7 @@ static void cjk_emoji_emphasis(test_batch_runner *runner) {
     "<p>テスト⌛<strong>テスト</strong>？テスト</p>\n";
 
   cmark_gfm_core_extensions_ensure_registered();
-  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
-  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("cjk_friendly_emphasis"));
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_CJK_FRIENDLY_EMPHASIS);
   cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
   cmark_node *doc = cmark_parser_finish(parser);
 
@@ -1723,9 +1721,8 @@ static void cjk_strikethrough_emphasis(test_batch_runner *runner) {
     "<p><del>テスト。</del>テスト</p>\n";
 
   cmark_gfm_core_extensions_ensure_registered();
-  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_CJK_FRIENDLY_EMPHASIS);
   cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("strikethrough"));
-  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("cjk_friendly_emphasis"));
   cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
   cmark_node *doc = cmark_parser_finish(parser);
 

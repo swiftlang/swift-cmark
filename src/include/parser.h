@@ -56,7 +56,7 @@ struct cmark_parser {
   /* used when parsing inlines, can be populated by extensions if any are loaded */
   int8_t *skip_chars;
   int8_t *special_chars;
-  /* set to true when the cjk_friendly_emphasis extension is attached */
+  /* set to true when CMARK_OPT_CJK_FRIENDLY_EMPHASIS is enabled */
   bool cjk_friendly_emphasis;
 };
 

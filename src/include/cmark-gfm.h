@@ -828,6 +828,10 @@ char *cmark_render_latex_with_mem(cmark_node *root, int options, int width, cmar
  */
 #define CMARK_OPT_TABLE_ROWSPAN_DITTO (1 << 21)
 
+/** Use CJK-friendly flanking rules for emphasis delimiters.
+ */
+#define CMARK_OPT_CJK_FRIENDLY_EMPHASIS (1 << 22)
+
 /**
  * ## Version information
  */

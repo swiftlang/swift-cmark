@@ -381,12 +381,6 @@ void cmark_syntax_extension_set_commonmark_escape_func(cmark_syntax_extension *e
 /** See the documentation for 'cmark_syntax_extension'
  */
 CMARK_GFM_EXPORT
-void cmark_syntax_extension_set_cjk_friendly_emphasis(cmark_syntax_extension *extension,
-                                                      bool cjk_friendly_emphasis);
-
-/** See the documentation for 'cmark_syntax_extension'
- */
-CMARK_GFM_EXPORT
 void cmark_syntax_extension_set_private(cmark_syntax_extension *extension,
                                         void *priv,
                                         cmark_free_func free_func);

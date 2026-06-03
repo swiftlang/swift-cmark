@@ -69,6 +69,7 @@ void print_usage() {
          "                                  row span in tables instead of a caret.\n");
   printf("  --full-info-string              Include remainder of code block info\n"
          "                                  string in a separate attribute.\n");
+  printf("  --cjk-friendly-emphasis         Use CJK-friendly emphasis flanking rules\n");
   printf("  --help, -h       Print usage information\n");
   printf("  --version        Print version\n");
 }
@@ -170,6 +171,8 @@ int main(int argc, char *argv[]) {
       goto success;
     } else if (strcmp(argv[i], "--full-info-string") == 0) {
       options |= CMARK_OPT_FULL_INFO_STRING;
+    } else if (strcmp(argv[i], "--cjk-friendly-emphasis") == 0) {
+      options |= CMARK_OPT_CJK_FRIENDLY_EMPHASIS;
     } else if (strcmp(argv[i], "--table-prefer-style-attributes") == 0) {
       options |= CMARK_OPT_TABLE_PREFER_STYLE_ATTRIBUTES;
     } else if (strcmp(argv[i], "--table-spans") == 0) {

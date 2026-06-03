@@ -1,6 +1,5 @@
 add_library(libcmark-gfm-extensions
   autolink.c
-  cjk_friendly_emphasis.c
   core-extensions.c
   ext_scanners.c
   ext_scanners.h
