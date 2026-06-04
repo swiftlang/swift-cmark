@@ -7,7 +7,6 @@
 #include "cmark-gfm.h"
 #include "buffer.h"
 #include "cmark_ctype.h"
-#include "mem.h"
 
 #define CMARK_CHUNK_EMPTY                                                      \
   { NULL, 0, 0 }
@@ -20,7 +19,7 @@ typedef struct cmark_chunk {
 
 static inline void cmark_chunk_free(cmark_mem *mem, cmark_chunk *c) {
   if (c->alloc)
-    cmark_mem_free(mem, c->data);
+    mem->free(c->data);
 
   c->data = NULL;
   c->alloc = 0;
@@ -65,7 +64,7 @@ static inline const char *cmark_chunk_to_cstr(cmark_mem *mem, cmark_chunk *c) {
   if (c->alloc) {
     return (char *)c->data;
   }
-  str = CMARK_CALLOC(mem, unsigned char, c->len + 1);
+  str = (unsigned char *)mem->calloc(c->len + 1, 1);
   if (c->len > 0) {
     memcpy(str, c->data, c->len);
   }
@@ -85,12 +84,12 @@ static inline void cmark_chunk_set_cstr(cmark_mem *mem, cmark_chunk *c,
     c->alloc = 0;
   } else {
     c->len = (bufsize_t)strlen(str);
-    c->data = CMARK_CALLOC(mem, unsigned char, c->len + 1);
+    c->data = (unsigned char *)mem->calloc(c->len + 1, 1);
     c->alloc = 1;
     memcpy(c->data, str, c->len + 1);
   }
   if (old != NULL) {
-    cmark_mem_free(mem, old);
+    mem->free(old);
   }
 }
 
