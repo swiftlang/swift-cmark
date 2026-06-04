@@ -22,6 +22,7 @@ add_library(libcmark-gfm
   linked_list.c
   man.c
   map.c
+  mem.c
   node.c
   plaintext.c
   plugin.c
@@ -81,6 +82,7 @@ install(FILES
   include/inlines.h
   include/iterator.h
   include/map.h
+  include/mem.h
   include/node.h
   include/parser.h
   include/plugin.h
