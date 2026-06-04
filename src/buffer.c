@@ -10,7 +10,6 @@
 #include "cmark-gfm_config.h"
 #include "cmark_ctype.h"
 #include "buffer.h"
-#include "mem.h"
 
 /* Used as default value for cmark_strbuf->ptr so that people can always
  * assume ptr is non-NULL and zero terminated even for new cmark_strbufs.
@@ -55,8 +54,8 @@ void cmark_strbuf_grow(cmark_strbuf *buf, bufsize_t target_size) {
   new_size += 1;
   new_size = (new_size + 7) & ~7;
 
-  unsigned char *ptr = buf->asize ? buf->ptr : NULL;
-  buf->ptr = CMARK_REALLOC(buf->mem, ptr, unsigned char, new_size);
+  buf->ptr = (unsigned char *)buf->mem->realloc(buf->asize ? buf->ptr : NULL,
+                                                new_size);
   buf->asize = new_size;
 }
 
@@ -67,7 +66,7 @@ void cmark_strbuf_free(cmark_strbuf *buf) {
     return;
 
   if (buf->ptr != cmark_strbuf__initbuf)
-    cmark_mem_free(buf->mem, buf->ptr);
+    buf->mem->free(buf->ptr);
 
   cmark_strbuf_init(buf->mem, buf, 0);
 }
@@ -151,7 +150,7 @@ unsigned char *cmark_strbuf_detach(cmark_strbuf *buf) {
 
   if (buf->asize == 0) {
     /* return an empty string */
-    return CMARK_CALLOC_ONE(buf->mem, unsigned char);
+    return (unsigned char *)buf->mem->calloc(1, 1);
   }
 
   cmark_strbuf_init(buf->mem, buf, 0);

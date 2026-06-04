@@ -12,7 +12,6 @@
 #include "strikethrough.h"
 #include "table.h"
 #include "cmark-gfm-core-extensions.h"
-#include "mem.h"
 
 // Limit to prevent a malicious input from causing a denial of service.
 #define MAX_AUTOCOMPLETED_CELLS 0x80000
@@ -53,16 +52,16 @@ typedef struct {
 
 static void free_table_cell(cmark_mem *mem, node_cell *cell) {
   cmark_strbuf_free((cmark_strbuf *)cell->buf);
-  cmark_mem_free(mem, cell->buf);
+  mem->free(cell->buf);
   if (cell->cell_data)
-    cmark_mem_free(mem, cell->cell_data);
+    mem->free(cell->cell_data);
 }
 
 static void free_row_cells(cmark_mem *mem, table_row *row) {
   while (row->n_columns > 0) {
     free_table_cell(mem, &row->cells[--row->n_columns]);
   }
-  cmark_mem_free(mem, row->cells);
+  mem->free(row->cells);
   row->cells = NULL;
 }
 
@@ -71,21 +70,21 @@ static void free_table_row(cmark_mem *mem, table_row *row) {
     return;
 
   free_row_cells(mem, row);
-  cmark_mem_free(mem, row);
+  mem->free(row);
 }
 
 static void free_node_table(cmark_mem *mem, void *ptr) {
   node_table *t = (node_table *)ptr;
-  cmark_mem_free(mem, t->alignments);
-  cmark_mem_free(mem, t);
+  mem->free(t->alignments);
+  mem->free(t);
 }
 
 static void free_node_table_row(cmark_mem *mem, void *ptr) {
-  cmark_mem_free(mem, ptr);
+  mem->free(ptr);
 }
 
 static void free_node_table_cell_data(cmark_mem *mem, void *data) {
-  cmark_mem_free(mem, data);
+  mem->free(data);
 }
 
 static int get_n_table_columns(cmark_node *node) {
@@ -223,7 +222,7 @@ static int increment_cell_rowspan(cmark_node *node) {
 
 static cmark_strbuf *unescape_pipes(cmark_mem *mem, unsigned char *string, bufsize_t len)
 {
-  cmark_strbuf *res = CMARK_CALLOC_ONE(mem, cmark_strbuf);
+  cmark_strbuf *res = (cmark_strbuf *)mem->calloc(1, sizeof(cmark_strbuf));
   bufsize_t r, w;
 
   cmark_strbuf_init(mem, res, len + 1);
@@ -254,7 +253,7 @@ static node_cell* append_row_cell(cmark_mem *mem, table_row *row) {
       return NULL;
     }
     // Use realloc to double the size of the buffer.
-    row->cells = CMARK_REALLOC(mem, row->cells, node_cell, 2 * n_columns - 1);
+    row->cells = (node_cell *)mem->realloc(row->cells, (2 * n_columns - 1) * sizeof(node_cell));
   }
   row->n_columns = (uint16_t)n_columns;
   return &row->cells[n_columns-1];
@@ -280,7 +279,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
   int row_end_offset = 0;
   int int_overflow_abort = 0;
 
-  row = CMARK_CALLOC_ONE(parser->mem, table_row);
+  row = (table_row *)parser->mem->calloc(1, sizeof(table_row));
   row->n_columns = 0;
   row->cells = NULL;
 
@@ -305,7 +304,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
       if (!cell) {
         int_overflow_abort = 1;
         cmark_strbuf_free(cell_buf);
-        cmark_mem_free(parser->mem, cell_buf);
+        parser->mem->free(cell_buf);
         break;
       }
       cell->buf = cell_buf;
@@ -320,7 +319,7 @@ static table_row *row_from_string(cmark_syntax_extension *self,
         --cell->start_offset;
         ++cell->internal_offset;
       }
-      cell->cell_data = CMARK_CALLOC_ONE(parser->mem, node_cell_data);
+      cell->cell_data = (node_cell_data *)parser->mem->calloc(1, sizeof(node_cell_data));
 
       if (parser->options & CMARK_OPT_TABLE_SPANS) {
         // Check for a column-spanning cell
@@ -412,10 +411,10 @@ static void try_inserting_table_header_paragraph(cmark_parser *parser,
   cmark_strbuf_trim(paragraph_content);
   cmark_node_set_string_content(paragraph, (char *) paragraph_content->ptr);
   cmark_strbuf_free(paragraph_content);
-  cmark_mem_free(parser->mem, paragraph_content);
+  parser->mem->free(paragraph_content);
 
   if (!cmark_node_insert_before(parent_container, paragraph)) {
-    cmark_mem_free(parser->mem, paragraph);
+    parser->mem->free(paragraph);
   }
 }
 
@@ -491,13 +490,13 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   }
 
   cmark_node_set_syntax_extension(parent_container, self);
-  parent_container->as.opaque = CMARK_CALLOC_ONE(parser->mem, node_table);
+  parent_container->as.opaque = parser->mem->calloc(1, sizeof(node_table));
   set_n_table_columns(parent_container, header_row->n_columns);
 
   // allocate alignments based on delimiter_row->n_columns
   // since we populate the alignments array based on delimiter_row->cells
   uint8_t *alignments =
-        CMARK_CALLOC(parser->mem, uint8_t, delimiter_row->n_columns);
+      (uint8_t *)parser->mem->calloc(delimiter_row->n_columns, sizeof(uint8_t));
   for (i = 0; i < delimiter_row->n_columns; ++i) {
     node_cell *node = &delimiter_row->cells[i];
     bool left = node->buf->ptr[0] == ':', right = node->buf->ptr[node->buf->size - 1] == ':';
@@ -518,7 +517,7 @@ static cmark_node *try_opening_table_header(cmark_syntax_extension *self,
   table_header->end_column = parent_container->start_column + (int)strlen(parent_string) - 2;
   table_header->start_line = table_header->end_line = parent_container->start_line;
 
-  table_header->as.opaque = ntr = CMARK_CALLOC_ONE(parser->mem, node_table_row);
+  table_header->as.opaque = ntr = (node_table_row *)parser->mem->calloc(1, sizeof(node_table_row));
   ntr->is_header = true;
 
   for (i = 0; i < header_row->n_columns; ++i) {
@@ -565,7 +564,7 @@ static cmark_node *try_opening_table_row(cmark_syntax_extension *self,
                              parent_container->start_column);
   cmark_node_set_syntax_extension(table_row_block, self);
   table_row_block->end_column = parent_container->end_column;
-  table_row_block->as.opaque = CMARK_CALLOC_ONE(parser->mem, node_table_row);
+  table_row_block->as.opaque = parser->mem->calloc(1, sizeof(node_table_row));
 
   row = row_from_string(self, parser, input + cmark_parser_get_first_nonspace(parser),
       len - cmark_parser_get_first_nonspace(parser));
@@ -1033,11 +1032,11 @@ static void html_render(cmark_syntax_extension *extension,
 
 static void opaque_alloc(cmark_syntax_extension *self, cmark_mem *mem, cmark_node *node) {
   if (node->type == CMARK_NODE_TABLE) {
-    node->as.opaque = CMARK_CALLOC_ONE(mem, node_table);
+    node->as.opaque = mem->calloc(1, sizeof(node_table));
   } else if (node->type == CMARK_NODE_TABLE_ROW) {
-    node->as.opaque = CMARK_CALLOC_ONE(mem, node_table_row);
+    node->as.opaque = mem->calloc(1, sizeof(node_table_row));
   } else if (node->type == CMARK_NODE_TABLE_CELL) {
-    node->as.opaque = CMARK_CALLOC_ONE(mem, node_cell_data);
+    node->as.opaque = mem->calloc(1, sizeof(node_cell_data));
   }
 }
 
@@ -1107,7 +1106,7 @@ int cmark_gfm_extensions_set_table_columns(cmark_node *node, uint16_t n_columns)
 
 CMARK_GFM_EXPORT
 int cmark_gfm_extensions_set_table_alignments(cmark_node *node, uint16_t ncols, uint8_t *alignments) {
-  uint8_t *a = CMARK_CALLOC(cmark_node_mem(node), uint8_t, ncols);
+  uint8_t *a = (uint8_t *)cmark_node_mem(node)->calloc(1, ncols);
   memcpy(a, alignments, ncols);
   return set_table_alignments(node, a);
 }

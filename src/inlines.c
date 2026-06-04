@@ -14,7 +14,6 @@
 #include "scanners.h"
 #include "inlines.h"
 #include "syntax_extension.h"
-#include "mem.h"
 
 static const char *EMDASH = "\xE2\x80\x94";
 static const char *ENDASH = "\xE2\x80\x93";
@@ -98,7 +97,7 @@ static bufsize_t subject_find_special_char(cmark_parser *parser, subject *subj, 
 static inline cmark_node *make_literal(subject *subj, cmark_node_type t,
                                        int start_column, int end_column,
                                        cmark_chunk s) {
-  cmark_node *e = CMARK_CALLOC_ONE(subj->mem, cmark_node);
+  cmark_node *e = (cmark_node *)subj->mem->calloc(1, sizeof(*e));
   cmark_strbuf_init(subj->mem, &e->content, 0);
   e->type = (uint16_t)t;
   e->as.literal = s;
@@ -111,7 +110,7 @@ static inline cmark_node *make_literal(subject *subj, cmark_node_type t,
 
 // Create an inline with no value.
 static inline cmark_node *make_simple(cmark_mem *mem, cmark_node_type t) {
-  cmark_node *e = CMARK_CALLOC_ONE(mem, cmark_node);
+  cmark_node *e = (cmark_node *)mem->calloc(1, sizeof(*e));
   cmark_strbuf_init(mem, &e->content, 0);
   e->type = (uint16_t)t;
   return e;
@@ -155,7 +154,7 @@ static cmark_chunk chunk_clone(cmark_mem *mem, cmark_chunk *src) {
   bufsize_t len = src->len;
 
   c.len = len;
-  c.data = CMARK_CALLOC(mem, unsigned char, len + 1);
+  c.data = (unsigned char *)mem->calloc(len + 1, 1);
   c.alloc = 1;
   if (len)
     memcpy(c.data, src->data, len);
@@ -529,7 +528,7 @@ static void remove_delimiter(subject *subj, delimiter *delim) {
   if (delim->previous != NULL) {
     delim->previous->next = delim->next;
   }
-  cmark_mem_free(subj->mem, delim);
+  subj->mem->free(delim);
 }
 
 static void pop_bracket(subject *subj) {
@@ -538,12 +537,12 @@ static void pop_bracket(subject *subj) {
     return;
   b = subj->last_bracket;
   subj->last_bracket = subj->last_bracket->previous;
-  cmark_mem_free(subj->mem, b);
+  subj->mem->free(b);
 }
 
 static void push_delimiter(subject *subj, unsigned char c, bool can_open,
                            bool can_close, cmark_node *inl_text) {
-  delimiter *delim = CMARK_CALLOC_ONE(subj->mem, delimiter);
+  delimiter *delim = (delimiter *)subj->mem->calloc(1, sizeof(delimiter));
   delim->delim_char = c;
   delim->can_open = can_open;
   delim->can_close = can_close;
@@ -559,7 +558,7 @@ static void push_delimiter(subject *subj, unsigned char c, bool can_open,
 }
 
 static void push_bracket(subject *subj, bracket_type type, cmark_node *inl_text) {
-  bracket *b = CMARK_CALLOC_ONE(subj->mem, bracket);
+  bracket *b = (bracket *)subj->mem->calloc(1, sizeof(bracket));
   if (subj->last_bracket != NULL) {
     subj->last_bracket->bracket_after = true;
     memcpy(b->in_bracket, subj->last_bracket->in_bracket, sizeof(b->in_bracket));

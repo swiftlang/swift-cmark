@@ -11,7 +11,6 @@
 #include "syntax_extension.h"
 #include "parser.h"
 #include "registry.h"
-#include "mem.h"
 
 #include <cmark-gfm-core-extensions.h>
 
@@ -105,7 +104,7 @@ static bool print_document(cmark_node *document, writer_format writer,
     return false;
   }
   printf("%s", result);
-  cmark_mem_free(mem, result);
+  mem->free(result);
 
   return true;
 }

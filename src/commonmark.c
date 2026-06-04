@@ -13,7 +13,6 @@
 #include "scanners.h"
 #include "render.h"
 #include "syntax_extension.h"
-#include "mem.h"
 
 #define OUT(s, wrap, escaping) renderer->out(renderer, node, s, wrap, escaping)
 #define LIT(s) renderer->out(renderer, node, s, false, LITERAL)
@@ -475,11 +474,11 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
     if (entering) {
       LIT("[^");
 
-      char *footnote_label = CMARK_CALLOC(renderer->mem, char, node->parent_footnote_def->as.literal.len + 1);
+      char *footnote_label = renderer->mem->calloc(node->parent_footnote_def->as.literal.len + 1, sizeof(char));
       memmove(footnote_label, node->parent_footnote_def->as.literal.data, node->parent_footnote_def->as.literal.len);
 
       OUT(footnote_label, false, LITERAL);
-      cmark_mem_free(renderer->mem, footnote_label);
+      renderer->mem->free(footnote_label);
 
       LIT("]");
     }
@@ -490,11 +489,11 @@ static int S_render_node(cmark_renderer *renderer, cmark_node *node,
       renderer->footnote_ix += 1;
       LIT("[^");
 
-      char *footnote_label = CMARK_CALLOC(renderer->mem, char, node->as.literal.len + 1);
+      char *footnote_label = renderer->mem->calloc(node->as.literal.len + 1, sizeof(char));
       memmove(footnote_label, node->as.literal.data, node->as.literal.len);
 
       OUT(footnote_label, false, LITERAL);
-      cmark_mem_free(renderer->mem, footnote_label);
+      renderer->mem->free(footnote_label);
 
       LIT("]:\n");
 

@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include "export.h"
 #include "cmark-gfm_version.h"
 
@@ -107,12 +106,6 @@ typedef struct cmark_syntax_extension cmark_syntax_extension;
  * ## Custom memory allocator support
  */
 
-#if defined(_MALLOC_TYPE_ENABLED) && _MALLOC_TYPE_ENABLED
-typedef malloc_type_id_t cmark_malloc_type_id;
-#else
-typedef unsigned long long cmark_malloc_type_id;
-#endif
-
 /** Defines the memory allocation functions to be used by CMark
  * when parsing and allocating a document tree
  */
@@ -120,8 +113,6 @@ typedef struct cmark_mem {
   void *(*calloc)(size_t, size_t);
   void *(*realloc)(void *, size_t);
   void (*free)(void *);
-  void *(*calloc_typed)(size_t, size_t, cmark_malloc_type_id);
-  void *(*realloc_typed)(void *, size_t, cmark_malloc_type_id);
 } cmark_mem;
 
 /** The default memory allocator; uses the system's calloc,
