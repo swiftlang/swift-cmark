@@ -10,7 +10,8 @@
 
 #define START_TYPE_ALLOCATOR_IMPL \
   _Pragma("clang diagnostic push") \
-  _Pragma("clang diagnostic ignored \"-Wallocator-wrappers\"")
+  _Pragma("clang diagnostic ignored \"-Wallocator-wrappers\"") \
+  _Pragma("clang diagnostic ignored \"-Wunguarded-availability-new\"")
 #define END_TYPE_ALLOCATOR_IMPL \
   _Pragma("clang diagnostic pop")
 
