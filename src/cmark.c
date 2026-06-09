@@ -8,6 +8,15 @@
 #include "buffer.h"
 #include "mem.h"
 
+// When defining the allocator wrappers, ignore these two warnings:
+// - 'allocator-wrappers' because they were written with respect to the typed-memory-operations
+//   machinery, so the issue being reported is moot since we're able to generate type IDs here
+// - 'unguarded-availability-new' because while the access to the typed allocator functions is
+//   technically outside of a platform availability check (and the Swift toolchain builds
+//   swift-cmark with a deployment target before the introduction of these functions), the use of
+//   a weak import and null check handles the potentially unavailable API anyway. Adding a call to
+//   '__builtin_available' to sate the warning only complicates the implementation for no
+//   appreciable gain.
 #define START_TYPE_ALLOCATOR_IMPL \
   _Pragma("clang diagnostic push") \
   _Pragma("clang diagnostic ignored \"-Wallocator-wrappers\"") \
