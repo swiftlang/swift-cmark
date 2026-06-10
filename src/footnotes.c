@@ -3,16 +3,15 @@
 #include "footnotes.h"
 #include "inlines.h"
 #include "chunk.h"
-#include "mem.h"
 
 static void footnote_free(cmark_map *map, cmark_map_entry *_ref) {
   cmark_footnote *ref = (cmark_footnote *)_ref;
   cmark_mem *mem = map->mem;
   if (ref != NULL) {
-    cmark_mem_free(mem, ref->entry.label);
+    mem->free(ref->entry.label);
     if (ref->node)
       cmark_node_free(ref->node);
-    cmark_mem_free(mem, ref);
+    mem->free(ref);
   }
 }
 
@@ -26,7 +25,7 @@ void cmark_footnote_create(cmark_map *map, cmark_node *node) {
 
   assert(map->sorted == NULL);
 
-  ref = CMARK_CALLOC_ONE(map->mem, cmark_footnote);
+  ref = (cmark_footnote *)map->mem->calloc(1, sizeof(*ref));
   ref->entry.label = reflabel;
   ref->node = node;
   ref->entry.age = map->size;
