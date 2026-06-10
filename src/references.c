@@ -5,17 +5,16 @@
 #include "references.h"
 #include "inlines.h"
 #include "chunk.h"
-#include "mem.h"
 
 static void reference_free(cmark_map *map, cmark_map_entry *_ref) {
   cmark_reference *ref = (cmark_reference *)_ref;
   cmark_mem *mem = map->mem;
   if (ref != NULL) {
-    cmark_mem_free(mem, ref->entry.label);
+    mem->free(ref->entry.label);
     cmark_chunk_free(mem, &ref->url);
     cmark_chunk_free(mem, &ref->title);
     cmark_chunk_free(mem, &ref->attributes);
-    cmark_mem_free(mem, ref);
+    mem->free(ref);
   }
 }
 
@@ -30,7 +29,7 @@ void cmark_reference_create(cmark_map *map, cmark_chunk *label,
 
   assert(map->sorted == NULL);
 
-  ref = CMARK_CALLOC_ONE(map->mem, cmark_reference);
+  ref = (cmark_reference *)map->mem->calloc(1, sizeof(*ref));
   ref->entry.label = reflabel;
   ref->is_attributes_reference = false;
   ref->url = cmark_clean_url(map->mem, url);
@@ -55,7 +54,7 @@ void cmark_reference_create_attributes(cmark_map *map, cmark_chunk *label,
 
   assert(map->sorted == NULL);
 
-  ref = CMARK_CALLOC_ONE(map->mem, cmark_reference);
+  ref = (cmark_reference *)map->mem->calloc(1, sizeof(*ref));
   ref->entry.label = reflabel;
   ref->is_attributes_reference = true;
   ref->url = cmark_chunk_literal("");

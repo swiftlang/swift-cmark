@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "cmark-gfm_config.h"
-#include "mem.h"
 #include "mutex.h"
 #include "node.h"
 #include "syntax_extension.h"
@@ -126,7 +125,7 @@ static bool S_can_contain(cmark_node *node, cmark_node *child) {
 }
 
 cmark_node *cmark_node_new_with_mem_and_ext(cmark_node_type type, cmark_mem *mem, cmark_syntax_extension *extension) {
-  cmark_node *node = CMARK_CALLOC_ONE(mem, cmark_node);
+  cmark_node *node = (cmark_node *)mem->calloc(1, sizeof(*node));
   cmark_strbuf_init(mem, &node->content, 0);
   node->type = (uint16_t)type;
   node->extension = extension;
@@ -221,7 +220,7 @@ static void S_free_nodes(cmark_node *e) {
       e->next = e->first_child;
     }
     next = e->next;
-    cmark_mem_free(NODE_MEM(e), e);
+    NODE_MEM(e)->free(e);
     e = next;
   }
 }
