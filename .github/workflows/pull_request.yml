@@ -27,5 +27,5 @@ jobs:
       macos_pre_build_command: 'make test'
       macos_build_command: 'xcrun swift run api_test'
       linux_pre_build_command: 'make test'
-      linux_build_comand: 'swift run api_test'
+      linux_build_command: 'swift run api_test'
       windows_build_command: 'Invoke-Program swift run api_test'
