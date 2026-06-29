@@ -18,7 +18,7 @@ jobs:
     with:
       enable_macos_checks: true
       linux_swift_versions: '["nightly-main", "6.0"]'
-      windows_swift_versions: '["nightly-main", "6.0"]'
+      windows_swift_versions: '["nightly-main"]'
       # Tests in swift-cmark are generally added to the 'api_test' target, but the other CommonMark
       # and GFM tests are valuable and should be run as well. Run both sets (even though this runs
       # api_test twice) to ensure that the code both passes validity checks and can be build via
