@@ -1,0 +1,31 @@
+name: Pull request
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Test
+    uses: swiftlang/github-workflows/.github/workflows/swift_package_test.yml@0.0.12
+    with:
+      enable_macos_checks: true
+      linux_swift_versions: '["nightly-main", "6.0"]'
+      windows_swift_versions: '["nightly-main", "6.0"]'
+      # Tests in swift-cmark are generally added to the 'api_test' target, but the other CommonMark
+      # and GFM tests are valuable and should be run as well. Run both sets (even though this runs
+      # api_test twice) to ensure that the code both passes validity checks and can be build via
+      # both SwiftPM and CMake.
+      # Note that 'swift test' will fail on this repository as there are no test targets.
+      macos_pre_build_command: 'make test'
+      macos_build_command: 'xcrun swift run api_test'
+      linux_pre_build_command: 'make test'
+      linux_build_comand: 'swift run api_test'
+      windows_build_command: 'Invoke-Program swift run api_test'
