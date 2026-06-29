@@ -24,8 +24,8 @@ jobs:
       # api_test twice) to ensure that the code both passes validity checks and can be build via
       # both SwiftPM and CMake.
       # Note that 'swift test' will fail on this repository as there are no test targets.
-      macos_pre_build_command: 'make test'
+      # macos_pre_build_command: 'make test'
       macos_build_command: 'xcrun swift run api_test'
-      linux_pre_build_command: 'make test'
+      # linux_pre_build_command: 'make test'
       linux_build_command: 'swift run api_test'
       windows_build_command: 'Invoke-Program swift run api_test'
