@@ -31,7 +31,7 @@ jobs:
       linux_swift_versions: '["nightly-main"]'
       windows_swift_versions: '["nightly-main"]'
       macos_pre_build_command: './.github/scripts/prebuild.sh'
-      macos_build_command: 'make test'
+      macos_build_command: 'export PATH=$PATH:$RUNNER_TOOL_CACHE && make test'
       linux_pre_build_command: './.github/scripts/prebuild.sh'
       linux_build_command: 'make test'
       windows_pre_build_command: 'Invoke-Program .\.github\scripts\prebuild.ps1'
