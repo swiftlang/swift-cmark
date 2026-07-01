@@ -17,5 +17,8 @@ choco install -y make --no-progress
 Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
 refreshenv
 
+(Get-Command make).Path
+(Get-Command cmake).Path
+
 # Let swiftc find the path to link.exe in the CMake smoke test
 $env:Path += ";$(Split-Path -Path "$(& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" "-latest" -products Microsoft.VisualStudio.Product.BuildTools -find VC\Tools\MSVC\*\bin\HostX64\x64\link.exe)" -Parent)"
