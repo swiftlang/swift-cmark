@@ -11,7 +11,7 @@
 # winget isn't easily made available in containers, so use chocolatey
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
-choco install -y cmake --installargs 'ADD_CMAKE_TO_PATH=System' --apply-install-arguments-to-dependencies
+choco install -y cmake.portable
 choco install -y make
 
 Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
