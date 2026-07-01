@@ -35,4 +35,4 @@ jobs:
       linux_pre_build_command: './.github/scripts/prebuild.sh'
       linux_build_command: 'make test'
       windows_pre_build_command: 'Invoke-Program .\.github\scripts\prebuild.ps1'
-      windows_build_command: 'Invoke-Program make test'
+      windows_build_command: 'Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1 && refreshenv && Invoke-Program make test'
