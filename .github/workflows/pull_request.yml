@@ -27,6 +27,9 @@ jobs:
     name: Make tests
     uses: swiftlang/github-workflows/.github/workflows/swift_package_test.yml@0.0.12
     with:
+      # GNU Make on Windows can't find CMake when both are installed with chocolatey, so don't run
+      # the make tests on Windows
+      enable_windows_checks: false
       enable_macos_checks: true
       linux_swift_versions: '["nightly-main"]'
       windows_swift_versions: '["nightly-main"]'
@@ -34,5 +37,3 @@ jobs:
       macos_build_command: 'export PATH=$PATH:$RUNNER_TOOL_CACHE && make test'
       linux_pre_build_command: './.github/scripts/prebuild.sh'
       linux_build_command: 'make test'
-      windows_pre_build_command: 'Invoke-Program .\.github\scripts\prebuild.ps1'
-      windows_build_command: 'Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1 && refreshenv && Invoke-Program make test'
