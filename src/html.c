@@ -74,7 +74,7 @@ static bool S_put_footnote_backref(cmark_html_renderer *renderer, cmark_strbuf *
   cmark_strbuf_puts(html, m);
   cmark_strbuf_puts(html, "\" aria-label=\"Back to reference ");
   cmark_strbuf_puts(html, m);
-  cmark_strbuf_puts(html, "\xe2\x86\xa9</a>");
+  cmark_strbuf_puts(html, "\">\xe2\x86\xa9</a>");
 
   if (node->footnote.def_count > 1)
   {
