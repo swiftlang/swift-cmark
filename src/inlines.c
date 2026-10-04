@@ -490,8 +490,9 @@ static int scan_delims(cmark_parser *parser, subject *subj, unsigned char c,
     *can_close = right_flanking &&
                  (!left_flanking || cmark_utf8proc_is_punctuation(after_char));
   } else if (c == '\'' || c == '"') {
-    *can_open = left_flanking && !right_flanking &&
-	         before_char != ']' && before_char != ')';
+    *can_open = left_flanking &&
+         (!right_flanking || before_char == '(' || before_char == '[') &&
+         before_char != ']' && before_char != ')';
     *can_close = right_flanking;
   } else {
     *can_open = left_flanking;
@@ -1118,7 +1119,7 @@ static bufsize_t manual_scan_link_url_2(cmark_chunk *input, bufsize_t offset,
     }
   }
 
-  if (i >= input->len)
+  if (i >= input->len || nb_p != 0)
     return -1;
 
   {
