@@ -66,6 +66,11 @@ install(TARGETS cmark-gfm libcmark-gfm
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if(MSVC)
+  install(FILES $<TARGET_FILE_DIR:cmark-gfm>/$<TARGET_FILE_BASE_NAME:cmark-gfm>.pdb $<TARGET_FILE_DIR:libcmark-gfm>/$<TARGET_FILE_BASE_NAME:libcmark-gfm>.pdb
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    OPTIONAL)
+endif()
 install(FILES
   include/buffer.h
   include/chunk.h
