@@ -853,6 +853,13 @@ static cmark_node *handle_backslash(cmark_parser *parser, subject *subj) {
     advance(subj);
     return make_str(subj, subj->pos - 2, subj->pos - 1, cmark_chunk_dup(&subj->input, subj->pos - 1, 1));
   } else if (!is_eof(subj) && skip_line_end(subj)) {
+    // A hard line break: account for the consumed newline so that
+    // subsequent nodes get correct source positions, mirroring
+    // handle_newline below.
+    ++subj->line;
+    subj->column_offset = -subj->pos;
+    // skip spaces at beginning of line
+    skip_spaces(subj);
     return make_linebreak(subj->mem);
   } else {
     return make_str(subj, subj->pos - 1, subj->pos - 1, cmark_chunk_literal("\\"));
