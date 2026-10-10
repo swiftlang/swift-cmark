@@ -28,6 +28,25 @@ int cmark_utf8proc_is_space(int32_t uc);
 CMARK_GFM_EXPORT
 int cmark_utf8proc_is_punctuation(int32_t uc);
 
+/// Whether the given code point should be counted as CJK for the purpose of
+/// emphasis delimiter parsing.
+CMARK_GFM_EXPORT
+int cmark_utf8proc_is_cjk_character(int32_t uc);
+
+/// Whether the given code point should be counted as a "non-CJK punctuation
+/// character" for the purpose of emphasis delimiter parsing.
+CMARK_GFM_EXPORT
+int cmark_utf8proc_is_non_cjk_punctuation_character(int32_t uc);
+
+/// Whether the given code point is an Ideographic Variation Selector.
+CMARK_GFM_EXPORT
+int cmark_utf8proc_is_ideographic_variation_selector(int32_t uc);
+
+/// Whether the given code point is a Variation Selector other than the Emoji
+/// Presentation Selector.
+CMARK_GFM_EXPORT
+int cmark_utf8proc_is_non_emoji_general_use_variation_selector(int32_t uc);
+
 #ifdef __cplusplus
 }
 #endif
