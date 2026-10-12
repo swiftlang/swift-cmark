@@ -66,6 +66,7 @@ static delimiter *insert(cmark_syntax_extension *self, cmark_parser *parser,
     tmp = next;
   }
 
+  strikethrough->end_line = closer->inl_text->end_line;
   strikethrough->end_column = closer->inl_text->start_column + closer->inl_text->as.literal.len - 1;
   cmark_node_free(closer->inl_text);
 
