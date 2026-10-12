@@ -1447,6 +1447,40 @@ static void parser_interrupt(test_batch_runner *runner) {
   cmark_syntax_extension_free(cmark_get_default_mem_allocator(), my_ext);
 }
 
+static void strikethrough_multiline_sourcepos(test_batch_runner *runner) {
+  cmark_gfm_core_extensions_ensure_registered();
+
+  cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
+  cmark_parser_attach_syntax_extension(parser, cmark_find_syntax_extension("strikethrough"));
+
+  static const char markdown[] = "aaa\n~~bbb\nccc\nddd~~\neee\n";
+  cmark_parser_feed(parser, markdown, sizeof(markdown) - 1);
+
+  cmark_node *doc = cmark_parser_finish(parser);
+  char *xml = cmark_render_xml(doc, CMARK_OPT_DEFAULT | CMARK_OPT_SOURCEPOS);
+  STR_EQ(runner, xml, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+         "<!DOCTYPE document SYSTEM \"CommonMark.dtd\">\n"
+         "<document sourcepos=\"1:1-5:3\" xmlns=\"http://commonmark.org/xml/1.0\">\n"
+         "  <paragraph sourcepos=\"1:1-5:3\">\n"
+         "    <text sourcepos=\"1:1-1:3\" xml:space=\"preserve\">aaa</text>\n"
+         "    <softbreak />\n"
+         "    <strikethrough sourcepos=\"2:1-4:5\">\n"
+         "      <text sourcepos=\"2:3-2:5\" xml:space=\"preserve\">bbb</text>\n"
+         "      <softbreak />\n"
+         "      <text sourcepos=\"3:1-3:3\" xml:space=\"preserve\">ccc</text>\n"
+         "      <softbreak />\n"
+         "      <text sourcepos=\"4:1-4:3\" xml:space=\"preserve\">ddd</text>\n"
+         "    </strikethrough>\n"
+         "    <softbreak />\n"
+         "    <text sourcepos=\"5:1-5:3\" xml:space=\"preserve\">eee</text>\n"
+         "  </paragraph>\n"
+         "</document>\n",
+         "multiline strikethrough sourcepos ends on the closer's line");
+  free(xml);
+  cmark_node_free(doc);
+  cmark_parser_free(parser);
+}
+
 static void compare_table_spans_html(test_batch_runner *runner, const char *markdown, bool use_ditto,
                                      const char *expected_html, const char *msg) {
   int options = CMARK_OPT_TABLE_SPANS;
@@ -1637,6 +1671,7 @@ int main() {
   verify_custom_attributes_node(runner);
   verify_custom_attributes_node_with_footnote(runner);
   parser_interrupt(runner);
+  strikethrough_multiline_sourcepos(runner);
   table_spans(runner);
 
   test_print_summary(runner);
