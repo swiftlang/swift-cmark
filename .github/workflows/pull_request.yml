@@ -20,7 +20,7 @@ jobs:
       # Note that 'swift test' will fail on this repository as there are no test targets.
       macos_build_command: 'xcrun swift run api_test'
       linux_build_command: 'swift run api_test'
-      windows_swift_versions: '["6.3", "nightly-main"]'
+      windows_swift_versions: '["nightly-main"]'
       windows_build_command: 'Invoke-Program swift run api_test'
   make-tests:
     name: Make tests
