@@ -349,7 +349,8 @@ static bufsize_t scan_to_closing_backticks(subject *subj,
       numticks++;
     }
     // store position of ender
-    if (numticks <= MAXBACKTICKS) {
+    if (numticks <= MAXBACKTICKS &&
+        subj->backticks[numticks] < subj->pos - numticks) {
       subj->backticks[numticks] = subj->pos - numticks;
     }
     if (numticks == openticklength) {

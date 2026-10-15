@@ -373,3 +373,15 @@ Issue #424 - emphasis before links
 .
 <p><em>text</em> <a href="#section">link</a></p>
 ````````````````````````````````
+
+Issue commonmark/cmark#632 - code spans after an unmatched backtick string of a different length
+
+```````````````````````````````` example
+``x
+`i`
+`j`
+.
+<p>``x
+<code>i</code>
+<code>j</code></p>
+````````````````````````````````
