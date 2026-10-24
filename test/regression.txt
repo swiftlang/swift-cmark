@@ -237,6 +237,18 @@ Issue commonmark#526 - unescaped ( in link title
 <p>[link](url ((title))</p>
 ````````````````````````````````
 
+Issue commonmark.js#177 - Unbalanced parentheses in link URLs should not be parsed as links
+
+```````````````````````````````` example
+[link](/u(ri )
+[link](/u(ri
+)
+.
+<p>[link](/u(ri )
+[link](/u(ri
+)</p>
+````````````````````````````````
+
 Issue commonamrk#517 - script, pre, style close tag without
 opener.
 
