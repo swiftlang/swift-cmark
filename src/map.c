@@ -1,6 +1,7 @@
 #include "map.h"
 #include "utf8.h"
 #include "parser.h"
+#include "mem.h"
 
 // normalize map label:  collapse internal whitespace to single space,
 // remove leading/trailing whitespace, case fold
@@ -24,7 +25,7 @@ unsigned char *normalize_map_label(cmark_mem *mem, cmark_chunk *ref) {
   assert(result);
 
   if (result[0] == '\0') {
-    mem->free(result);
+    cmark_mem_free(mem, result);
     return NULL;
   }
 
@@ -54,7 +55,7 @@ static void sort_map(cmark_map *map) {
   size_t i = 0, last = 0, size = map->size;
   cmark_map_entry *r = map->refs, **sorted = NULL;
 
-  sorted = (cmark_map_entry **)map->mem->calloc(size, sizeof(cmark_map_entry *));
+  sorted = CMARK_CALLOC(map->mem, cmark_map_entry *, size);
   while (r) {
     sorted[i++] = r;
     r = r->next;
@@ -90,7 +91,7 @@ cmark_map_entry *cmark_map_lookup(cmark_map *map, cmark_chunk *label) {
     sort_map(map);
 
   ref = (cmark_map_entry **)bsearch(norm, map->sorted, map->size, sizeof(cmark_map_entry *), refsearch);
-  map->mem->free(norm);
+  cmark_mem_free(map->mem, norm);
 
   if (ref != NULL) {
     r = ref[0];
@@ -116,12 +117,12 @@ void cmark_map_free(cmark_map *map) {
     ref = next;
   }
 
-  map->mem->free(map->sorted);
-  map->mem->free(map);
+  cmark_mem_free(map->mem, map->sorted);
+  cmark_mem_free(map->mem, map);
 }
 
 cmark_map *cmark_map_new(cmark_mem *mem, cmark_map_free_f free) {
-  cmark_map *map = (cmark_map *)mem->calloc(1, sizeof(cmark_map));
+  cmark_map *map = CMARK_CALLOC_ONE(mem, cmark_map);
   map->mem = mem;
   map->free = free;
   map->max_ref_size = UINT_MAX;

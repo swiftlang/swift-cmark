@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "mem.h"
 #include "plugin.h"
 
 extern cmark_mem CMARK_DEFAULT_MEM_ALLOCATOR;
@@ -12,7 +13,7 @@ int cmark_plugin_register_syntax_extension(cmark_plugin    * plugin,
 
 cmark_plugin *
 cmark_plugin_new(void) {
-  cmark_plugin *res = (cmark_plugin *) CMARK_DEFAULT_MEM_ALLOCATOR.calloc(1, sizeof(cmark_plugin));
+  cmark_plugin *res = CMARK_CALLOC_ONE(&CMARK_DEFAULT_MEM_ALLOCATOR, cmark_plugin);
 
   res->syntax_extensions = NULL;
 
@@ -24,7 +25,7 @@ cmark_plugin_free(cmark_plugin *plugin) {
   cmark_llist_free_full(&CMARK_DEFAULT_MEM_ALLOCATOR,
                         plugin->syntax_extensions,
                         (cmark_free_func) cmark_syntax_extension_free);
-  CMARK_DEFAULT_MEM_ALLOCATOR.free(plugin);
+  cmark_mem_free(&CMARK_DEFAULT_MEM_ALLOCATOR, plugin);
 }
 
 cmark_llist *
